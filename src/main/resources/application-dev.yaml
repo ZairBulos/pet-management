@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/pet_management_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+
+  docker:
+    compose:
+      enabled: true
+
+springdotenv:
+  enabled: true
+  filename: .env.dev
