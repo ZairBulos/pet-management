@@ -1,4 +1,4 @@
-package com.petmanagement.pet_management;
+package com.petmanagement;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;

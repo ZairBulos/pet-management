@@ -1,4 +1,4 @@
-package com.petmanagement.pet_management;
+package com.petmanagement;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

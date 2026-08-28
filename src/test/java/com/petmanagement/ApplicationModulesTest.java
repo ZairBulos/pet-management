@@ -1,4 +1,4 @@
-package com.petmanagement.pet_management;
+package com.petmanagement;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.modulith.core.ApplicationModules;
