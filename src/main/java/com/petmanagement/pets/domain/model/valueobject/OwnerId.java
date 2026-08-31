@@ -1,15 +1,15 @@
 package com.petmanagement.pets.domain.model.valueobject;
 
-import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.ValueObject;
 
 import java.util.Objects;
 import java.util.UUID;
 
-@AggregateRoot
+@ValueObject
 public record OwnerId(UUID value) {
 
     public OwnerId {
-        Objects.requireNonNull(value, "The owner's ID cannot be null");
+        Objects.requireNonNull(value, "Owner's ID cannot be null");
     }
 
     public static OwnerId of(UUID value) {
