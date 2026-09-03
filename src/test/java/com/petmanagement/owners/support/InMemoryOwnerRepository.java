@@ -3,6 +3,7 @@ package com.petmanagement.owners.support;
 import com.petmanagement.owners.application.port.out.OwnerRepositoryPort;
 import com.petmanagement.owners.domain.model.aggregate.Owner;
 import com.petmanagement.owners.domain.model.valueobject.Email;
+import com.petmanagement.owners.domain.model.valueobject.OwnerId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,13 @@ import java.util.Optional;
 public class InMemoryOwnerRepository implements OwnerRepositoryPort {
 
     private final List<Owner> owners = new ArrayList<>();
+
+    @Override
+    public Optional<Owner> findById(OwnerId ownerId) {
+        return owners.stream()
+                .filter(owner -> owner.getId().equals(ownerId))
+                .findFirst();
+    }
 
     @Override
     public Optional<Owner> findByEmail(Email email) {
