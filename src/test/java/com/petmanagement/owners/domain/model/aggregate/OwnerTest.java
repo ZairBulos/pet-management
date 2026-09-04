@@ -49,17 +49,26 @@ class OwnerTest {
 
         @Test
         void shouldThrowWhenCreatingWithNullName() {
-            assertThrows(NullPointerException.class, () -> Owner.create(null, EMAIL, PHONE));
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Owner.create(null, EMAIL, PHONE)
+            );
         }
 
         @Test
         void shouldThrowWhenCreatingWithNullEmail() {
-            assertThrows(NullPointerException.class, () -> Owner.create(NAME, null, PHONE));
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Owner.create(NAME, null, PHONE)
+            );
         }
 
         @Test
         void shouldThrowWhenCreatingWithNullPhone() {
-            assertThrows(NullPointerException.class, () -> Owner.create(NAME, EMAIL, null));
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Owner.create(NAME, EMAIL, null)
+            );
         }
 
     }
@@ -109,10 +118,22 @@ class OwnerTest {
         }
 
         @Test
+        void shouldNotUpdateWithSameName() {
+            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var originalUpdatedAt = owner.getUpdatedAt();
+
+            owner.rename(NAME);
+
+            assertEquals(originalUpdatedAt, owner.getUpdatedAt());
+        }
+
+        @Test
         void shouldThrowWhenRenamingWithNullName() {
             var owner = Owner.create(NAME, EMAIL, PHONE);
 
-            assertThrows(NullPointerException.class, () -> owner.rename(null));
+            assertThrows(
+                    NullPointerException.class, () -> owner.rename(null)
+            );
         }
 
     }
@@ -131,10 +152,23 @@ class OwnerTest {
         }
 
         @Test
+        void shouldNotUpdateWithSameEmail() {
+            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var originalUpdatedAt = owner.getUpdatedAt();
+
+            owner.updateEmail(EMAIL);
+
+            assertEquals(originalUpdatedAt, owner.getUpdatedAt());
+        }
+
+        @Test
         void shouldThrowWhenUpdatingWithNullEmail() {
             var owner = Owner.create(NAME, EMAIL, PHONE);
 
-            assertThrows(NullPointerException.class, () -> owner.updateEmail(null));
+            assertThrows(
+                    NullPointerException.class,
+                    () -> owner.updateEmail(null)
+            );
         }
 
     }
@@ -153,10 +187,23 @@ class OwnerTest {
         }
 
         @Test
+        void shouldNotUpdateWithSamePhone() {
+            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var originalUpdatedAt = owner.getUpdatedAt();
+
+            owner.updatePhone(PHONE);
+
+            assertEquals(originalUpdatedAt, owner.getUpdatedAt());
+        }
+
+        @Test
         void shouldThrowWhenUpdatingWithNullPhone() {
             var owner = Owner.create(NAME, EMAIL, PHONE);
 
-            assertThrows(NullPointerException.class, () -> owner.updatePhone(null));
+            assertThrows(
+                    NullPointerException.class,
+                    () -> owner.updatePhone(null)
+            );
         }
 
     }
