@@ -59,17 +59,29 @@ public final class Owner {
 
     // === Business Operations ===
     public void rename(OwnerName newName) {
-        this.name = Objects.requireNonNull(newName, "The owner's name cannot be null");
+        Objects.requireNonNull(newName, "The owner's name cannot be null");
+
+        if (this.name.equals(newName)) return;
+
+        this.name = newName;
         touch();
     }
 
     public void updateEmail(Email newEmail) {
-        this.email = Objects.requireNonNull(newEmail, "The email cannot be null");
+        Objects.requireNonNull(newEmail, "The email cannot be null");
+
+        if (this.email.equals(newEmail)) return;
+
+        this.email = newEmail;
         touch();
     }
 
     public void updatePhone(PhoneNumber newPhone) {
-        this.phone = Objects.requireNonNull(newPhone, "The phone number cannot be null");
+        Objects.requireNonNull(newPhone, "The phone number cannot be null");
+
+        if (this.phone.equals(newPhone)) return;
+
+        this.phone = newPhone;
         touch();
     }
 
