@@ -1,13 +1,19 @@
 package com.petmanagement.health.domain.model.aggregate;
 
+import com.petmanagement.health.domain.event.VaccineCreated;
+import com.petmanagement.health.domain.event.VaccineRescheduled;
+import com.petmanagement.health.domain.event.VaccineUpdated;
 import com.petmanagement.health.domain.model.valueobject.NextDueDate;
 import com.petmanagement.health.domain.model.valueobject.PetId;
 import com.petmanagement.health.domain.model.valueobject.VaccineId;
 import com.petmanagement.health.domain.model.valueobject.VaccineName;
 import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.event.types.DomainEvent;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @AggregateRoot
@@ -20,6 +26,8 @@ public final class Vaccine {
     private NextDueDate nextDueDate;
     private final Instant createdAt;
     private Instant updatedAt;
+
+    private final List<DomainEvent> events = new ArrayList<>();
 
     private Vaccine(
             VaccineId id,
@@ -48,7 +56,7 @@ public final class Vaccine {
     ) {
         var now = Instant.now();
 
-        return new Vaccine(
+        var vaccine = new Vaccine(
                 VaccineId.generate(),
                 petId,
                 vaccinationDate,
@@ -57,6 +65,16 @@ public final class Vaccine {
                 now,
                 now
         );
+
+        vaccine.events.add(new VaccineCreated(
+                vaccine.id.value(),
+                petId.value(),
+                vaccineName.value(),
+                nextDueDate.value(),
+                now
+        ));
+
+        return vaccine;
     }
 
     public static Vaccine reconstitute(
@@ -76,11 +94,23 @@ public final class Vaccine {
         this.vaccinationDate = Objects.requireNonNull(newVaccinationDate, "Vaccination date cannot be null");
         this.vaccineName = Objects.requireNonNull(newVaccineName, "Vaccine name cannot be null");
         touch();
+
+        events.add(new VaccineUpdated(
+                id.value(),
+                newVaccineName.value(),
+                updatedAt
+        ));
     }
 
     public void reschedule(LocalDate newNextDueDate) {
         this.nextDueDate = NextDueDate.after(vaccinationDate, newNextDueDate);
         touch();
+
+        events.add(new VaccineRescheduled(
+                id.value(),
+                nextDueDate.value(),
+                updatedAt
+        ));
     }
 
     public long daysRemaining(LocalDate today) {
@@ -93,6 +123,13 @@ public final class Vaccine {
 
     private void touch() {
         this.updatedAt = Instant.now();
+    }
+
+    // === Events ===
+    public List<DomainEvent> pullEvents() {
+        var pendingEvents = List.copyOf(events);
+        events.clear();
+        return pendingEvents;
     }
 
     // === Getters ===
