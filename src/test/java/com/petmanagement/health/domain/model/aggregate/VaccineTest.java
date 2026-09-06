@@ -1,5 +1,8 @@
 package com.petmanagement.health.domain.model.aggregate;
 
+import com.petmanagement.health.domain.event.VaccineCreated;
+import com.petmanagement.health.domain.event.VaccineRescheduled;
+import com.petmanagement.health.domain.event.VaccineUpdated;
 import com.petmanagement.health.domain.model.valueobject.NextDueDate;
 import com.petmanagement.health.domain.model.valueobject.PetId;
 import com.petmanagement.health.domain.model.valueobject.VaccineId;
@@ -34,6 +37,15 @@ class VaccineTest {
             assertEquals(NEXT_DUE_DATE, vaccine.getNextDueDate());
             assertNotNull(vaccine.getCreatedAt());
             assertNotNull(vaccine.getUpdatedAt());
+        }
+
+        @Test
+        void shouldPublishVaccineCreatedEvent() {
+            var vaccine = Vaccine.create(PET_ID, VACCINATION_DATE, VACCINE_NAME, NEXT_DUE_DATE);
+            var events = vaccine.pullEvents();
+
+            assertEquals(1, events.size());
+            assertInstanceOf(VaccineCreated.class, events.getFirst());
         }
 
         @Test
@@ -193,6 +205,21 @@ class VaccineTest {
         }
 
         @Test
+        void shouldPublishVaccineUpdatedEvent() {
+            var vaccine = Vaccine.create(PET_ID, VACCINATION_DATE, VACCINE_NAME, NEXT_DUE_DATE);
+            vaccine.pullEvents();
+
+            var newVaccinationDate = LocalDate.of(2026, 10, 1);
+            var newVaccineName = new VaccineName("Distemper");
+
+            vaccine.update(newVaccinationDate, newVaccineName);
+            var events = vaccine.pullEvents();
+
+            assertEquals(1, events.size());
+            assertInstanceOf(VaccineUpdated.class, events.getFirst());
+        }
+
+        @Test
         void shouldThrowWhenUpdatingWithNullVaccinationDate() {
             var vaccine = Vaccine.create(PET_ID, VACCINATION_DATE, VACCINE_NAME, NEXT_DUE_DATE);
 
@@ -224,6 +251,20 @@ class VaccineTest {
             vaccine.reschedule(newNextDueDate);
 
             assertEquals(newNextDueDate, vaccine.getNextDueDate().value());
+        }
+
+        @Test
+        void shouldPublishVaccineRescheduledEvent() {
+            var vaccine = Vaccine.create(PET_ID, VACCINATION_DATE, VACCINE_NAME, NEXT_DUE_DATE);
+            vaccine.pullEvents();
+
+            var newNextDueDate = LocalDate.of(2028, 1, 1);
+
+            vaccine.reschedule(newNextDueDate);
+            var events = vaccine.pullEvents();
+
+            assertEquals(1, events.size());
+            assertInstanceOf(VaccineRescheduled.class, events.getFirst());
         }
 
         @Test
