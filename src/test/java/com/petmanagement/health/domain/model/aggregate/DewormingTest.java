@@ -1,5 +1,8 @@
 package com.petmanagement.health.domain.model.aggregate;
 
+import com.petmanagement.health.domain.event.DewormingCreated;
+import com.petmanagement.health.domain.event.DewormingRescheduled;
+import com.petmanagement.health.domain.event.DewormingUpdated;
 import com.petmanagement.health.domain.model.valueobject.*;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,6 +36,15 @@ class DewormingTest {
             assertEquals(NEXT_DUE_DATE, deworming.getNextDueDate());
             assertNotNull(deworming.getCreatedAt());
             assertNotNull(deworming.getUpdatedAt());
+        }
+
+        @Test
+        void shouldPublishDewormingCreatedEvent() {
+            var deworming = Deworming.create(PET_ID, DEWORMING_DATE, DRUG_NAME, DRUG_DOSE, NEXT_DUE_DATE);
+            var events = deworming.pullEvents();
+
+            assertEquals(1, events.size());
+            assertInstanceOf(DewormingCreated.class, events.getFirst());
         }
 
         @Test
@@ -213,6 +225,22 @@ class DewormingTest {
         }
 
         @Test
+        void shouldPublishDewormingUpdatedEvent() {
+            var deworming = Deworming.create(PET_ID, DEWORMING_DATE, DRUG_NAME, DRUG_DOSE, NEXT_DUE_DATE);
+            deworming.pullEvents();
+
+            var newDewormingDate = LocalDate.of(2026, 9, 15);
+            var newDrugName = new DrugName("Drontal");
+            var newDrugDose = new DrugDose("2 tablets");
+
+            deworming.update(newDewormingDate, newDrugName, newDrugDose);
+            var events = deworming.pullEvents();
+
+            assertEquals(1, events.size());
+            assertInstanceOf(DewormingUpdated.class, events.getFirst());
+        }
+
+        @Test
         void shouldThrowWhenUpdatingWithNullDewormingDate() {
             var deworming = Deworming.create(PET_ID, DEWORMING_DATE, DRUG_NAME, DRUG_DOSE, NEXT_DUE_DATE);
 
@@ -255,6 +283,20 @@ class DewormingTest {
             deworming.reschedule(newNextDueDate);
 
             assertEquals(newNextDueDate, deworming.getNextDueDate().value());
+        }
+
+        @Test
+        void shouldPublishDewormingRescheduledEvent() {
+            var deworming = Deworming.create(PET_ID, DEWORMING_DATE, DRUG_NAME, DRUG_DOSE, NEXT_DUE_DATE);
+            deworming.pullEvents();
+
+            var newNextDueDate = LocalDate.of(2027, 1, 1);
+
+            deworming.reschedule(newNextDueDate);
+            var events = deworming.pullEvents();
+
+            assertEquals(1, events.size());
+            assertInstanceOf(DewormingRescheduled.class, events.getFirst());
         }
 
         @Test
