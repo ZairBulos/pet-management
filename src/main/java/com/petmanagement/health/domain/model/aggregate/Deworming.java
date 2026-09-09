@@ -1,10 +1,16 @@
 package com.petmanagement.health.domain.model.aggregate;
 
+import com.petmanagement.health.domain.event.DewormingCreated;
+import com.petmanagement.health.domain.event.DewormingRescheduled;
+import com.petmanagement.health.domain.event.DewormingUpdated;
 import com.petmanagement.health.domain.model.valueobject.*;
 import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.event.types.DomainEvent;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @AggregateRoot
@@ -18,6 +24,8 @@ public final class Deworming {
     private NextDueDate nextDueDate;
     private final Instant createdAt;
     private Instant updatedAt;
+
+    private final List<DomainEvent> events = new ArrayList<>();
 
     private Deworming(
             DewormingId id,
@@ -49,7 +57,7 @@ public final class Deworming {
     ) {
         var now = Instant.now();
 
-        return new Deworming(
+        var deworming = new Deworming(
                 DewormingId.generate(),
                 petId,
                 dewormingDate,
@@ -59,6 +67,16 @@ public final class Deworming {
                 now,
                 now
         );
+
+        deworming.events.add(new DewormingCreated(
+                deworming.id.value(),
+                petId.value(),
+                drugName.value(),
+                nextDueDate.value(),
+                now
+        ));
+
+        return deworming;
     }
 
     public static Deworming reconstitute(
@@ -80,11 +98,23 @@ public final class Deworming {
         this.drugName = Objects.requireNonNull(newDrugName, "Drug name cannot be null");
         this.drugDose = Objects.requireNonNull(newDrugDose, "Drug dose cannot be null");
         touch();
+
+        events.add(new DewormingUpdated(
+                id.value(),
+                drugName.value(),
+                updatedAt
+        ));
     }
 
     public void reschedule(LocalDate newNextDueDate) {
         this.nextDueDate = NextDueDate.after(dewormingDate, newNextDueDate);
         touch();
+
+        events.add(new DewormingRescheduled(
+                id.value(),
+                nextDueDate.value(),
+                updatedAt
+        ));
     }
 
     public long daysRemaining(LocalDate today) {
@@ -97,6 +127,13 @@ public final class Deworming {
 
     private void touch() {
         this.updatedAt = Instant.now();
+    }
+
+    // === Events ===
+    public List<DomainEvent> pullEvents() {
+        var pendingEvents = List.copyOf(events);
+        events.clear();
+        return pendingEvents;
     }
 
     // === Getters ===
