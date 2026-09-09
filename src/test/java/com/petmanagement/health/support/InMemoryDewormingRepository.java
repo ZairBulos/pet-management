@@ -6,10 +6,18 @@ import com.petmanagement.health.domain.model.valueobject.DewormingId;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class InMemoryDewormingRepository implements DewormingRepositoryPort {
 
     private final Map<DewormingId, Deworming> dewormings = new HashMap<>();
+
+    @Override
+    public Optional<Deworming> findById(DewormingId dewormingId) {
+        return dewormings.values().stream()
+                .filter(deworming -> deworming.getId().equals(dewormingId))
+                .findFirst();
+    }
 
     @Override
     public void save(Deworming deworming) {
