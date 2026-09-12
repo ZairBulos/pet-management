@@ -7,9 +7,9 @@ import com.petmanagement.health.domain.model.valueobject.WeightRecordId;
 import java.time.LocalDate;
 
 public interface CreateWeightRecordUseCase {
-    WeightRecordId execute(CreateWeightRecord command);
+    WeightRecordId execute(CreateWeightRecordCommand command);
 
-    record CreateWeightRecord(
+    record CreateWeightRecordCommand(
             PetId petId,
             LocalDate weightDate,
             Weight weight

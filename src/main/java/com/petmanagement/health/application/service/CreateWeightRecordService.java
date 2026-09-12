@@ -20,7 +20,7 @@ class CreateWeightRecordService implements CreateWeightRecordUseCase {
     }
 
     @Override
-    public WeightRecordId execute(CreateWeightRecord command) {
+    public WeightRecordId execute(CreateWeightRecordCommand command) {
         var exists = petApi.existsById(command.petId().value());
 
         if (!exists)

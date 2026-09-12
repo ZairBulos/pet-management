@@ -34,7 +34,7 @@ class CreateWeightRecordServiceTest {
     void shouldCreateWeightRecord() {
         // Given
         var petId = PetId.of("fe127567-fc1a-47f6-a929-98aa26f957d7");
-        var command = new CreateWeightRecordUseCase.CreateWeightRecord(
+        var command = new CreateWeightRecordUseCase.CreateWeightRecordCommand(
                 petId,
                 LocalDate.now(),
                 Weight.of(5.5)
@@ -53,7 +53,7 @@ class CreateWeightRecordServiceTest {
     void shouldThrowWhenPetDoesNotExist() {
         // Given
         var petId = PetId.of("83899454-a505-4c52-ad77-721a2ae3e3c6");
-        var command = new CreateWeightRecordUseCase.CreateWeightRecord(
+        var command = new CreateWeightRecordUseCase.CreateWeightRecordCommand(
                 petId,
                 LocalDate.now(),
                 Weight.of(3.4)
