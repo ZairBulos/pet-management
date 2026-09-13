@@ -1,15 +1,13 @@
 package com.petmanagement.health.application.service;
 
-import com.petmanagement.health.application.port.in.CreateWeightRecordUseCase;
 import com.petmanagement.health.domain.exception.PetNotFoundException;
-import com.petmanagement.health.domain.model.valueobject.PetId;
-import com.petmanagement.health.domain.model.valueobject.Weight;
 import com.petmanagement.health.support.InMemoryWeightRecordRepository;
+import com.petmanagement.health.support.TestPetIdMother;
+import com.petmanagement.health.support.WeightRecordTestBuilder;
 import com.petmanagement.pets.api.PetApi;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,42 +28,50 @@ class CreateWeightRecordServiceTest {
         service = new CreateWeightRecordService(repository, petApi);
     }
 
-    @Test
-    void shouldCreateWeightRecord() {
-        // Given
-        var petId = PetId.of("fe127567-fc1a-47f6-a929-98aa26f957d7");
-        var command = new CreateWeightRecordUseCase.CreateWeightRecordCommand(
-                petId,
-                LocalDate.now(),
-                Weight.of(5.5)
-        );
+    @Nested
+    class WhenCreatingWeightRecord {
 
-        when(petApi.existsById(petId.value())).thenReturn(true);
+        @Test
+        void shouldCreateWeightRecord() {
+            // Given
+            var command = WeightRecordTestBuilder.CreateWeightRecordCommandBuilder
+                    .aCreateWeightRecordCommand()
+                    .build();
 
-        // When
-        var weightRecordId = service.execute(command);
+            when(petApi.existsById(command.petId().value()))
+                    .thenReturn(true);
 
-        // Then
-        assertNotNull(weightRecordId);
+            // When
+            var result = service.execute(command);
+
+            // Then
+            assertNotNull(result);
+        }
+
     }
 
-    @Test
-    void shouldThrowWhenPetDoesNotExist() {
-        // Given
-        var petId = PetId.of("83899454-a505-4c52-ad77-721a2ae3e3c6");
-        var command = new CreateWeightRecordUseCase.CreateWeightRecordCommand(
-                petId,
-                LocalDate.now(),
-                Weight.of(3.4)
-        );
 
-        when(petApi.existsById(petId.value())).thenReturn(false);
+    @Nested
+    class WhenPetDoesNotExist {
 
-        // When/Then
-        assertThrows(
-                PetNotFoundException.class,
-                () -> service.execute(command)
-        );
+        @Test
+        void shouldThrowWhenPetDoesNotExist() {
+            // Given
+            var command = WeightRecordTestBuilder.CreateWeightRecordCommandBuilder
+                    .aCreateWeightRecordCommand()
+                    .withPetId(TestPetIdMother.NON_EXISTENT_PET_ID)
+                    .build();
+
+            when(petApi.existsById(command.petId().value()))
+                    .thenReturn(false);
+
+            // When/Then
+            assertThrows(
+                    PetNotFoundException.class,
+                    () -> service.execute(command)
+            );
+        }
+
     }
 
 }

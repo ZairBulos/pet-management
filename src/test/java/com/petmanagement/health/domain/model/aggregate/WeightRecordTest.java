@@ -1,48 +1,53 @@
 package com.petmanagement.health.domain.model.aggregate;
 
-import com.petmanagement.health.domain.model.valueobject.PetId;
-import com.petmanagement.health.domain.model.valueobject.Weight;
 import com.petmanagement.health.domain.model.valueobject.WeightRecordId;
+import com.petmanagement.health.support.TestCommonMother;
+import com.petmanagement.health.support.TestPetIdMother;
+import com.petmanagement.health.support.TestWeightRecordMother;
+import com.petmanagement.health.support.WeightRecordTestBuilder;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class WeightRecordTest {
-
-    private static final PetId PET_ID = PetId.of("58807bd8-f42a-4ae9-9bd9-48ec3c6f0485");
-    private static final LocalDate WEIGHT_DATE = LocalDate.of(2026, 9, 1);
-    private static final Weight WEIGHT = Weight.of(10.5);
 
     @Nested
     class Creation {
 
         @Test
         void shouldCreateWeightRecord() {
-            var weightRecord = WeightRecord.create(PET_ID, WEIGHT_DATE, WEIGHT);
+            var weightRecord = WeightRecordTestBuilder
+                    .aWeightRecord()
+                    .build();
 
             assertNotNull(weightRecord.getId());
-            assertEquals(PET_ID, weightRecord.getPetId());
-            assertEquals(WEIGHT_DATE, weightRecord.getWeightDate());
-            assertEquals(WEIGHT, weightRecord.getWeight());
+            assertEquals(TestPetIdMother.EXISTING_PET_ID, weightRecord.getPetId());
+            assertEquals(TestCommonMother.EARLY_DATE, weightRecord.getWeightDate());
+            assertEquals(TestWeightRecordMother.MEDIUM_WEIGHT, weightRecord.getWeight());
             assertNotNull(weightRecord.getCreatedAt());
             assertNotNull(weightRecord.getUpdatedAt());
         }
 
         @Test
         void shouldGenerateUniqueIdForEachWeightRecord() {
-            var weightRecord1 = WeightRecord.create(PET_ID, WEIGHT_DATE, WEIGHT);
-            var weightRecord2 = WeightRecord.create(PET_ID, WEIGHT_DATE, WEIGHT);
+            var weightRecord1 = WeightRecordTestBuilder
+                    .aWeightRecord()
+                    .build();
+            var weightRecord2 = WeightRecordTestBuilder
+                    .aWeightRecord()
+                    .build();
 
             assertNotEquals(weightRecord1.getId(), weightRecord2.getId());
         }
 
         @Test
         void shouldHaveSameCreatedAndUpdatedAtOnCreation() {
-            var weightRecord = WeightRecord.create(PET_ID, WEIGHT_DATE, WEIGHT);
+            var weightRecord = WeightRecordTestBuilder
+                    .aWeightRecord()
+                    .build();
 
             assertEquals(weightRecord.getCreatedAt(), weightRecord.getUpdatedAt());
         }
@@ -51,7 +56,11 @@ class WeightRecordTest {
         void shouldThrowWhenCreatingWithNullPetId() {
             assertThrows(
                     NullPointerException.class,
-                    () -> WeightRecord.create(null, WEIGHT_DATE, WEIGHT)
+                    () -> WeightRecord.create(
+                            null,
+                            TestCommonMother.EARLY_DATE,
+                            TestWeightRecordMother.MEDIUM_WEIGHT
+                    )
             );
         }
 
@@ -59,7 +68,11 @@ class WeightRecordTest {
         void shouldThrowWhenCreatingWithNullWeightDate() {
             assertThrows(
                     NullPointerException.class,
-                    () -> WeightRecord.create(PET_ID, null, WEIGHT)
+                    () -> WeightRecord.create(
+                            TestPetIdMother.EXISTING_PET_ID,
+                            null,
+                            TestWeightRecordMother.MEDIUM_WEIGHT
+                    )
             );
         }
 
@@ -67,7 +80,11 @@ class WeightRecordTest {
         void shouldThrowWhenCreatingWithNullWeight() {
             assertThrows(
                     NullPointerException.class,
-                    () -> WeightRecord.create(PET_ID, WEIGHT_DATE, null)
+                    () -> WeightRecord.create(
+                            TestPetIdMother.EXISTING_PET_ID,
+                            TestCommonMother.EARLY_DATE,
+                            null
+                    )
             );
         }
 
@@ -84,17 +101,17 @@ class WeightRecordTest {
 
             var weightRecord = WeightRecord.reconstitute(
                     id,
-                    PET_ID,
-                    WEIGHT_DATE,
-                    WEIGHT,
+                    TestPetIdMother.EXISTING_PET_ID,
+                    TestCommonMother.EARLY_DATE,
+                    TestWeightRecordMother.MEDIUM_WEIGHT,
                     createdAt,
                     updatedAt
             );
 
             assertEquals(id, weightRecord.getId());
-            assertEquals(PET_ID, weightRecord.getPetId());
-            assertEquals(WEIGHT_DATE, weightRecord.getWeightDate());
-            assertEquals(WEIGHT, weightRecord.getWeight());
+            assertEquals(TestPetIdMother.EXISTING_PET_ID, weightRecord.getPetId());
+            assertEquals(TestCommonMother.EARLY_DATE, weightRecord.getWeightDate());
+            assertEquals(TestWeightRecordMother.MEDIUM_WEIGHT, weightRecord.getWeight());
             assertEquals(createdAt, weightRecord.getCreatedAt());
             assertEquals(updatedAt, weightRecord.getUpdatedAt());
         }
@@ -105,7 +122,14 @@ class WeightRecordTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> WeightRecord.reconstitute(null, PET_ID, WEIGHT_DATE, WEIGHT, now, now)
+                    () -> WeightRecord.reconstitute(
+                            null,
+                            TestPetIdMother.EXISTING_PET_ID,
+                            TestCommonMother.EARLY_DATE,
+                            TestWeightRecordMother.MEDIUM_WEIGHT,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -115,7 +139,14 @@ class WeightRecordTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> WeightRecord.reconstitute(WeightRecordId.generate(), null, WEIGHT_DATE, WEIGHT, now, now)
+                    () -> WeightRecord.reconstitute(
+                            WeightRecordId.generate(),
+                            null,
+                            TestCommonMother.EARLY_DATE,
+                            TestWeightRecordMother.MEDIUM_WEIGHT,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -125,7 +156,14 @@ class WeightRecordTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> WeightRecord.reconstitute(WeightRecordId.generate(), PET_ID, null, WEIGHT, now, now)
+                    () -> WeightRecord.reconstitute(
+                            WeightRecordId.generate(),
+                            TestPetIdMother.EXISTING_PET_ID,
+                            null,
+                            TestWeightRecordMother.MEDIUM_WEIGHT,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -135,7 +173,14 @@ class WeightRecordTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> WeightRecord.reconstitute(WeightRecordId.generate(), PET_ID, WEIGHT_DATE, null, now, now)
+                    () -> WeightRecord.reconstitute(
+                            WeightRecordId.generate(),
+                            TestPetIdMother.EXISTING_PET_ID,
+                            TestCommonMother.EARLY_DATE,
+                            null,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -145,7 +190,14 @@ class WeightRecordTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> WeightRecord.reconstitute(WeightRecordId.generate(), PET_ID, WEIGHT_DATE, WEIGHT, null, now)
+                    () -> WeightRecord.reconstitute(
+                            WeightRecordId.generate(),
+                            TestPetIdMother.EXISTING_PET_ID,
+                            TestCommonMother.EARLY_DATE,
+                            TestWeightRecordMother.MEDIUM_WEIGHT,
+                            null,
+                            now
+                    )
             );
         }
 
@@ -155,7 +207,14 @@ class WeightRecordTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> WeightRecord.reconstitute(WeightRecordId.generate(), PET_ID, WEIGHT_DATE, WEIGHT, now, null)
+                    () -> WeightRecord.reconstitute(
+                            WeightRecordId.generate(),
+                            TestPetIdMother.EXISTING_PET_ID,
+                            TestCommonMother.EARLY_DATE,
+                            TestWeightRecordMother.MEDIUM_WEIGHT,
+                            now,
+                            null
+                    )
             );
         }
 
@@ -166,33 +225,46 @@ class WeightRecordTest {
 
         @Test
         void shouldUpdateWeightRecord() {
-            var weightRecord = WeightRecord.create(PET_ID, WEIGHT_DATE, WEIGHT);
-            var newWeightDate = LocalDate.of(2026, 9, 15);
-            var newWeight = Weight.of(12.5);
+            var weightRecord = WeightRecordTestBuilder
+                    .aWeightRecord()
+                    .build();
 
-            weightRecord.update(newWeightDate, newWeight);
+            weightRecord.update(
+                    TestCommonMother.UPDATE_DATE,
+                    TestWeightRecordMother.UPDATED_WEIGHT
+            );
 
-            assertEquals(newWeightDate, weightRecord.getWeightDate());
-            assertEquals(newWeight, weightRecord.getWeight());
+            assertEquals(TestCommonMother.UPDATE_DATE, weightRecord.getWeightDate());
+            assertEquals(TestWeightRecordMother.UPDATED_WEIGHT, weightRecord.getWeight());
         }
 
         @Test
         void shouldThrowWhenUpdatingWithNullWeightDate() {
-            var weightRecord = WeightRecord.create(PET_ID, WEIGHT_DATE, WEIGHT);
+            var weightRecord = WeightRecordTestBuilder
+                    .aWeightRecord()
+                    .build();
 
             assertThrows(
                     NullPointerException.class,
-                    () -> weightRecord.update(null, WEIGHT)
+                    () -> weightRecord.update(
+                            null,
+                            TestWeightRecordMother.UPDATED_WEIGHT
+                    )
             );
         }
 
         @Test
         void shouldThrowWhenUpdatingWithNullWeight() {
-            var weightRecord = WeightRecord.create(PET_ID, WEIGHT_DATE, WEIGHT);
+            var weightRecord = WeightRecordTestBuilder
+                    .aWeightRecord()
+                    .build();
 
             assertThrows(
                     NullPointerException.class,
-                    () -> weightRecord.update(WEIGHT_DATE, null)
+                    () -> weightRecord.update(
+                            TestCommonMother.UPDATE_DATE,
+                            null
+                    )
             );
         }
 

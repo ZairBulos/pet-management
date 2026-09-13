@@ -2,17 +2,14 @@ package com.petmanagement.health.application.service;
 
 import com.petmanagement.health.application.port.in.GetWeightHistoryUseCase;
 import com.petmanagement.health.domain.exception.PetNotFoundException;
-import com.petmanagement.health.domain.model.aggregate.WeightRecord;
-import com.petmanagement.health.domain.model.valueobject.PetId;
-import com.petmanagement.health.domain.model.valueobject.Weight;
 import com.petmanagement.health.support.InMemoryWeightRecordRepository;
+import com.petmanagement.health.support.TestCommonMother;
+import com.petmanagement.health.support.TestPetIdMother;
+import com.petmanagement.health.support.WeightRecordTestBuilder;
 import com.petmanagement.pets.api.PetApi;
-import com.petmanagement.shared.domain.model.PageRequest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
@@ -32,71 +29,96 @@ class GetWeightHistoryServiceTest {
         service = new GetWeightHistoryService(repository, petApi);
     }
 
-    @Test
-    void shouldReturnWeightHistoryForPet() {
-        // Given
-        var petId = PetId.of("d6950537-31f1-4886-ac21-457bd1d0f197");
-        var records = List.of(
-                WeightRecord.create(petId, LocalDate.of(2026, 1, 10), Weight.of(5.0)),
-                WeightRecord.create(petId, LocalDate.of(2026, 3, 10), Weight.of(5.4))
-        );
-        records.forEach(weightRecord -> repository.save(weightRecord));
+    @Nested
+    class WhenRetrievingWeightHistory {
 
-        var query = new GetWeightHistoryUseCase.GetWeightHistoryQuery(
-                petId, PageRequest.of(0, 10)
-        );
+        @Test
+        void shouldReturnWeightHistoryForPet() {
+            // Given
+            var petId = TestPetIdMother.EXISTING_PET_ID;
 
-        when(petApi.existsById(query.petId().value()))
-                .thenReturn(true);
+            var olderRecord = WeightRecordTestBuilder.aWeightRecord()
+                    .withPetId(petId)
+                    .withWeightDate(TestCommonMother.EARLY_DATE)
+                    .build();
 
-        // When
-        var response = service.execute(query);
+            var newerRecord = WeightRecordTestBuilder.aWeightRecord()
+                    .withPetId(petId)
+                    .withWeightDate(TestCommonMother.MIDDLE_DATE)
+                    .build();
 
-        // Then
-        assertEquals(2, response.content().size());
-        assertEquals(2, response.totalElements());
-        assertEquals(1, response.totalPages());
-        assertEquals(0, response.page());
-        assertEquals(10, response.size());
+            repository.saveAll(olderRecord, newerRecord);
+
+            var query = new GetWeightHistoryUseCase.GetWeightHistoryQuery(
+                    petId, TestCommonMother.DEFAULT_PAGE_REQUEST
+            );
+
+            when(petApi.existsById(petId.value()))
+                    .thenReturn(true);
+
+            // When
+            var result = service.execute(query);
+
+            // Then
+            assertEquals(2, result.content().size());
+            assertEquals(2, result.totalElements());
+            assertEquals(1, result.totalPages());
+            assertEquals(0, result.page());
+            assertEquals(10, result.size());
+
+            assertEquals(TestCommonMother.MIDDLE_DATE, result.content().getFirst().getWeightDate());
+            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().getWeightDate());
+        }
+
     }
 
-    @Test
-    void shouldReturnEmptyPageWhenPetHasNoRecords() {
-        // Given
-        var petId = PetId.of("0ecfa097-df4e-4d72-8463-50706c30a35b");
-        var query = new GetWeightHistoryUseCase.GetWeightHistoryQuery(
-                petId, PageRequest.of(0, 10)
-        );
+    @Nested
+    class WhenPetHasNoRecords {
 
-        when(petApi.existsById(petId.value()))
-                .thenReturn(true);
+        @Test
+        void shouldReturnEmptyPageWhenPetHasNoRecords() {
+            // Given
+            var petId = TestPetIdMother.ANOTHER_PET_ID;
+            var query = new GetWeightHistoryUseCase.GetWeightHistoryQuery(
+                    petId, TestCommonMother.DEFAULT_PAGE_REQUEST
+            );
 
-        // When
-        var response = service.execute(query);
+            when(petApi.existsById(petId.value()))
+                    .thenReturn(true);
 
-        // Then
-        assertTrue(response.isEmpty());
-        assertEquals(0, response.totalElements());
-        assertEquals(0, response.totalPages());
-        assertEquals(0, response.numberOfElements());
+            // When
+            var result = service.execute(query);
+
+            // Then
+            assertTrue(result.isEmpty());
+            assertEquals(0, result.totalElements());
+            assertEquals(0, result.totalPages());
+            assertEquals(0, result.numberOfElements());
+        }
+
     }
 
-    @Test
-    void shouldThrowWhenPetDoesNotExist() {
-        // Given
-        var petId = PetId.of("8dd3534d-f7fc-420f-8c50-2d2a5b7607d9");
-        var query = new GetWeightHistoryUseCase.GetWeightHistoryQuery(
-                petId, PageRequest.of(0, 10)
-        );
+    @Nested
+    class WhenPetDoesNotExist {
 
-        when(petApi.existsById(petId.value()))
-                .thenReturn(false);
+        @Test
+        void shouldThrowWhenPetDoesNotExist() {
+            // Given
+            var petId = TestPetIdMother.NON_EXISTENT_PET_ID;
+            var query = new GetWeightHistoryUseCase.GetWeightHistoryQuery(
+                    petId, TestCommonMother.DEFAULT_PAGE_REQUEST
+            );
 
-        // When/Then
-        assertThrows(
-                PetNotFoundException.class,
-                () -> service.execute(query)
-        );
+            when(petApi.existsById(petId.value()))
+                    .thenReturn(false);
+
+            // When/Then
+            assertThrows(
+                    PetNotFoundException.class,
+                    () -> service.execute(query)
+            );
+        }
+
     }
 
 }

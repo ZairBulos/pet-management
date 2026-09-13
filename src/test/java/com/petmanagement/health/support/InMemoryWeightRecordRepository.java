@@ -7,25 +7,20 @@ import com.petmanagement.health.domain.model.valueobject.WeightRecordId;
 import com.petmanagement.shared.domain.model.PageRequest;
 import com.petmanagement.shared.domain.model.PageResponse;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-public class InMemoryWeightRecordRepository implements WeightRecordRepositoryPort {
+public final class InMemoryWeightRecordRepository implements WeightRecordRepositoryPort {
 
-    private final List<WeightRecord> weightRecords = new ArrayList<>();
+    private final Map<WeightRecordId, WeightRecord> weightRecords = new HashMap<>();
 
     @Override
     public Optional<WeightRecord> findById(WeightRecordId weightRecordId) {
-        return weightRecords.stream()
-                .filter(weightRecord -> weightRecord.getId().equals(weightRecordId))
-                .findFirst();
+        return Optional.ofNullable(weightRecords.get(weightRecordId));
     }
 
     @Override
     public PageResponse<WeightRecord> findByPetId(PetId petId, PageRequest pageRequest) {
-        var allRecords = weightRecords.stream()
+        var allRecords = weightRecords.values().stream()
                 .filter(weightRecord -> weightRecord.getPetId().equals(petId))
                 .sorted(Comparator.comparing(WeightRecord::getWeightDate).reversed())
                 .toList();
@@ -47,11 +42,19 @@ public class InMemoryWeightRecordRepository implements WeightRecordRepositoryPor
 
     @Override
     public void save(WeightRecord weightRecord) {
-        weightRecords.add(weightRecord);
+        weightRecords.put(weightRecord.getId(), weightRecord);
     }
+
+    // === Helpers ===
 
     public void clear() {
         weightRecords.clear();
+    }
+
+    public void saveAll(WeightRecord... weightRecords) {
+        for (WeightRecord weightRecord : weightRecords) {
+            save(weightRecord);
+        }
     }
 
 }
