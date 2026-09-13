@@ -9,15 +9,13 @@ import com.petmanagement.shared.domain.model.PageResponse;
 
 import java.util.*;
 
-public class InMemoryVaccineRepository implements VaccineRepositoryPort {
+public final class InMemoryVaccineRepository implements VaccineRepositoryPort {
 
     private final Map<VaccineId, Vaccine> vaccines = new HashMap<>();
 
     @Override
     public Optional<Vaccine> findById(VaccineId vaccineId) {
-        return vaccines.values().stream()
-                .filter(vaccine -> vaccine.getId().equals(vaccineId))
-                .findFirst();
+        return Optional.ofNullable(vaccines.get(vaccineId));
     }
 
     @Override
@@ -47,8 +45,16 @@ public class InMemoryVaccineRepository implements VaccineRepositoryPort {
         vaccines.put(vaccine.getId(), vaccine);
     }
 
+    // === Helpers ===
+
     public void clear() {
         vaccines.clear();
+    }
+
+    public void saveAll(Vaccine... vaccines) {
+        for (Vaccine vaccine : vaccines) {
+            save(vaccine);
+        }
     }
 
 }
