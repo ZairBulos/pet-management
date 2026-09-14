@@ -2,14 +2,12 @@ package com.petmanagement.pets.application.service;
 
 import com.petmanagement.pets.application.port.in.GetPetUseCase;
 import com.petmanagement.pets.domain.exception.PetNotFoundException;
-import com.petmanagement.pets.domain.model.aggregate.Pet;
-import com.petmanagement.pets.domain.model.enums.Sex;
-import com.petmanagement.pets.domain.model.valueobject.*;
 import com.petmanagement.pets.support.InMemoryPetRepository;
+import com.petmanagement.pets.support.PetTestBuilder;
+import com.petmanagement.pets.support.TestPetMother;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,43 +22,44 @@ class GetPetServiceTest {
         service = new GetPetService(repository);
     }
 
-    @Test
-    void shouldGetExistingPet() {
-        // Given
-        var pet = Pet.create(
-                OwnerId.of("bf41537f-e8d3-445f-ad35-176e4e9f2c18"),
-                new PetName("Buddy"),
-                new Species("Dog"),
-                new Breed("Golden Retriever"),
-                new Coat("Golden"),
-                Sex.MALE,
-                LocalDate.of(2020, 5, 15)
-        );
-        repository.save(pet);
+    @Nested
+    class WhenRetrievingExistingPet {
 
-        var command = new GetPetUseCase.GetPetCommand(pet.getId());
+        @Test
+        void shouldGetExistingPet() {
+            // Given
+            var pet = PetTestBuilder.aPet().build();
+            repository.save(pet);
 
-        // When
-        var result = service.execute(command);
+            var command = new GetPetUseCase.GetPetCommand(pet.getId());
 
-        // Then
-        assertNotNull(result);
-        assertEquals(pet.getId(), result.getId());
-        assertEquals(pet.getOwnerId(), result.getOwnerId());
+            // When
+            var result = service.execute(command);
+
+            // Then
+            assertNotNull(result);
+            assertEquals(pet.getId(), result.getId());
+            assertEquals(pet.getOwnerId(), result.getOwnerId());
+            assertEquals(pet.getName(), result.getName());
+        }
+
     }
 
-    @Test
-    void shouldThrowWhenPetNotFound() {
-        // Given
-        var command = new GetPetUseCase.GetPetCommand(
-                PetId.of("a8d898ae-de46-4289-ac50-17ae463fd1f0")
-        );
+    @Nested
+    class WhenPetDoesNotExist {
 
-        // When/Then
-        assertThrows(
-                PetNotFoundException.class,
-                () -> service.execute(command)
-        );
+        @Test
+        void shouldThrowWhenPetDoesNotExist() {
+            // Given
+            var command = new GetPetUseCase.GetPetCommand(TestPetMother.NON_EXISTENT_PET_ID);
+
+            // When/Then
+            assertThrows(
+                    PetNotFoundException.class,
+                    () -> service.execute(command)
+            );
+        }
+
     }
 
 }

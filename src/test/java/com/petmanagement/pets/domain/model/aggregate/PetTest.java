@@ -1,7 +1,9 @@
 package com.petmanagement.pets.domain.model.aggregate;
 
-import com.petmanagement.pets.domain.model.enums.Sex;
-import com.petmanagement.pets.domain.model.valueobject.*;
+import com.petmanagement.pets.domain.model.valueobject.PetId;
+import com.petmanagement.pets.support.PetTestBuilder;
+import com.petmanagement.pets.support.TestOwnerIdMother;
+import com.petmanagement.pets.support.TestPetMother;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -13,51 +15,45 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PetTest {
 
-    private static final OwnerId OWNER_ID = OwnerId.of("550e8400-e29b-41d4-a716-446655440000");
-    private static final PetName NAME = new PetName("Max");
-    private static final Species SPECIES = new Species("Dog");
-    private static final Breed BREED = new Breed("Labrador");
-    private static final Coat COAT = new Coat("Brown");
-    private static final Sex SEX = Sex.MALE;
-    private static final LocalDate BIRTH_DATE = LocalDate.of(2020, 1, 15);
-
     @Nested
     class Creation {
 
         @Test
         void shouldCreatePet() {
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE);
+            var pet = PetTestBuilder.aPet().build();
 
             assertNotNull(pet.getId());
-            assertEquals(OWNER_ID, pet.getOwnerId());
-            assertEquals(NAME, pet.getName());
-            assertEquals(SPECIES, pet.getSpecies());
-            assertEquals(BREED, pet.getBreed());
-            assertEquals(COAT, pet.getCoat());
-            assertEquals(SEX, pet.getSex());
-            assertEquals(BIRTH_DATE, pet.getBirthDate());
+            assertEquals(TestOwnerIdMother.EXISTING_OWNER_ID, pet.getOwnerId());
+            assertEquals(TestPetMother.PET_NAME_BUDDY, pet.getName());
+            assertEquals(TestPetMother.SPECIES_DOG, pet.getSpecies());
+            assertEquals(TestPetMother.BREED_GOLDEN_RETRIEVER, pet.getBreed());
+            assertEquals(TestPetMother.COAT_GOLDEN, pet.getCoat());
+            assertEquals(TestPetMother.SEX_MALE, pet.getSex());
+            assertEquals(TestPetMother.BIRTH_DATE_STANDARD, pet.getBirthDate());
             assertNotNull(pet.getCreatedAt());
             assertNotNull(pet.getUpdatedAt());
         }
 
         @Test
         void shouldGenerateUniqueIdForEachPet() {
-            var pet1 = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE);
-            var pet2 = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE);
+            var pet1 = PetTestBuilder.aPet().build();
+            var pet2 = PetTestBuilder.aPet().build();
 
             assertNotEquals(pet1.getId(), pet2.getId());
         }
 
         @Test
         void shouldHaveSameCreatedAndUpdatedAtOnCreation() {
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE);
+            var pet = PetTestBuilder.aPet().build();
 
             assertEquals(pet.getCreatedAt(), pet.getUpdatedAt());
         }
 
         @Test
         void shouldConvertNullBreedToUnknown() {
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, null, COAT, SEX, BIRTH_DATE);
+            var pet = PetTestBuilder.aPet()
+                    .withBreedUnknown()
+                    .build();
 
             assertTrue(pet.getBreed().isUnknown());
         }
@@ -66,7 +62,14 @@ class PetTest {
         void shouldThrowWhenCreatingWithNullOwnerId() {
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.create(null, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE)
+                    () -> Pet.create(null,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD
+                    )
             );
         }
 
@@ -74,7 +77,15 @@ class PetTest {
         void shouldThrowWhenCreatingWithNullPetName() {
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.create(OWNER_ID, null, SPECIES, BREED, COAT, SEX, BIRTH_DATE)
+                    () -> Pet.create(
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            null,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD
+                    )
             );
         }
 
@@ -82,7 +93,15 @@ class PetTest {
         void shouldThrowWhenCreatingWithNullSpecies() {
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.create(OWNER_ID, NAME, null, BREED, COAT, SEX, BIRTH_DATE)
+                    () -> Pet.create(
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            null,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD
+                    )
             );
         }
 
@@ -90,7 +109,15 @@ class PetTest {
         void shouldThrowWhenCreatingWithNullCoat() {
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.create(OWNER_ID, NAME, SPECIES, BREED, null, SEX, BIRTH_DATE)
+                    () -> Pet.create(
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            null,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD
+                    )
             );
         }
 
@@ -98,7 +125,15 @@ class PetTest {
         void shouldThrowWhenCreatingWithNullSex() {
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, null, BIRTH_DATE)
+                    () -> Pet.create(
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            null,
+                            TestPetMother.BIRTH_DATE_STANDARD
+                    )
             );
         }
 
@@ -106,7 +141,15 @@ class PetTest {
         void shouldThrowWhenCreatingWithNullBirthDate() {
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, null)
+                    () -> Pet.create(
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            null
+                    )
             );
         }
 
@@ -121,16 +164,27 @@ class PetTest {
             var createdAt = Instant.parse("2024-01-15T10:00:00Z");
             var updatedAt = Instant.parse("2024-01-20T15:30:00Z");
 
-            var pet = Pet.reconstitute(petId, OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE, createdAt, updatedAt);
+            var pet = Pet.reconstitute(
+                    petId,
+                    TestOwnerIdMother.EXISTING_OWNER_ID,
+                    TestPetMother.PET_NAME_BUDDY,
+                    TestPetMother.SPECIES_DOG,
+                    TestPetMother.BREED_GOLDEN_RETRIEVER,
+                    TestPetMother.COAT_GOLDEN,
+                    TestPetMother.SEX_MALE,
+                    TestPetMother.BIRTH_DATE_STANDARD,
+                    createdAt,
+                    updatedAt
+            );
 
             assertEquals(petId, pet.getId());
-            assertEquals(OWNER_ID, pet.getOwnerId());
-            assertEquals(NAME, pet.getName());
-            assertEquals(SPECIES, pet.getSpecies());
-            assertEquals(BREED, pet.getBreed());
-            assertEquals(COAT, pet.getCoat());
-            assertEquals(SEX, pet.getSex());
-            assertEquals(BIRTH_DATE, pet.getBirthDate());
+            assertEquals(TestOwnerIdMother.EXISTING_OWNER_ID, pet.getOwnerId());
+            assertEquals(TestPetMother.PET_NAME_BUDDY, pet.getName());
+            assertEquals(TestPetMother.SPECIES_DOG, pet.getSpecies());
+            assertEquals(TestPetMother.BREED_GOLDEN_RETRIEVER, pet.getBreed());
+            assertEquals(TestPetMother.COAT_GOLDEN, pet.getCoat());
+            assertEquals(TestPetMother.SEX_MALE, pet.getSex());
+            assertEquals(TestPetMother.BIRTH_DATE_STANDARD, pet.getBirthDate());
             assertEquals(createdAt, pet.getCreatedAt());
             assertEquals(updatedAt, pet.getUpdatedAt());
         }
@@ -141,7 +195,18 @@ class PetTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.reconstitute(null, OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE, now, now)
+                    () -> Pet.reconstitute(
+                            null,
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -151,7 +216,17 @@ class PetTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.reconstitute(PetId.generate(), null, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE, now, now)
+                    () -> Pet.reconstitute(
+                            PetId.generate(), null,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -161,7 +236,18 @@ class PetTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.reconstitute(PetId.generate(), OWNER_ID, null, SPECIES, BREED, COAT, SEX, BIRTH_DATE, now, now)
+                    () -> Pet.reconstitute(
+                            PetId.generate(),
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            null,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -171,7 +257,18 @@ class PetTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.reconstitute(PetId.generate(), OWNER_ID, NAME, null, BREED, COAT, SEX, BIRTH_DATE, now, now)
+                    () -> Pet.reconstitute(
+                            PetId.generate(),
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            null,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -181,7 +278,18 @@ class PetTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.reconstitute(PetId.generate(), OWNER_ID, NAME, SPECIES, BREED, null, SEX, BIRTH_DATE, now, now)
+                    () -> Pet.reconstitute(
+                            PetId.generate(),
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            null,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -191,7 +299,18 @@ class PetTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.reconstitute(PetId.generate(), OWNER_ID, NAME, SPECIES, BREED, COAT, null, BIRTH_DATE, now, now)
+                    () -> Pet.reconstitute(
+                            PetId.generate(),
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            null,
+                            TestPetMother.BIRTH_DATE_STANDARD,
+                            now,
+                            now
+                    )
             );
         }
 
@@ -201,21 +320,60 @@ class PetTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> Pet.reconstitute(PetId.generate(), OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, null, now, now)
+                    () -> Pet.reconstitute(
+                            PetId.generate(),
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            null,
+                            now,
+                            now
+                    )
             );
         }
 
         @Test
         void shouldThrowWhenReconstituteWithNullCreatedAt() {
-            assertThrows(NullPointerException.class,
-                    () -> Pet.reconstitute(PetId.generate(), OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE, null, Instant.now())
+            var now = Instant.now();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Pet.reconstitute(
+                            PetId.generate(),
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD,
+                            null,
+                            now
+                    )
             );
         }
 
         @Test
         void shouldThrowWhenReconstituteWithNullUpdatedAt() {
-            assertThrows(NullPointerException.class,
-                    () -> Pet.reconstitute(PetId.generate(), OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE, Instant.now(), null)
+            var now = Instant.now();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Pet.reconstitute(
+                            PetId.generate(),
+                            TestOwnerIdMother.EXISTING_OWNER_ID,
+                            TestPetMother.PET_NAME_BUDDY,
+                            TestPetMother.SPECIES_DOG,
+                            TestPetMother.BREED_GOLDEN_RETRIEVER,
+                            TestPetMother.COAT_GOLDEN,
+                            TestPetMother.SEX_MALE,
+                            TestPetMother.BIRTH_DATE_STANDARD,
+                            now,
+                            null
+                    )
             );
         }
 
@@ -226,8 +384,8 @@ class PetTest {
 
         @Test
         void shouldRenamePet() {
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE);
-            var newName = new PetName("Luna");
+            var pet = PetTestBuilder.aPet().build();
+            var newName = TestPetMother.PET_NAME_CHARLIE;
 
             pet.rename(newName);
 
@@ -236,9 +394,12 @@ class PetTest {
 
         @Test
         void shouldThrowWhenRenamingWithNullName() {
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, BIRTH_DATE);
+            var pet = PetTestBuilder.aPet().build();
 
-            assertThrows(NullPointerException.class, () -> pet.rename(null));
+            assertThrows(
+                    NullPointerException.class,
+                    () -> pet.rename(null)
+            );
         }
 
     }
@@ -249,7 +410,9 @@ class PetTest {
         @Test
         void shouldCalculateAgeForNewbornPet() {
             var birthDate = LocalDate.now();
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, birthDate);
+            var pet = PetTestBuilder.aPet()
+                    .withBirthDate(birthDate)
+                    .build();
 
             var age = pet.ageInYears();
 
@@ -259,7 +422,9 @@ class PetTest {
         @Test
         void shouldCalculateAgeForPetBornLastYear() {
             var birthDate = LocalDate.now().minusYears(1).minusDays(1);
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, birthDate);
+            var pet = PetTestBuilder.aPet()
+                    .withBirthDate(birthDate)
+                    .build();
 
             var age = pet.ageInYears();
 
@@ -268,25 +433,27 @@ class PetTest {
 
         @Test
         void shouldCalculateAgeForAdultPet() {
-            var birthDate = LocalDate.of(2015, 6, 15);
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, birthDate);
+            var pet = PetTestBuilder.aPet()
+                    .withBirthDate(TestPetMother.BIRTH_DATE_STANDARD)
+                    .build();
 
             var age = pet.ageInYears();
 
-            var expectedAge = Period.between(birthDate, LocalDate.now()).getYears();
+            var expectedAge = Period.between(TestPetMother.BIRTH_DATE_STANDARD, LocalDate.now()).getYears();
             assertEquals(expectedAge, age);
         }
 
         @Test
         void shouldCalculateAgeForSeniorPet() {
-            var birthDate = LocalDate.of(2005, 3, 1);
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, birthDate);
+            var pet = PetTestBuilder.aPet()
+                    .withBirthDate(TestPetMother.BIRTH_DATE_OLD)
+                    .build();
 
             var age = pet.ageInYears();
 
-            var expectedAge = Period.between(birthDate, LocalDate.now()).getYears();
+            var expectedAge = Period.between(TestPetMother.BIRTH_DATE_OLD, LocalDate.now()).getYears();
             assertEquals(expectedAge, age);
-            assertTrue(age >= 10);
+            assertTrue(age >= 6);
         }
 
         @Test
@@ -295,7 +462,10 @@ class PetTest {
             var birthdayThisYear = today.withDayOfMonth(today.getDayOfMonth() + 1);
             var birthDate = birthdayThisYear.minusYears(5);
 
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, birthDate);
+            var pet = PetTestBuilder.aPet()
+                    .withBirthDate(birthDate)
+                    .build();
+
             var age = pet.ageInYears();
 
             assertEquals(4, age);
@@ -307,18 +477,24 @@ class PetTest {
             var birthdayThisYear = today.withDayOfMonth(today.getDayOfMonth() - 1);
             var birthDate = birthdayThisYear.minusYears(5);
 
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, birthDate);
+            var pet = PetTestBuilder.aPet()
+                    .withBirthDate(birthDate)
+                    .build();
+
             var age = pet.ageInYears();
 
             assertEquals(5, age);
         }
 
         @Test
-        void shouldCalculageOnBirthdayDay() {
+        void shouldCalculateOnBirthdayDay() {
             var today = LocalDate.now();
             var birthDate = today.minusYears(3);
 
-            var pet = Pet.create(OWNER_ID, NAME, SPECIES, BREED, COAT, SEX, birthDate);
+            var pet = PetTestBuilder.aPet()
+                    .withBirthDate(birthDate)
+                    .build();
+
             var age = pet.ageInYears();
 
             assertEquals(3, age);
