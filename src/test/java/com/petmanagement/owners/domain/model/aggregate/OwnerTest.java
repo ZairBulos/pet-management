@@ -1,9 +1,8 @@
 package com.petmanagement.owners.domain.model.aggregate;
 
-import com.petmanagement.owners.domain.model.valueobject.Email;
 import com.petmanagement.owners.domain.model.valueobject.OwnerId;
-import com.petmanagement.owners.domain.model.valueobject.OwnerName;
-import com.petmanagement.owners.domain.model.valueobject.PhoneNumber;
+import com.petmanagement.owners.support.OwnerTestBuilder;
+import com.petmanagement.owners.support.TestOwnerMother;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -13,36 +12,32 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class OwnerTest {
 
-    private static final OwnerName NAME = new OwnerName("Jane Doe");
-    private static final Email EMAIL = new Email("jane.doe@example.com");
-    private static final PhoneNumber PHONE = new PhoneNumber("+5492611234567");
-
     @Nested
     class Creation {
 
         @Test
         void shouldCreateOwner() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var owner = OwnerTestBuilder.aOwner().build();
 
             assertNotNull(owner.getId());
-            assertEquals(NAME, owner.getName());
-            assertEquals(EMAIL, owner.getEmail());
-            assertEquals(PHONE, owner.getPhone());
+            assertEquals(TestOwnerMother.OWNER_NAME_JOHN, owner.getName());
+            assertEquals(TestOwnerMother.EMAIL_JOHN, owner.getEmail());
+            assertEquals(TestOwnerMother.PHONE_JOHN, owner.getPhone());
             assertNotNull(owner.getCreatedAt());
             assertNotNull(owner.getUpdatedAt());
         }
 
         @Test
         void shouldGenerateUniqueIdForEachOwner() {
-            var owner1 = Owner.create(NAME, EMAIL, PHONE);
-            var owner2 = Owner.create(NAME, EMAIL, PHONE);
+            var owner1 = OwnerTestBuilder.aOwner().build();
+            var owner2 = OwnerTestBuilder.aOwner().build();
 
             assertNotEquals(owner1.getId(), owner2.getId());
         }
 
         @Test
         void shouldHaveSameCreatedAndUpdatedAtOnCreation() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var owner = OwnerTestBuilder.aOwner().build();
 
             assertEquals(owner.getCreatedAt(), owner.getUpdatedAt());
         }
@@ -51,7 +46,7 @@ class OwnerTest {
         void shouldThrowWhenCreatingWithNullName() {
             assertThrows(
                     NullPointerException.class,
-                    () -> Owner.create(null, EMAIL, PHONE)
+                    () -> Owner.create(null, TestOwnerMother.EMAIL_JOHN, TestOwnerMother.PHONE_JOHN)
             );
         }
 
@@ -59,7 +54,7 @@ class OwnerTest {
         void shouldThrowWhenCreatingWithNullEmail() {
             assertThrows(
                     NullPointerException.class,
-                    () -> Owner.create(NAME, null, PHONE)
+                    () -> Owner.create(TestOwnerMother.OWNER_NAME_JOHN, null, TestOwnerMother.PHONE_JOHN)
             );
         }
 
@@ -67,7 +62,7 @@ class OwnerTest {
         void shouldThrowWhenCreatingWithNullPhone() {
             assertThrows(
                     NullPointerException.class,
-                    () -> Owner.create(NAME, EMAIL, null)
+                    () -> Owner.create(TestOwnerMother.OWNER_NAME_JOHN, TestOwnerMother.EMAIL_JOHN, null)
             );
         }
 
@@ -82,12 +77,19 @@ class OwnerTest {
             var createdAt = Instant.parse("2024-01-15T10:00:00Z");
             var updatedAt = Instant.parse("2024-01-20T15:30:00Z");
 
-            var owner = Owner.reconstitute(id, NAME, EMAIL, PHONE, createdAt, updatedAt);
+            var owner = Owner.reconstitute(
+                    id,
+                    TestOwnerMother.OWNER_NAME_JOHN,
+                    TestOwnerMother.EMAIL_JOHN,
+                    TestOwnerMother.PHONE_JOHN,
+                    createdAt,
+                    updatedAt
+            );
 
             assertEquals(id, owner.getId());
-            assertEquals(NAME, owner.getName());
-            assertEquals(EMAIL, owner.getEmail());
-            assertEquals(PHONE, owner.getPhone());
+            assertEquals(TestOwnerMother.OWNER_NAME_JOHN, owner.getName());
+            assertEquals(TestOwnerMother.EMAIL_JOHN, owner.getEmail());
+            assertEquals(TestOwnerMother.PHONE_JOHN, owner.getPhone());
             assertEquals(createdAt, owner.getCreatedAt());
             assertEquals(updatedAt, owner.getUpdatedAt());
         }
@@ -98,7 +100,57 @@ class OwnerTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> Owner.reconstitute(null, NAME, EMAIL, PHONE, now, now)
+                    () -> Owner.reconstitute(null, TestOwnerMother.OWNER_NAME_JOHN, TestOwnerMother.EMAIL_JOHN, TestOwnerMother.PHONE_JOHN, now, now)
+            );
+        }
+
+        @Test
+        void shouldThrowWhenReconstituteWithNullName() {
+            var now = Instant.now();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Owner.reconstitute(OwnerId.generate(), null, TestOwnerMother.EMAIL_JOHN, TestOwnerMother.PHONE_JOHN, now, now)
+            );
+        }
+
+        @Test
+        void shouldThrowWhenReconstituteWithNullEmail() {
+            var now = Instant.now();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Owner.reconstitute(OwnerId.generate(), TestOwnerMother.OWNER_NAME_JOHN, null, TestOwnerMother.PHONE_JOHN, now, now)
+            );
+        }
+
+        @Test
+        void shouldThrowWhenReconstituteWithNullPhone() {
+            var now = Instant.now();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Owner.reconstitute(OwnerId.generate(), TestOwnerMother.OWNER_NAME_JOHN, TestOwnerMother.EMAIL_JOHN, null, now, now)
+            );
+        }
+
+        @Test
+        void shouldThrowWhenReconstituteWithNullCreatedAt() {
+            var now = Instant.now();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Owner.reconstitute(OwnerId.generate(), TestOwnerMother.OWNER_NAME_JOHN, TestOwnerMother.EMAIL_JOHN, TestOwnerMother.PHONE_JOHN, null, now)
+            );
+        }
+
+        @Test
+        void shouldThrowWhenReconstituteWithNullUpdatedAt() {
+            var now = Instant.now();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> Owner.reconstitute(OwnerId.generate(), TestOwnerMother.OWNER_NAME_JOHN, TestOwnerMother.EMAIL_JOHN, TestOwnerMother.PHONE_JOHN, now, null)
             );
         }
 
@@ -109,30 +161,30 @@ class OwnerTest {
 
         @Test
         void shouldRenameOwner() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
-            var newName = new OwnerName("John Doe");
+            var owner = OwnerTestBuilder.aOwner().build();
 
-            owner.rename(newName);
+            owner.rename(TestOwnerMother.OWNER_NAME_ROBERT);
 
-            assertEquals(newName, owner.getName());
+            assertEquals(TestOwnerMother.OWNER_NAME_ROBERT, owner.getName());
         }
 
         @Test
         void shouldNotUpdateWithSameName() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var owner = OwnerTestBuilder.aOwner().build();
             var originalUpdatedAt = owner.getUpdatedAt();
 
-            owner.rename(NAME);
+            owner.rename(TestOwnerMother.OWNER_NAME_JOHN);
 
             assertEquals(originalUpdatedAt, owner.getUpdatedAt());
         }
 
         @Test
         void shouldThrowWhenRenamingWithNullName() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var owner = OwnerTestBuilder.aOwner().build();
 
             assertThrows(
-                    NullPointerException.class, () -> owner.rename(null)
+                    NullPointerException.class,
+                    () -> owner.rename(null)
             );
         }
 
@@ -143,27 +195,26 @@ class OwnerTest {
 
         @Test
         void shouldUpdateEmail() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
-            var newEmail = new Email("john.doe@example.com");
+            var owner = OwnerTestBuilder.aOwner().build();
 
-            owner.updateEmail(newEmail);
+            owner.updateEmail(TestOwnerMother.EMAIL_ROBERT);
 
-            assertEquals(newEmail, owner.getEmail());
+            assertEquals(TestOwnerMother.EMAIL_ROBERT, owner.getEmail());
         }
 
         @Test
         void shouldNotUpdateWithSameEmail() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var owner = OwnerTestBuilder.aOwner().build();
             var originalUpdatedAt = owner.getUpdatedAt();
 
-            owner.updateEmail(EMAIL);
+            owner.updateEmail(TestOwnerMother.EMAIL_JOHN);
 
             assertEquals(originalUpdatedAt, owner.getUpdatedAt());
         }
 
         @Test
         void shouldThrowWhenUpdatingWithNullEmail() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var owner = OwnerTestBuilder.aOwner().build();
 
             assertThrows(
                     NullPointerException.class,
@@ -178,27 +229,26 @@ class OwnerTest {
 
         @Test
         void shouldUpdatePhone() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
-            var newPhone = new PhoneNumber("+5492619876543");
+            var owner = OwnerTestBuilder.aOwner().build();
 
-            owner.updatePhone(newPhone);
+            owner.updatePhone(TestOwnerMother.PHONE_ROBERT);
 
-            assertEquals(newPhone, owner.getPhone());
+            assertEquals(TestOwnerMother.PHONE_ROBERT, owner.getPhone());
         }
 
         @Test
         void shouldNotUpdateWithSamePhone() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var owner = OwnerTestBuilder.aOwner().build();
             var originalUpdatedAt = owner.getUpdatedAt();
 
-            owner.updatePhone(PHONE);
+            owner.updatePhone(TestOwnerMother.PHONE_JOHN);
 
             assertEquals(originalUpdatedAt, owner.getUpdatedAt());
         }
 
         @Test
         void shouldThrowWhenUpdatingWithNullPhone() {
-            var owner = Owner.create(NAME, EMAIL, PHONE);
+            var owner = OwnerTestBuilder.aOwner().build();
 
             assertThrows(
                     NullPointerException.class,

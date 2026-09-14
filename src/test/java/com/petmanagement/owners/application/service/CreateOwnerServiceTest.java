@@ -1,12 +1,10 @@
 package com.petmanagement.owners.application.service;
 
-import com.petmanagement.owners.application.port.in.CreateOwnerUseCase;
 import com.petmanagement.owners.domain.exception.OwnerAlreadyExistsException;
-import com.petmanagement.owners.domain.model.valueobject.Email;
-import com.petmanagement.owners.domain.model.valueobject.OwnerName;
-import com.petmanagement.owners.domain.model.valueobject.PhoneNumber;
 import com.petmanagement.owners.support.InMemoryOwnerRepository;
+import com.petmanagement.owners.support.OwnerTestBuilder;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,37 +21,43 @@ class CreateOwnerServiceTest {
         this.service = new CreateOwnerService(repository);
     }
 
-    @Test
-    void shouldCreateOwner() {
-        // Given
-        var command = new CreateOwnerUseCase.CreateOwnerCommand(
-                new OwnerName("John Doe"),
-                new Email("j.doe@example.com"),
-                new PhoneNumber("(832) 631-7251")
-        );
+    @Nested
+    class WhenCreatingOwner {
 
-        // When
-        var ownerId = service.execute(command);
+        @Test
+        void shouldCreateOwner() {
+            // Given
+            var command = OwnerTestBuilder.CreateOwnerCommandBuilder
+                    .aCreateOwnerCommand()
+                    .build();
 
-        // Then
-        assertNotNull(ownerId);
+            // When
+            var result = service.execute(command);
+
+            // Then
+            assertNotNull(result);
+        }
+
     }
 
-    @Test
-    void shouldThrowWhenOwnerAlreadyExists() {
-        // Given
-        var command = new CreateOwnerUseCase.CreateOwnerCommand(
-                new OwnerName("John Doe"),
-                new Email("j.doe@example.com"),
-                new PhoneNumber("(832) 631-7251")
-        );
-        service.execute(command);
+    @Nested
+    class WhenOwnerAlreadyExists {
 
-        // When/Then
-        assertThrows(
-                OwnerAlreadyExistsException.class,
-                () -> service.execute(command)
-        );
+        @Test
+        void shouldThrowWhenOwnerAlreadyExists() {
+            // Given
+            var command = OwnerTestBuilder.CreateOwnerCommandBuilder
+                    .aCreateOwnerCommand()
+                    .build();
+            service.execute(command);
+
+            // When/Then
+            assertThrows(
+                    OwnerAlreadyExistsException.class,
+                    () -> service.execute(command)
+            );
+        }
+
     }
 
 }
