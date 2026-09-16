@@ -1,0 +1,7 @@
+spring:
+  test:
+    database:
+      replace: none
+
+  flyway:
+    clean-disabled: true
