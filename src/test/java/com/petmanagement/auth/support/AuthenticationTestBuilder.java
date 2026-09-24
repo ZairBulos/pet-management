@@ -1,5 +1,6 @@
 package com.petmanagement.auth.support;
 
+import com.petmanagement.auth.application.port.in.RequestAuthenticationUseCase;
 import com.petmanagement.auth.domain.model.aggregate.Authentication;
 import com.petmanagement.auth.domain.model.valueobject.AuthenticationExpiresAt;
 import com.petmanagement.auth.domain.model.valueobject.AuthenticationHashedCode;
@@ -85,6 +86,34 @@ public final class AuthenticationTestBuilder {
                 authenticatedAt,
                 createdAt
         );
+    }
+
+    public static class RequestAuthenticationCommandBuilder {
+
+        private Email email;
+
+        private RequestAuthenticationCommandBuilder() {
+            this.email = TestAuthenticationMother.EMAIL_JOHN;
+        }
+
+        public static RequestAuthenticationCommandBuilder aRequestAuthenticationCommand() {
+            return new RequestAuthenticationCommandBuilder();
+        }
+
+        public RequestAuthenticationCommandBuilder withEmail(Email email) {
+            this.email = email;
+            return this;
+        }
+
+        public RequestAuthenticationCommandBuilder withEmail(String email) {
+            this.email = new Email(email);
+            return this;
+        }
+
+        public RequestAuthenticationUseCase.RequestAuthenticationCommand build() {
+            return new RequestAuthenticationUseCase.RequestAuthenticationCommand(email);
+        }
+
     }
 
 }
