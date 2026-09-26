@@ -8,8 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class OwnerApiTest {
 
@@ -50,6 +49,39 @@ class OwnerApiTest {
 
             // Then
             assertFalse(result);
+        }
+
+    }
+
+    @Nested
+    class WhenGettingOwnerIdByEmail {
+
+        @Test
+        void shouldReturnOwnerIdWhenOwnerExists() {
+            // Given
+            var owner = OwnerTestBuilder.aOwner().build();
+            repository.save(owner);
+
+            var ownerEmail = owner.getEmail().value();
+
+            // When
+            var result = service.getOwnerIdByEmail(ownerEmail);
+
+            // Then
+            assertTrue(result.isPresent());
+            assertEquals(owner.getId().value(), result.get());
+        }
+
+        @Test
+        void shouldReturnEmptyOptionalWhenOwnerDoesNotExist() {
+            // Given
+            var ownerEmail = TestOwnerMother.EMAIL_ROBERT.value();
+
+            // When
+            var result = service.getOwnerIdByEmail(ownerEmail);
+
+            // Then
+            assertTrue(result.isEmpty());
         }
 
     }
