@@ -41,8 +41,22 @@
 
 ### Tests
 
+#### Tests Unitarios
+
 ```shell
-./mvnw test
+./mvnw test -Punit
+```
+
+#### Tests de Integración
+
+```shell
+./mvnw verify -Pintegration
+```
+
+#### Ejecutar Todos los Tests (Unitarios + Integración)
+
+```shell
+./mvnw verify
 ```
 
 ### Base de Datos
@@ -62,6 +76,7 @@ favoreciendo un diseño modular dentro de un único despliegue (monolito modular
 
 ````text
 src/main/java/com/petmanagement
+├── auth
 ├── health
 ├── owners
 ├── pets
