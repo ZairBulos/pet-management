@@ -1,0 +1,24 @@
+package com.petmanagement.auth.domain.model.valueobject;
+
+import org.jmolecules.ddd.annotation.ValueObject;
+
+import java.util.Objects;
+import java.util.UUID;
+
+@ValueObject
+public record OwnerId(UUID value) {
+
+    public OwnerId {
+        Objects.requireNonNull(value, "Owner's ID cannot be null");
+    }
+
+    public static OwnerId of(UUID value) {
+        return new OwnerId(value);
+    }
+
+    public static OwnerId of(String value) {
+        Objects.requireNonNull(value, "UUID string cannot be null");
+        return new OwnerId(UUID.fromString(value));
+    }
+
+}
