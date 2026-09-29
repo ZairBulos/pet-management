@@ -6,14 +6,20 @@ import com.petmanagement.auth.domain.model.valueobject.AuthenticationId;
 import com.petmanagement.auth.domain.model.valueobject.Email;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class InMemoryAuthenticationRepository implements AuthenticationRepositoryPort {
 
     private final Map<AuthenticationId, Authentication> authentications = new HashMap<>();
+
+    @Override
+    public Optional<Authentication> findActiveByEmail(Email email) {
+        return authentications.values().stream()
+                .filter(auth -> auth.getEmail().equals(email))
+                .filter(auth -> !auth.isAuthenticated())
+                .filter(auth -> !auth.isExpired(Instant.now()))
+                .max(Comparator.comparing(Authentication::getCreatedAt));
+    }
 
     @Override
     public void save(Authentication authentication) {
