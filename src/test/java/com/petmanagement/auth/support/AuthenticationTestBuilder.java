@@ -1,11 +1,9 @@
 package com.petmanagement.auth.support;
 
 import com.petmanagement.auth.application.port.in.RequestAuthenticationUseCase;
+import com.petmanagement.auth.application.port.in.VerifyAuthenticationUseCase;
 import com.petmanagement.auth.domain.model.aggregate.Authentication;
-import com.petmanagement.auth.domain.model.valueobject.AuthenticationExpiresAt;
-import com.petmanagement.auth.domain.model.valueobject.AuthenticationHashedCode;
-import com.petmanagement.auth.domain.model.valueobject.AuthenticationId;
-import com.petmanagement.auth.domain.model.valueobject.Email;
+import com.petmanagement.auth.domain.model.valueobject.*;
 
 import java.time.Instant;
 import java.util.function.UnaryOperator;
@@ -112,6 +110,46 @@ public final class AuthenticationTestBuilder {
 
         public RequestAuthenticationUseCase.RequestAuthenticationCommand build() {
             return new RequestAuthenticationUseCase.RequestAuthenticationCommand(email);
+        }
+
+    }
+
+    public static class VerifyAuthenticationCommandBuilder {
+
+        private Email email;
+        private AuthenticationCode code;
+
+        private VerifyAuthenticationCommandBuilder() {
+            this.email = TestAuthenticationMother.EMAIL_JOHN;
+            this.code = TestAuthenticationMother.DEFAULT_PLAIN_CODE;
+        }
+
+        public static VerifyAuthenticationCommandBuilder aVerifyAuthenticationCommand() {
+            return new VerifyAuthenticationCommandBuilder();
+        }
+
+        public VerifyAuthenticationCommandBuilder withEmail(Email email) {
+            this.email = email;
+            return this;
+        }
+
+        public VerifyAuthenticationCommandBuilder withEmail(String email) {
+            this.email = new Email(email);
+            return this;
+        }
+
+        public VerifyAuthenticationCommandBuilder withCode(AuthenticationCode code) {
+            this.code = code;
+            return this;
+        }
+
+        public VerifyAuthenticationCommandBuilder withCode(String code) {
+            this.code = new AuthenticationCode(code);
+            return this;
+        }
+
+        public VerifyAuthenticationUseCase.VerifyAuthenticationCommand build() {
+            return new VerifyAuthenticationUseCase.VerifyAuthenticationCommand(email, code);
         }
 
     }
