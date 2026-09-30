@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.UnaryOperator;
 
 @AggregateRoot
 public final class Session {
@@ -51,12 +50,11 @@ public final class Session {
 
     public static Session create(
             OwnerId ownerId,
-            SessionRefreshToken refreshToken,
-            UnaryOperator<String> hasher
+            SessionRefreshToken refreshToken
     ) {
         var now = Instant.now();
         var expiresAt = SessionExpiresAt.generate();
-        var hashedRefreshToken = SessionHashedRefreshToken.from(refreshToken.value(), hasher);
+        var hashedRefreshToken = SessionHashedRefreshToken.from(refreshToken);
 
         var session = new Session(
                 SessionId.generate(),
@@ -91,10 +89,7 @@ public final class Session {
 
     // === Business Operations ===
 
-    public Session rotate(
-            SessionRefreshToken refreshToken,
-            UnaryOperator<String> hasher
-    ) {
+    public Session rotate(SessionRefreshToken refreshToken) {
         var now = Instant.now();
 
         if (isRevoked())
@@ -107,7 +102,7 @@ public final class Session {
 
         revoke(SessionRevocationReason.ROTATED);
 
-        return create(ownerId, refreshToken, hasher);
+        return create(ownerId, refreshToken);
     }
 
     public void revoke(SessionRevocationReason revocationReason) {

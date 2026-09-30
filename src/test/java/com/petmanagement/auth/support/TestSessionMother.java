@@ -4,7 +4,6 @@ import com.petmanagement.auth.domain.model.enums.SessionRevocationReason;
 import com.petmanagement.auth.domain.model.valueobject.*;
 
 import java.time.Duration;
-import java.util.function.UnaryOperator;
 
 public final class TestSessionMother {
 
@@ -26,11 +25,6 @@ public final class TestSessionMother {
     public static final OwnerId ANOTHER_OWNER_ID =
             OwnerId.of("ba1d2526-f2c2-41ff-ab2c-521ef6ddb59d");
 
-    // === Hashing ===
-
-    public static final UnaryOperator<String> DEFAULT_HASHER =
-            plain -> "hashed-" + plain;
-
     // === Plain Refresh Tokens ===
 
     public static final SessionRefreshToken DEFAULT_PLAIN_REFRESH_TOKEN =
@@ -45,13 +39,13 @@ public final class TestSessionMother {
     // === Hashed Refresh Tokens ===
 
     public static final SessionHashedRefreshToken DEFAULT_HASHED_REFRESH_TOKEN =
-            new SessionHashedRefreshToken(DEFAULT_HASHER.apply(DEFAULT_PLAIN_REFRESH_TOKEN.value()));
+            SessionHashedRefreshToken.from(DEFAULT_PLAIN_REFRESH_TOKEN);
 
     public static final SessionHashedRefreshToken ANOTHER_HASHED_REFRESH_TOKEN =
-            new SessionHashedRefreshToken(DEFAULT_HASHER.apply(ANOTHER_PLAIN_REFRESH_TOKEN.value()));
+            SessionHashedRefreshToken.from(ANOTHER_PLAIN_REFRESH_TOKEN);
 
     public static final SessionHashedRefreshToken INVALID_HASHED_REFRESH_TOKEN =
-            new SessionHashedRefreshToken(DEFAULT_HASHER.apply(INVALID_PLAIN_REFRESH_TOKEN.value()));
+            SessionHashedRefreshToken.from(INVALID_PLAIN_REFRESH_TOKEN);
 
     // === Expirations ===
 

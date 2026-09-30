@@ -14,26 +14,24 @@ class SessionHashedRefreshTokenTest {
         @Test
         void shouldCreateHashedRefreshToken() {
             // Given
-            var plainToken = TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN.value();
-            var hasher = TestSessionMother.DEFAULT_HASHER;
+            var refreshToken = TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN;
 
             // When
-            var hashedRefreshToken = SessionHashedRefreshToken.from(plainToken, hasher);
+            var hashedRefreshToken = SessionHashedRefreshToken.from(refreshToken);
 
             // Then
             assertNotNull(hashedRefreshToken);
-            assertEquals("hashed-" + plainToken, hashedRefreshToken.value());
+            assertNotEquals(refreshToken.value(), hashedRefreshToken.value());
         }
 
         @Test
         void shouldGenerateSameHashForSameToken() {
             // Given
-            var plainToken = TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN.value();
-            var hasher = TestSessionMother.DEFAULT_HASHER;
+            var refreshToken = TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN;
 
             // When
-            var hashed1 = SessionHashedRefreshToken.from(plainToken, hasher);
-            var hashed2 = SessionHashedRefreshToken.from(plainToken, hasher);
+            var hashed1 = SessionHashedRefreshToken.from(refreshToken);
+            var hashed2 = SessionHashedRefreshToken.from(refreshToken);
 
             // Then
             assertEquals(hashed1, hashed2);
@@ -41,30 +39,12 @@ class SessionHashedRefreshTokenTest {
 
         @Test
         void shouldGenerateDifferentHashForDifferentTokens() {
-            // Given
-            var hasher = TestSessionMother.DEFAULT_HASHER;
-
             // When
-            var hashed1 = SessionHashedRefreshToken.from(
-                    TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN.value(), hasher);
-            var hashed2 = SessionHashedRefreshToken.from(
-                    TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN.value(), hasher);
+            var hashed1 = SessionHashedRefreshToken.from(TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN);
+            var hashed2 = SessionHashedRefreshToken.from(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN);
 
             // Then
             assertNotEquals(hashed1, hashed2);
-        }
-
-        @Test
-        void shouldMatchMotherHashedRefreshToken() {
-            // Given
-            var plainToken = TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN.value();
-            var hasher = TestSessionMother.DEFAULT_HASHER;
-
-            // When
-            var hashedRefreshToken = SessionHashedRefreshToken.from(plainToken, hasher);
-
-            // Then
-            assertEquals(TestSessionMother.DEFAULT_HASHED_REFRESH_TOKEN, hashedRefreshToken);
         }
 
     }
@@ -83,25 +63,10 @@ class SessionHashedRefreshTokenTest {
 
         @Test
         void shouldThrowWhenRefreshTokenIsNull() {
-            // Given
-            var hasher = TestSessionMother.DEFAULT_HASHER;
-
             // When/Then
             assertThrows(
                     NullPointerException.class,
-                    () -> SessionHashedRefreshToken.from(null, hasher)
-            );
-        }
-
-        @Test
-        void shouldThrowWhenHasherIsNull() {
-            // Given
-            var plainToken = TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN.value();
-
-            // When/Then
-            assertThrows(
-                    NullPointerException.class,
-                    () -> SessionHashedRefreshToken.from(plainToken, null)
+                    () -> SessionHashedRefreshToken.from(null)
             );
         }
 

@@ -25,8 +25,7 @@ class SessionTest {
         void shouldCreateSession() {
             var session = Session.create(
                     TestSessionMother.EXISTING_OWNER_ID,
-                    TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN,
-                    TestSessionMother.DEFAULT_HASHER
+                    TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN
             );
 
             assertNotNull(session.getId());
@@ -45,8 +44,7 @@ class SessionTest {
         void shouldCreateActiveSession() {
             var session = Session.create(
                     TestSessionMother.EXISTING_OWNER_ID,
-                    TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN,
-                    TestSessionMother.DEFAULT_HASHER
+                    TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN
             );
 
             assertTrue(session.isActive(Instant.now()));
@@ -58,8 +56,7 @@ class SessionTest {
         void shouldPublishSessionCreatedEvent() {
             var session = Session.create(
                     TestSessionMother.EXISTING_OWNER_ID,
-                    TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN,
-                    TestSessionMother.DEFAULT_HASHER
+                    TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN
             );
             var events = session.pullEvents();
 
@@ -71,13 +68,11 @@ class SessionTest {
         void shouldGenerateUniqueIdForEachSession() {
             var session1 = Session.create(
                     TestSessionMother.EXISTING_OWNER_ID,
-                    TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN,
-                    TestSessionMother.DEFAULT_HASHER
+                    TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN
             );
             var session2 = Session.create(
                     TestSessionMother.EXISTING_OWNER_ID,
-                    TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN,
-                    TestSessionMother.DEFAULT_HASHER
+                    TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN
             );
 
             assertNotEquals(session1.getId(), session2.getId());
@@ -89,8 +84,7 @@ class SessionTest {
                     NullPointerException.class,
                     () -> Session.create(
                             null,
-                            TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN,
-                            TestSessionMother.DEFAULT_HASHER
+                            TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN
                     )
             );
         }
@@ -101,19 +95,6 @@ class SessionTest {
                     NullPointerException.class,
                     () -> Session.create(
                             TestSessionMother.EXISTING_OWNER_ID,
-                            null,
-                            TestSessionMother.DEFAULT_HASHER
-                    )
-            );
-        }
-
-        @Test
-        void shouldThrowWhenCreatingWithNullHasher() {
-            assertThrows(
-                    NullPointerException.class,
-                    () -> Session.create(
-                            TestSessionMother.EXISTING_OWNER_ID,
-                            TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN,
                             null
                     )
             );
@@ -240,10 +221,7 @@ class SessionTest {
             var session = SessionTestBuilder.aSession().build();
 
             // When
-            var newSession = session.rotate(
-                    TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN,
-                    TestSessionMother.DEFAULT_HASHER
-            );
+            var newSession = session.rotate(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN);
 
             // Then
             assertNotNull(newSession);
@@ -262,10 +240,7 @@ class SessionTest {
             var session = SessionTestBuilder.aSession().build();
 
             // When
-            session.rotate(
-                    TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN,
-                    TestSessionMother.DEFAULT_HASHER
-            );
+            session.rotate(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN);
 
             // Then
             assertTrue(session.isRevoked());
@@ -279,10 +254,7 @@ class SessionTest {
             var session = SessionTestBuilder.aSession().build();
 
             // When
-            var newSession = session.rotate(
-                    TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN,
-                    TestSessionMother.DEFAULT_HASHER
-            );
+            var newSession = session.rotate(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN);
 
             // Then
             assertFalse(newSession.isRevoked());
@@ -296,10 +268,7 @@ class SessionTest {
             var session = SessionTestBuilder.aSession().build();
 
             // When
-            var newSession = session.rotate(
-                    TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN,
-                    TestSessionMother.DEFAULT_HASHER
-            );
+            var newSession = session.rotate(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN);
 
             // Then
             var oldEvents = session.pullEvents();
@@ -322,10 +291,7 @@ class SessionTest {
             // When/Then
             assertThrows(
                     SessionReuseDetectedException.class,
-                    () -> session.rotate(
-                            TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN,
-                            TestSessionMother.DEFAULT_HASHER
-                    )
+                    () -> session.rotate(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN)
             );
         }
 
@@ -340,10 +306,7 @@ class SessionTest {
             // When/Then
             assertThrows(
                     SessionRevokedException.class,
-                    () -> session.rotate(
-                            TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN,
-                            TestSessionMother.DEFAULT_HASHER
-                    )
+                    () -> session.rotate(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN)
             );
         }
 
@@ -358,10 +321,7 @@ class SessionTest {
             // When/Then
             assertThrows(
                     SessionRevokedException.class,
-                    () -> session.rotate(
-                            TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN,
-                            TestSessionMother.DEFAULT_HASHER
-                    )
+                    () -> session.rotate(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN)
             );
         }
 
@@ -375,10 +335,7 @@ class SessionTest {
             // When/Then
             assertThrows(
                     SessionExpiredException.class,
-                    () -> session.rotate(
-                            TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN,
-                            TestSessionMother.DEFAULT_HASHER
-                    )
+                    () -> session.rotate(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN)
             );
             assertFalse(session.isRevoked());
         }
@@ -391,19 +348,7 @@ class SessionTest {
             // When/Then
             assertThrows(
                     NullPointerException.class,
-                    () -> session.rotate(null, TestSessionMother.DEFAULT_HASHER)
-            );
-        }
-
-        @Test
-        void shouldThrowWhenRotateWithNullHasher() {
-            // Given
-            var session = SessionTestBuilder.aSession().build();
-
-            // When/Then
-            assertThrows(
-                    NullPointerException.class,
-                    () -> session.rotate(TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN, null)
+                    () -> session.rotate(null)
             );
         }
 

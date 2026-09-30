@@ -8,7 +8,6 @@ import com.petmanagement.auth.domain.model.valueobject.SessionHashedRefreshToken
 import com.petmanagement.auth.domain.model.valueobject.SessionId;
 
 import java.time.Instant;
-import java.util.function.UnaryOperator;
 
 public final class SessionTestBuilder {
 
@@ -56,11 +55,6 @@ public final class SessionTestBuilder {
 
     public SessionTestBuilder withHashedRefreshToken(SessionHashedRefreshToken hashedRefreshToken) {
         this.hashedRefreshToken = hashedRefreshToken;
-        return this;
-    }
-
-    public SessionTestBuilder withHashedRefreshToken(String refreshToken, UnaryOperator<String> hasher) {
-        this.hashedRefreshToken = SessionHashedRefreshToken.from(refreshToken, hasher);
         return this;
     }
 
