@@ -459,8 +459,7 @@ class PetTest {
         @Test
         void shouldCalculateAgeBeforeBirthdayThisYear() {
             var today = LocalDate.now();
-            var birthdayThisYear = today.withDayOfMonth(today.getDayOfMonth() + 1);
-            var birthDate = birthdayThisYear.minusYears(5);
+            var birthDate = today.plusDays(1).minusYears(5);
 
             var pet = PetTestBuilder.aPet()
                     .withBirthDate(birthDate)
