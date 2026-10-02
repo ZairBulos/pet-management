@@ -1,11 +1,9 @@
 package com.petmanagement.auth.support;
 
+import com.petmanagement.auth.application.port.in.RevokeSessionUseCase;
 import com.petmanagement.auth.domain.model.aggregate.Session;
 import com.petmanagement.auth.domain.model.enums.SessionRevocationReason;
-import com.petmanagement.auth.domain.model.valueobject.OwnerId;
-import com.petmanagement.auth.domain.model.valueobject.SessionExpiresAt;
-import com.petmanagement.auth.domain.model.valueobject.SessionHashedRefreshToken;
-import com.petmanagement.auth.domain.model.valueobject.SessionId;
+import com.petmanagement.auth.domain.model.valueobject.*;
 
 import java.time.Instant;
 
@@ -88,6 +86,29 @@ public final class SessionTestBuilder {
                 revocationReason,
                 createdAt
         );
+    }
+
+    public static class RevokeSessionCommandBuilder {
+
+        private SessionRefreshToken refreshToken;
+
+        private RevokeSessionCommandBuilder() {
+            this.refreshToken = TestSessionMother.DEFAULT_PLAIN_REFRESH_TOKEN;
+        }
+
+        public static RevokeSessionCommandBuilder aRevokeSessionCommand() {
+            return new RevokeSessionCommandBuilder();
+        }
+
+        public RevokeSessionCommandBuilder withRefreshToken(SessionRefreshToken refreshToken) {
+            this.refreshToken = refreshToken;
+            return this;
+        }
+
+        public RevokeSessionUseCase.RevokeSessionCommand build() {
+            return new RevokeSessionUseCase.RevokeSessionCommand(refreshToken);
+        }
+
     }
 
 }
