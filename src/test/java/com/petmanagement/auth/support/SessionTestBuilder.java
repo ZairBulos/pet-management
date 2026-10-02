@@ -1,5 +1,6 @@
 package com.petmanagement.auth.support;
 
+import com.petmanagement.auth.application.port.in.RefreshSessionUseCase;
 import com.petmanagement.auth.application.port.in.RevokeSessionUseCase;
 import com.petmanagement.auth.domain.model.aggregate.Session;
 import com.petmanagement.auth.domain.model.enums.SessionRevocationReason;
@@ -107,6 +108,29 @@ public final class SessionTestBuilder {
 
         public RevokeSessionUseCase.RevokeSessionCommand build() {
             return new RevokeSessionUseCase.RevokeSessionCommand(refreshToken);
+        }
+
+    }
+
+    public static class RefreshSessionCommandBuilder {
+
+        private SessionRefreshToken refreshToken;
+
+        private RefreshSessionCommandBuilder() {
+            this.refreshToken = TestSessionMother.ANOTHER_PLAIN_REFRESH_TOKEN;
+        }
+
+        public static RefreshSessionCommandBuilder aRefreshSessionCommand() {
+            return new RefreshSessionCommandBuilder();
+        }
+
+        public RefreshSessionCommandBuilder withRefreshToken(SessionRefreshToken refreshToken) {
+            this.refreshToken = refreshToken;
+            return this;
+        }
+
+        public RefreshSessionUseCase.RefreshSessionCommand build() {
+            return new RefreshSessionUseCase.RefreshSessionCommand(refreshToken);
         }
 
     }

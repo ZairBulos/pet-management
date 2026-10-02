@@ -6,6 +6,7 @@ import com.petmanagement.auth.domain.model.valueobject.OwnerId;
 import com.petmanagement.auth.domain.model.valueobject.SessionHashedRefreshToken;
 import com.petmanagement.auth.domain.model.valueobject.SessionId;
 
+import java.time.Instant;
 import java.util.*;
 
 public final class InMemorySessionRepository implements SessionRepositoryPort {
@@ -17,6 +18,17 @@ public final class InMemorySessionRepository implements SessionRepositoryPort {
         return sessions.values().stream()
                 .filter(session -> session.getHashedRefreshToken().equals(hashedRefreshToken))
                 .findFirst();
+    }
+
+    @Override
+    public List<Session> findActiveByOwnerId(OwnerId ownerId) {
+        var now = Instant.now();
+
+        return sessions.values().stream()
+                .filter(session -> session.getOwnerId().equals(ownerId))
+                .filter(session -> session.isActive(now))
+                .sorted(Comparator.comparing(Session::getCreatedAt))
+                .toList();
     }
 
     @Override

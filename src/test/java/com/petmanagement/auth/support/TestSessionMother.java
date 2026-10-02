@@ -13,6 +13,8 @@ public final class TestSessionMother {
             SessionId.of("24e27677-bd7c-43c6-828c-91f5c4fd931c");
     public static final SessionId ANOTHER_SESSION_ID =
             SessionId.of("ffed0f4b-843a-485e-8601-943b7a13319f");
+    public static final SessionId THIRD_SESSION_ID =
+            SessionId.of("ed842256-10e6-4de6-9783-c158c1598f52");
     public static final SessionId NON_EXISTENT__SESSION_ID =
             SessionId.of("aff29bc4-ddae-4c48-b7d2-7b97741eb338");
 
@@ -29,10 +31,10 @@ public final class TestSessionMother {
 
     public static final SessionRefreshToken DEFAULT_PLAIN_REFRESH_TOKEN =
             new SessionRefreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjhlMjEzZTdhYWMwMWIzMzkzM2MwNWU0NDNhOTk1ODFmIn0.e30.StjzbY0dVBxFnH6YtTnGTP4d2JxPFGcav2mRpA_uNT_xYAE3IsF7ELZgugmxxk5QHWCV9z3Mr5ivM0zBwOke6g");
-
     public static final SessionRefreshToken ANOTHER_PLAIN_REFRESH_TOKEN =
             new SessionRefreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjhlMjEzZTdhYWMwMWIzMzkzM2MwNWU0NDNhOTk1ODFmIn0.e30._jHbI-Prb278TL_m2a61OKYwWGs88XmhyWunlOrTwd-v0Q_OuWz2irB5TYojHijkNYyIdOueKeTFMtAvmvD0jA");
-
+    public static final SessionRefreshToken THIRD_PLAIN_REFRESH_TOKEN =
+            new SessionRefreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjE5OTJmY2MxMzVmNGZiNGEyZjhmYzNmM2Y3YjBlYjQ5In0.e30.UWsAvpCziVASG6KEMVmOBlt02TDdVCw6URRN85eKtAhJQecoaFeyA-puNAfqIhS9ctXC--cC0RYACMuuALzhWA");
     public static final SessionRefreshToken INVALID_PLAIN_REFRESH_TOKEN =
             new SessionRefreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiIsImtpZCI6IjhlMjEzZTdhYWMwMWIzMzkzM2MwNWU0NDNhOTk1ODFmIn0.e30.PKb-m-qcYN5PTrbgmVBw7nIz19s_U9ISIoD_Wn8HiGZOkvtPM-cTFsgIRreKJvmI0hF85GcfwDUTRiYbE2O1Nw");
 
@@ -40,10 +42,10 @@ public final class TestSessionMother {
 
     public static final SessionHashedRefreshToken DEFAULT_HASHED_REFRESH_TOKEN =
             SessionHashedRefreshToken.from(DEFAULT_PLAIN_REFRESH_TOKEN);
-
     public static final SessionHashedRefreshToken ANOTHER_HASHED_REFRESH_TOKEN =
             SessionHashedRefreshToken.from(ANOTHER_PLAIN_REFRESH_TOKEN);
-
+    public static final SessionHashedRefreshToken THIRD_HASHED_REFRESH_TOKEN =
+            SessionHashedRefreshToken.from(THIRD_PLAIN_REFRESH_TOKEN);
     public static final SessionHashedRefreshToken INVALID_HASHED_REFRESH_TOKEN =
             SessionHashedRefreshToken.from(INVALID_PLAIN_REFRESH_TOKEN);
 
@@ -51,10 +53,8 @@ public final class TestSessionMother {
 
     public static final SessionExpiresAt DEFAULT_EXPIRES_AT =
             SessionExpiresAt.generate();
-
     public static final SessionExpiresAt EXPIRED_EXPIRES_AT =
             SessionExpiresAt.generate(Duration.ofMinutes(-1));
-
     public static final SessionExpiresAt FUTURE_EXPIRES_AT =
             SessionExpiresAt.generate(Duration.ofDays(14));
 
