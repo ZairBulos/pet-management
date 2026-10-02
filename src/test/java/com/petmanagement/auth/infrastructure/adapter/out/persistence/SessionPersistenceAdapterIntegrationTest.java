@@ -91,6 +91,72 @@ class SessionPersistenceAdapterIntegrationTest {
     }
 
     @Nested
+    class WhenFindingActiveSessionsByOwnerId {
+
+        @Test
+        void shouldReturnActiveSessionsOfOwner() {
+            // Given
+            var firstSession = SessionTestBuilder.aSession().build();
+            var secondSession = SessionTestBuilder.aSession()
+                    .withId(TestSessionMother.ANOTHER_SESSION_ID)
+                    .withHashedRefreshToken(TestSessionMother.ANOTHER_HASHED_REFRESH_TOKEN)
+                    .build();
+            adapter.save(firstSession);
+            adapter.save(secondSession);
+
+            // When
+            var result = adapter.findActiveByOwnerId(firstSession.getOwnerId());
+
+            // Then
+            assertEquals(2, result.size());
+        }
+
+        @Test
+        void shouldReturnEmptyWhenOwnerHasNoSessions() {
+            // Given
+            var ownerId = TestSessionMother.NON_EXISTING_OWNER_ID;
+
+            // When
+            var result = adapter.findActiveByOwnerId(ownerId);
+
+            // Then
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void shouldExcludeRevokedSessions() {
+            // Given
+            var session = SessionTestBuilder.aSession()
+                    .withRevokedAt(Instant.now())
+                    .withRevocationReason(SessionRevocationReason.LOGOUT)
+                    .build();
+            adapter.save(session);
+
+            // When
+            var result = adapter.findActiveByOwnerId(session.getOwnerId());
+
+            // Then
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void shouldExcludeExpiredSessions() {
+            // Given
+            var session = SessionTestBuilder.aSession()
+                    .withExpiresAt(TestSessionMother.EXPIRED_EXPIRES_AT)
+                    .build();
+            adapter.save(session);
+
+            // When
+            var result = adapter.findActiveByOwnerId(session.getOwnerId());
+
+            // Then
+            assertTrue(result.isEmpty());
+        }
+
+    }
+
+    @Nested
     class WhenSavingSession {
 
         @Test
