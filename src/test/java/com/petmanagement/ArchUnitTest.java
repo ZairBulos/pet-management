@@ -59,7 +59,10 @@ class ArchUnitTest {
                             "..java..",
                             "..jakarta..",
                             "org.jmolecules..",
-                            "org.springframework.."
+                            "org.springframework..",
+                            "org.slf4j..",
+                            "tools.jackson..",
+                            "com.auth0.jwt.."
                     )
                     .because("Infrastructure can depend on all layers");
 
