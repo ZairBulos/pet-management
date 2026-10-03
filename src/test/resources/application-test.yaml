@@ -5,3 +5,11 @@ spring:
 
   flyway:
     clean-disabled: true
+
+app:
+  security:
+    jwt:
+      secret: UVzp+I3t0PMOLjar7IhpTCCOflxyx4cTNBxNOu5Xry4=
+      issuer: pet-management-test
+      audience: pet-management-test-api
+      access-token-ttl: 15m

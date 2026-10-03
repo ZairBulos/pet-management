@@ -18,3 +18,11 @@ spring:
 springdotenv:
   enabled: true
   filename: .env.dev
+
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:wBTyIBPVvS7/VxFKNpy+OhYAIYzmq+GLPHVMEU7gOYQ=}
+      issuer: ${JWT_ISSUER:pet-management-dev}
+      audience: ${JWT_AUDIENCE:pet-management-api}
+      access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:15m}
