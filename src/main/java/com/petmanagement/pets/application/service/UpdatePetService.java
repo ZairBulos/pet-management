@@ -5,17 +5,19 @@ import com.petmanagement.pets.application.port.out.PetRepositoryPort;
 import com.petmanagement.pets.domain.exception.PetNotFoundException;
 import com.petmanagement.pets.domain.model.aggregate.Pet;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 class UpdatePetService implements UpdatePetUseCase {
 
     private final PetRepositoryPort repository;
 
-    public UpdatePetService(PetRepositoryPort repository) {
+    UpdatePetService(PetRepositoryPort repository) {
         this.repository = repository;
     }
 
     @Override
+    @Transactional
     public Pet execute(UpdatePetCommand command) {
         var pet = repository.findById(command.petId())
                 .orElseThrow(PetNotFoundException::new);
