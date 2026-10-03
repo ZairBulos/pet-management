@@ -3,9 +3,12 @@ package com.petmanagement.auth.application.port.out;
 import com.petmanagement.auth.domain.model.valueobject.OwnerId;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public interface TokenProviderPort {
     AuthTokens generate(OwnerId ownerId);
+
+    Optional<OwnerId> verifyAccessToken(String accessToken);
 
     record AuthTokens(String accessToken, String refreshToken) {
 
@@ -15,4 +18,5 @@ public interface TokenProviderPort {
         }
 
     }
+
 }
