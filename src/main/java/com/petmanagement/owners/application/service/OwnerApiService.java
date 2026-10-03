@@ -14,7 +14,7 @@ class OwnerApiService implements OwnerApi {
 
     private final OwnerRepositoryPort repository;
 
-    public OwnerApiService(OwnerRepositoryPort repository) {
+    OwnerApiService(OwnerRepositoryPort repository) {
         this.repository = repository;
     }
 

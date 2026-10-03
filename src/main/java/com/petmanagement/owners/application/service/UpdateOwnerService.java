@@ -6,17 +6,19 @@ import com.petmanagement.owners.domain.exception.OwnerAlreadyExistsException;
 import com.petmanagement.owners.domain.exception.OwnerNotFoundException;
 import com.petmanagement.owners.domain.model.aggregate.Owner;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 class UpdateOwnerService implements UpdateOwnerUseCase {
 
     private final OwnerRepositoryPort repository;
 
-    public UpdateOwnerService(OwnerRepositoryPort repository) {
+    UpdateOwnerService(OwnerRepositoryPort repository) {
         this.repository = repository;
     }
 
     @Override
+    @Transactional
     public Owner execute(UpdateOwnerCommand command) {
         var owner = repository.findById(command.ownerId())
                 .orElseThrow(OwnerNotFoundException::new);
