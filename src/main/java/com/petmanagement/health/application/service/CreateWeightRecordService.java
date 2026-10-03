@@ -7,6 +7,7 @@ import com.petmanagement.health.domain.model.aggregate.WeightRecord;
 import com.petmanagement.health.domain.model.valueobject.WeightRecordId;
 import com.petmanagement.pets.api.PetApi;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 class CreateWeightRecordService implements CreateWeightRecordUseCase {
@@ -14,16 +15,17 @@ class CreateWeightRecordService implements CreateWeightRecordUseCase {
     private final WeightRecordRepositoryPort repository;
     private final PetApi petApi;
 
-    public CreateWeightRecordService(WeightRecordRepositoryPort repository, PetApi petApi) {
+    CreateWeightRecordService(WeightRecordRepositoryPort repository, PetApi petApi) {
         this.repository = repository;
         this.petApi = petApi;
     }
 
     @Override
+    @Transactional
     public WeightRecordId execute(CreateWeightRecordCommand command) {
-        var exists = petApi.existsById(command.petId().value());
+        var petExists = petApi.existsById(command.petId().value());
 
-        if (!exists)
+        if (!petExists)
             throw new PetNotFoundException();
 
         var weightRecord = WeightRecord.create(

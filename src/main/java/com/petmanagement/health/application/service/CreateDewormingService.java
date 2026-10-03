@@ -17,7 +17,7 @@ class CreateDewormingService implements CreateDewormingUseCase {
     private final EventPublisherPort publisher;
     private final PetApi petApi;
 
-    public CreateDewormingService(DewormingRepositoryPort repository, EventPublisherPort publisher, PetApi petApi) {
+    CreateDewormingService(DewormingRepositoryPort repository, EventPublisherPort publisher, PetApi petApi) {
         this.repository = repository;
         this.publisher = publisher;
         this.petApi = petApi;

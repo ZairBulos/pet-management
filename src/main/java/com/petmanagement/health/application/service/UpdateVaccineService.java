@@ -14,7 +14,7 @@ class UpdateVaccineService implements UpdateVaccineUseCase {
     private final VaccineRepositoryPort repository;
     private final EventPublisherPort publisher;
 
-    public UpdateVaccineService(VaccineRepositoryPort repository, EventPublisherPort publisher) {
+    UpdateVaccineService(VaccineRepositoryPort repository, EventPublisherPort publisher) {
         this.repository = repository;
         this.publisher = publisher;
     }

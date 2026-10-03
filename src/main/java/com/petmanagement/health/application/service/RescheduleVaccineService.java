@@ -14,7 +14,7 @@ class RescheduleVaccineService implements RescheduleVaccineUseCase {
     private final VaccineRepositoryPort repository;
     private final EventPublisherPort publisher;
 
-    public RescheduleVaccineService(VaccineRepositoryPort repository, EventPublisherPort publisher) {
+    RescheduleVaccineService(VaccineRepositoryPort repository, EventPublisherPort publisher) {
         this.repository = repository;
         this.publisher = publisher;
     }

@@ -7,6 +7,7 @@ import com.petmanagement.health.domain.model.aggregate.WeightRecord;
 import com.petmanagement.pets.api.PetApi;
 import com.petmanagement.shared.domain.model.PageResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 class GetWeightHistoryService implements GetWeightHistoryUseCase {
@@ -14,12 +15,13 @@ class GetWeightHistoryService implements GetWeightHistoryUseCase {
     private final WeightRecordRepositoryPort repository;
     private final PetApi petApi;
 
-    public GetWeightHistoryService(WeightRecordRepositoryPort repository, PetApi petApi) {
+    GetWeightHistoryService(WeightRecordRepositoryPort repository, PetApi petApi) {
         this.repository = repository;
         this.petApi = petApi;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PageResponse<WeightRecord> execute(GetWeightHistoryQuery query) {
         var petExists = petApi.existsById(query.petId().value());
 

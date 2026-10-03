@@ -14,7 +14,7 @@ class UpdateDewormingService implements UpdateDewormingUseCase {
     private final DewormingRepositoryPort repository;
     private final EventPublisherPort publisher;
 
-    public UpdateDewormingService(DewormingRepositoryPort repository, EventPublisherPort publisher) {
+    UpdateDewormingService(DewormingRepositoryPort repository, EventPublisherPort publisher) {
         this.repository = repository;
         this.publisher = publisher;
     }

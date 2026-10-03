@@ -7,6 +7,7 @@ import com.petmanagement.health.domain.model.aggregate.Deworming;
 import com.petmanagement.pets.api.PetApi;
 import com.petmanagement.shared.domain.model.PageResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 class GetDewormingHistoryService implements GetDewormingHistoryUseCase {
@@ -14,12 +15,13 @@ class GetDewormingHistoryService implements GetDewormingHistoryUseCase {
     private final DewormingRepositoryPort repository;
     private final PetApi petApi;
 
-    public GetDewormingHistoryService(DewormingRepositoryPort repository, PetApi petApi) {
+    GetDewormingHistoryService(DewormingRepositoryPort repository, PetApi petApi) {
         this.repository = repository;
         this.petApi = petApi;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PageResponse<Deworming> execute(GetDewormingHistoryQuery query) {
         var petExists = petApi.existsById(query.petId().value());
 

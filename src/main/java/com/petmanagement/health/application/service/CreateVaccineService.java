@@ -17,7 +17,7 @@ class CreateVaccineService implements CreateVaccineUseCase {
     private final EventPublisherPort publisher;
     private final PetApi petApi;
 
-    public CreateVaccineService(VaccineRepositoryPort repository, EventPublisherPort publisher, PetApi petApi) {
+    CreateVaccineService(VaccineRepositoryPort repository, EventPublisherPort publisher, PetApi petApi) {
         this.repository = repository;
         this.publisher = publisher;
         this.petApi = petApi;
@@ -26,9 +26,9 @@ class CreateVaccineService implements CreateVaccineUseCase {
     @Override
     @Transactional
     public VaccineId execute(CreateVaccineCommand command) {
-        var exists = petApi.existsById(command.petId().value());
+        var petExists = petApi.existsById(command.petId().value());
 
-        if (!exists)
+        if (!petExists)
             throw new PetNotFoundException();
 
         var vaccine = Vaccine.create(

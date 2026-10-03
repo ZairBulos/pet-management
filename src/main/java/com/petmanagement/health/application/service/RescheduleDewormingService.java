@@ -14,7 +14,7 @@ class RescheduleDewormingService implements RescheduleDewormingUseCase {
     private final DewormingRepositoryPort repository;
     private final EventPublisherPort publisher;
 
-    public RescheduleDewormingService(DewormingRepositoryPort repository, EventPublisherPort publisher) {
+    RescheduleDewormingService(DewormingRepositoryPort repository, EventPublisherPort publisher) {
         this.repository = repository;
         this.publisher = publisher;
     }

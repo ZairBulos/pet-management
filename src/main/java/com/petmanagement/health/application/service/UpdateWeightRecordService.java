@@ -5,17 +5,19 @@ import com.petmanagement.health.application.port.out.WeightRecordRepositoryPort;
 import com.petmanagement.health.domain.exception.WeightRecordNotFoundException;
 import com.petmanagement.health.domain.model.aggregate.WeightRecord;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 class UpdateWeightRecordService implements UpdateWeightRecordUseCase {
 
     private final WeightRecordRepositoryPort repository;
 
-    public UpdateWeightRecordService(WeightRecordRepositoryPort repository) {
+    UpdateWeightRecordService(WeightRecordRepositoryPort repository) {
         this.repository = repository;
     }
 
     @Override
+    @Transactional
     public WeightRecord execute(UpdateWeightRecordCommand command) {
         var weightRecord = repository.findById(command.weightRecordId())
                 .orElseThrow(WeightRecordNotFoundException::new);
