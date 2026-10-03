@@ -21,7 +21,7 @@ class RefreshSessionService implements RefreshSessionUseCase {
     private final TokenProviderPort tokenProvider;
     private final EventPublisherPort publisher;
 
-    public RefreshSessionService(
+    RefreshSessionService(
             SessionRepositoryPort repository,
             TokenProviderPort tokenProvider,
             EventPublisherPort publisher

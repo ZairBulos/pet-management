@@ -22,11 +22,11 @@ class VerifyAuthenticationService implements VerifyAuthenticationUseCase {
     private final AuthenticationRepositoryPort authenticationRepository;
     private final SessionRepositoryPort sessionRepository;
     private final TokenProviderPort tokenProvider;
-    private BiPredicate<String, String> verifier;
+    private final BiPredicate<String, String> verifier;
     private final EventPublisherPort publisher;
     private final OwnerApi ownerApi;
 
-    public VerifyAuthenticationService(
+    VerifyAuthenticationService(
             AuthenticationRepositoryPort authenticationRepository,
             SessionRepositoryPort sessionRepository,
             TokenProviderPort tokenProvider,

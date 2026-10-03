@@ -15,7 +15,7 @@ class RevokeSessionService implements RevokeSessionUseCase {
     private final SessionRepositoryPort repository;
     private final EventPublisherPort publisher;
 
-    public RevokeSessionService(SessionRepositoryPort repository, EventPublisherPort publisher) {
+    RevokeSessionService(SessionRepositoryPort repository, EventPublisherPort publisher) {
         this.repository = repository;
         this.publisher = publisher;
     }

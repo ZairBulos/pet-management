@@ -19,7 +19,7 @@ class RequestAuthenticationService implements RequestAuthenticationUseCase {
     private final UnaryOperator<String> hasher;
     private final OwnerApi ownerApi;
 
-    public RequestAuthenticationService(
+    RequestAuthenticationService(
             AuthenticationRepositoryPort repository,
             EventPublisherPort publisher,
             UnaryOperator<String> hasher,
