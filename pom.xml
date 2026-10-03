@@ -36,6 +36,9 @@
 		<!-- Environment configuration -->
 		<spring-dotenv.version>5.1.0</spring-dotenv.version>
 
+		<!-- Java JWT -->
+		<java-jwt.version>4.6.1</java-jwt.version>
+
 		<!-- Architecture -->
 		<jmolecules.version>2025.0.2</jmolecules.version>
 		<archunit.version>1.5.0</archunit.version>
@@ -109,6 +112,13 @@
 			<groupId>me.paulschwarz</groupId>
 			<artifactId>springboot4-dotenv</artifactId>
 			<optional>true</optional>
+		</dependency>
+
+		<!-- Security -->
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>${java-jwt.version}</version>
 		</dependency>
 
 		<!-- Development -->
