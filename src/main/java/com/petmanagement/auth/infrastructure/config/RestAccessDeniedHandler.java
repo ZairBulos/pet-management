@@ -14,7 +14,7 @@ import tools.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 
 @Component
-class RestAccessDeniedHandler implements AccessDeniedHandler {
+public class RestAccessDeniedHandler implements AccessDeniedHandler {
 
     private final JsonMapper jsonMapper;
 

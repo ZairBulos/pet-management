@@ -14,7 +14,7 @@ import tools.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 
 @Component
-class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private final JsonMapper jsonMapper;
 
