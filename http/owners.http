@@ -7,3 +7,8 @@ Content-Type: application/json
   "email": "chris.jones@example.com",
   "phone": "+1 (903) 744-6133"
 }
+
+### Me
+GET {{host}}/api/owners/me
+Authorization: Bearer {{token}}
+
