@@ -125,6 +125,13 @@
 			<version>${java-jwt.version}</version>
 		</dependency>
 
+		<!-- Observability -->
+		<dependency>
+			<groupId>org.springframework.modulith</groupId>
+			<artifactId>spring-modulith-starter-insight</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 		<!-- Development -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
