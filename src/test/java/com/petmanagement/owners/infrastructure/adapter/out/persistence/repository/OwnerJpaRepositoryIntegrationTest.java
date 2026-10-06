@@ -1,6 +1,6 @@
 package com.petmanagement.owners.infrastructure.adapter.out.persistence.repository;
 
-import com.petmanagement.RepositoryTest;
+import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.owners.support.OwnerJpaEntityTestBuilder;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

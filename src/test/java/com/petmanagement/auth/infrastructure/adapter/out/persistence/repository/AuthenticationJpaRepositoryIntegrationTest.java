@@ -1,6 +1,6 @@
 package com.petmanagement.auth.infrastructure.adapter.out.persistence.repository;
 
-import com.petmanagement.RepositoryTest;
+import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.auth.support.AuthenticationJpaEntityTestBuilder;
 import com.petmanagement.auth.support.TestAuthenticationMother;
 import org.junit.jupiter.api.Nested;

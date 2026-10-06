@@ -1,6 +1,6 @@
 package com.petmanagement.health.infrastructure.adapter.out.persistence;
 
-import com.petmanagement.RepositoryTest;
+import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.health.infrastructure.adapter.out.persistence.mapper.WeightRecordMapper;
 import com.petmanagement.health.support.TestCommonMother;
 import com.petmanagement.health.support.TestPetIdMother;

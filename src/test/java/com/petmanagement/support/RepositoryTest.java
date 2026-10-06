@@ -1,4 +1,4 @@
-package com.petmanagement;
+package com.petmanagement.support;
 
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;

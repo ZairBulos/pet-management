@@ -1,6 +1,6 @@
 package com.petmanagement.auth.infrastructure.adapter.out.persistence;
 
-import com.petmanagement.RepositoryTest;
+import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.auth.infrastructure.adapter.out.persistence.mapper.AuthenticationMapper;
 import com.petmanagement.auth.support.AuthenticationTestBuilder;
 import com.petmanagement.auth.support.TestAuthenticationMother;

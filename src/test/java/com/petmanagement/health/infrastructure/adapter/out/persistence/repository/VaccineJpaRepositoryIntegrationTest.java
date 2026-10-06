@@ -1,6 +1,6 @@
 package com.petmanagement.health.infrastructure.adapter.out.persistence.repository;
 
-import com.petmanagement.RepositoryTest;
+import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.health.support.TestCommonMother;
 import com.petmanagement.health.support.TestPetIdMother;
 import com.petmanagement.health.support.TestVaccineMother;

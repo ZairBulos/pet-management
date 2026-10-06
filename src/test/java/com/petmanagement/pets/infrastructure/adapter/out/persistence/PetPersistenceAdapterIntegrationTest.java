@@ -1,6 +1,6 @@
 package com.petmanagement.pets.infrastructure.adapter.out.persistence;
 
-import com.petmanagement.RepositoryTest;
+import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.pets.domain.model.aggregate.Pet;
 import com.petmanagement.pets.infrastructure.adapter.out.persistence.mapper.PetMapper;
 import com.petmanagement.pets.support.PetTestBuilder;

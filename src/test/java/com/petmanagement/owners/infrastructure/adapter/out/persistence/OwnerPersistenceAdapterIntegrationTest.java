@@ -1,6 +1,6 @@
 package com.petmanagement.owners.infrastructure.adapter.out.persistence;
 
-import com.petmanagement.RepositoryTest;
+import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.owners.domain.model.aggregate.Owner;
 import com.petmanagement.owners.domain.model.valueobject.Email;
 import com.petmanagement.owners.infrastructure.adapter.out.persistence.mapper.OwnerMapper;

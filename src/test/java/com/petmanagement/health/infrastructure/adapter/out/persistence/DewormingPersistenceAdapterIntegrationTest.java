@@ -1,6 +1,6 @@
 package com.petmanagement.health.infrastructure.adapter.out.persistence;
 
-import com.petmanagement.RepositoryTest;
+import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.health.infrastructure.adapter.out.persistence.mapper.DewormingMapper;
 import com.petmanagement.health.support.DewormingTestBuilder;
 import com.petmanagement.health.support.TestCommonMother;

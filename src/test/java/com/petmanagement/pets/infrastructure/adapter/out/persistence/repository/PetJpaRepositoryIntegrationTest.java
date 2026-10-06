@@ -1,6 +1,6 @@
 package com.petmanagement.pets.infrastructure.adapter.out.persistence.repository;
 
-import com.petmanagement.RepositoryTest;
+import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.pets.support.PetJpaEntityTestBuilder;
 import com.petmanagement.pets.support.TestOwnerIdMother;
 import com.petmanagement.pets.support.TestPetMother;
