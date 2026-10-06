@@ -1,7 +1,10 @@
 package com.petmanagement.owners.infrastructure.adapter.in.http;
 
 import com.petmanagement.owners.application.port.in.CreateOwnerUseCase;
+import com.petmanagement.owners.application.port.in.GetOwnerUseCase;
 import com.petmanagement.owners.domain.exception.OwnerAlreadyExistsException;
+import com.petmanagement.owners.domain.exception.OwnerNotFoundException;
+import com.petmanagement.owners.domain.model.valueobject.OwnerId;
 import com.petmanagement.owners.infrastructure.adapter.in.http.dto.request.CreateOwnerRequest;
 import com.petmanagement.owners.infrastructure.adapter.in.http.mapper.OwnerHttpMapper;
 import com.petmanagement.owners.support.OwnerTestBuilder;
@@ -15,16 +18,22 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import java.util.Collections;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = OwnerController.class)
@@ -33,6 +42,14 @@ class OwnerControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private CreateOwnerUseCase createOwnerUseCase;
+    @MockitoBean
+    private GetOwnerUseCase getOwnerUseCase;
+
+    private RequestPostProcessor authenticatedAs(OwnerId ownerId) {
+        return authentication(
+                new UsernamePasswordAuthenticationToken(ownerId.value(), null, Collections.emptyList())
+        );
+    }
 
     @Nested
     class Create {
@@ -121,6 +138,65 @@ class OwnerControllerTest extends ControllerTestSupport {
                     arguments("phone has fewer than 7 digits", new CreateOwnerRequest(name, email, "123456"), "phone"),
                     arguments("phone has more than 15 digits", new CreateOwnerRequest(name, email, "1234567890123456"), "phone")
             );
+        }
+
+    }
+
+    @Nested
+    class Me {
+
+        @Test
+        void shouldReturn200WithOwnerData() throws Exception {
+            // Given
+            var ownerId = TestOwnerMother.DEFAULT_OWNER_ID;
+            var owner = OwnerTestBuilder.aOwner().build();
+
+            given(getOwnerUseCase.execute(new GetOwnerUseCase.GetOwnerCommand(ownerId)))
+                    .willReturn(owner);
+
+            // When/Then
+            getMe(ownerId)
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.name").value(TestOwnerMother.OWNER_NAME_JOHN.value()))
+                    .andExpect(jsonPath("$.email").value(TestOwnerMother.EMAIL_JOHN.value()))
+                    .andExpect(jsonPath("$.phone").value(TestOwnerMother.PHONE_JOHN.value()));
+
+            verify(getOwnerUseCase).execute(new GetOwnerUseCase.GetOwnerCommand(ownerId));
+        }
+
+        @Test
+        void shouldReturn401_whenNoAuthenticationIsProvided() throws Exception {
+            // When/Then
+            getMeWithoutAuth()
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(getOwnerUseCase);
+        }
+
+        @Test
+        void shouldReturn404_whenOwnerDoesNotExist() throws Exception {
+            // Given
+            var ownerId = TestOwnerMother.NON_EXISTING_OWNER_ID;
+
+            given(getOwnerUseCase.execute(any()))
+                    .willThrow(new OwnerNotFoundException());
+
+            // When/Then
+            getMe(ownerId)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").value("OWNER_NOT_FOUND"));
+        }
+
+        // === Helpers ===
+
+        private ResultActions getMe(OwnerId ownerId) throws Exception {
+            return mockMvc.perform(get(OwnerController.OWNERS + OwnerController.ME)
+                    .with(authenticatedAs(ownerId)));
+        }
+
+        private ResultActions getMeWithoutAuth() throws Exception {
+            return mockMvc.perform(get(OwnerController.OWNERS + OwnerController.ME));
         }
 
     }
