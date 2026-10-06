@@ -1,0 +1,9 @@
+### Create
+POST {{host}}/api/owners
+Content-Type: application/json
+
+{
+  "name": "Chris Jones",
+  "email": "chris.jones@example.com",
+  "phone": "+1 (903) 744-6133"
+}
