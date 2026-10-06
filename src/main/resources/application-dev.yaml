@@ -15,9 +15,23 @@ spring:
     compose:
       enabled: true
 
+  security:
+    user:
+      name: ${SECURITY_USER_NAME:admin}
+      password: ${SECURITY_USER_PASSWORD:$2a$10$b1GhFVyhTNnuK7uG4bBEZeBRfKZjpOrIwOAOMc5olm92g0yT994GW}
+
 springdotenv:
   enabled: true
   filename: .env.dev
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
 
 app:
   security:
