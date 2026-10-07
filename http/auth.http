@@ -1,0 +1,7 @@
+### Request authentication
+POST {{host}}/api/auth/request
+Content-Type: application/json
+
+{
+  "email": "chris.jones@example.com"
+}
