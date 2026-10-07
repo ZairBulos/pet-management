@@ -12,3 +12,13 @@ Content-Type: application/json
 GET {{host}}/api/owners/me
 Authorization: Bearer {{token}}
 
+### Update
+PUT {{host}}/api/owners/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Chris Jones",
+  "email": "c.jones@example.com",
+  "phone": "+1 (954) 981-1015"
+}
