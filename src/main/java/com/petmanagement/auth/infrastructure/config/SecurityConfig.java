@@ -59,6 +59,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/owners").permitAll()
+                        .requestMatchers("/api/auth/request").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception
