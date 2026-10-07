@@ -2,7 +2,9 @@ package com.petmanagement.owners.infrastructure.adapter.in.http;
 
 import com.petmanagement.owners.application.port.in.CreateOwnerUseCase;
 import com.petmanagement.owners.application.port.in.GetOwnerUseCase;
+import com.petmanagement.owners.application.port.in.UpdateOwnerUseCase;
 import com.petmanagement.owners.infrastructure.adapter.in.http.dto.request.CreateOwnerRequest;
+import com.petmanagement.owners.infrastructure.adapter.in.http.dto.request.UpdateOwnerRequest;
 import com.petmanagement.owners.infrastructure.adapter.in.http.dto.response.OwnerResponse;
 import com.petmanagement.owners.infrastructure.adapter.in.http.mapper.OwnerHttpMapper;
 import jakarta.validation.Valid;
@@ -27,15 +29,18 @@ class OwnerController {
     private final OwnerHttpMapper mapper;
     private final GetOwnerUseCase getOwnerUseCase;
     private final CreateOwnerUseCase createOwnerUseCase;
+    private final UpdateOwnerUseCase updateOwnerUseCase;
 
     OwnerController(
             OwnerHttpMapper mapper,
             GetOwnerUseCase getOwnerUseCase,
-            CreateOwnerUseCase createOwnerUseCase
+            CreateOwnerUseCase createOwnerUseCase,
+            UpdateOwnerUseCase updateOwnerUseCase
     ) {
         this.mapper = mapper;
         this.getOwnerUseCase = getOwnerUseCase;
         this.createOwnerUseCase = createOwnerUseCase;
+        this.updateOwnerUseCase = updateOwnerUseCase;
     }
 
     @PostMapping
@@ -56,6 +61,22 @@ class OwnerController {
         log.info("Getting owner id={}", ownerId);
 
         var owner = getOwnerUseCase.execute(mapper.toGetOwnerUseCase(ownerId));
+
+        log.info("Owner={}", owner);
+
+        var response = mapper.toOwnerResponse(owner);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PutMapping(ME)
+    ResponseEntity<OwnerResponse> update(
+            @AuthenticationPrincipal UUID ownerId,
+            @Valid @RequestBody UpdateOwnerRequest request
+    ) {
+        log.info("Updating owner id={}", ownerId);
+
+        var owner = updateOwnerUseCase.execute(mapper.toUpdateOwnerCommand(ownerId, request));
 
         log.info("Owner={}", owner);
 
