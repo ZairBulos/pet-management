@@ -1,8 +1,10 @@
 package com.petmanagement.auth.infrastructure.adapter.in.http;
 
+import com.petmanagement.auth.application.port.in.RefreshSessionUseCase;
 import com.petmanagement.auth.application.port.in.RequestAuthenticationUseCase;
 import com.petmanagement.auth.application.port.in.VerifyAuthenticationUseCase;
 import com.petmanagement.auth.domain.exception.*;
+import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RefreshSessionRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RequestAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.VerifyAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.mapper.AuthHttpMapper;
@@ -23,6 +25,7 @@ import java.util.stream.Stream;
 
 import static com.petmanagement.auth.support.AuthenticationTestBuilder.RequestAuthenticationCommandBuilder.aRequestAuthenticationCommand;
 import static com.petmanagement.auth.support.AuthenticationTestBuilder.VerifyAuthenticationCommandBuilder.aVerifyAuthenticationCommand;
+import static com.petmanagement.auth.support.SessionTestBuilder.RefreshSessionCommandBuilder.aRefreshSessionCommand;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -39,6 +42,9 @@ class AuthControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private VerifyAuthenticationUseCase verifyAuthenticationUseCase;
+
+    @MockitoBean
+    private RefreshSessionUseCase refreshSessionUseCase;
 
     @Nested
     class RequestAuthentication {
@@ -232,6 +238,88 @@ class AuthControllerTest extends ControllerTestSupport {
                     arguments("code has letters", new VerifyAuthenticationRequest(email, "12ab56"), "code"),
                     arguments("code has fewer than 6 digits", new VerifyAuthenticationRequest(email, "12345"), "code"),
                     arguments("code has more than 6 digits", new VerifyAuthenticationRequest(email, "1234567"), "code")
+            );
+        }
+
+    }
+
+    @Nested
+    class RefreshSession {
+
+        @Test
+        void shouldReturn200WithNewTokens() throws Exception {
+            // Given
+            var command = aRefreshSessionCommand().build();
+            var request = toRequest(command);
+
+            given(refreshSessionUseCase.execute(command))
+                    .willReturn(new RefreshSessionUseCase.RefreshSessionResult("new-access-token", "new-refresh-token"));
+
+            // When/Then
+            postRefresh(request)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.accessToken").value("new-access-token"))
+                    .andExpect(jsonPath("$.refreshToken").value("new-refresh-token"));
+
+            verify(refreshSessionUseCase).execute(command);
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("invalidRequests")
+        void shouldReturn400WhenRequestIsInvalid(
+                String description, RefreshSessionRequest request
+        ) throws Exception {
+            // When/Then
+            postRefresh(request)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+
+            verifyNoInteractions(refreshSessionUseCase);
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("invalidSessions")
+        void shouldReturn401WhenSessionIsNotValid(
+                String description, RuntimeException exception
+        ) throws Exception {
+            // Given
+            var request = toRequest(aRefreshSessionCommand().build());
+
+            given(refreshSessionUseCase.execute(any()))
+                    .willThrow(exception);
+
+            // When/Then
+            postRefresh(request)
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.error").value("INVALID_SESSION"));
+        }
+
+        // === Helpers ===
+
+        private RefreshSessionRequest toRequest(RefreshSessionUseCase.RefreshSessionCommand command) {
+            return new RefreshSessionRequest(command.refreshToken().value());
+        }
+
+        private ResultActions postRefresh(Object body) throws Exception {
+            return mockMvc.perform(post(AuthController.AUTH + AuthController.REFRESH)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(body)));
+        }
+
+        static Stream<Arguments> invalidRequests() {
+            return Stream.of(
+                    arguments("refresh token is null", new RefreshSessionRequest(null)),
+                    arguments("refresh token is empty", new RefreshSessionRequest("")),
+                    arguments("refresh token is blank", new RefreshSessionRequest("   "))
+            );
+        }
+
+        static Stream<Arguments> invalidSessions() {
+            return Stream.of(
+                    arguments("session does not exist", new SessionNotFoundException()),
+                    arguments("session is expired", new SessionExpiredException()),
+                    arguments("session is revoked", new SessionRevokedException()),
+                    arguments("session reuse is detected", new SessionReuseDetectedException())
             );
         }
 
