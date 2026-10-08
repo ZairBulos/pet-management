@@ -9,7 +9,6 @@ import com.petmanagement.owners.domain.model.valueobject.OwnerId;
 import com.petmanagement.owners.infrastructure.adapter.in.http.dto.request.CreateOwnerRequest;
 import com.petmanagement.owners.infrastructure.adapter.in.http.dto.request.UpdateOwnerRequest;
 import com.petmanagement.owners.infrastructure.adapter.in.http.mapper.OwnerHttpMapper;
-import com.petmanagement.owners.support.OwnerTestBuilder;
 import com.petmanagement.owners.support.TestOwnerMother;
 import com.petmanagement.support.ControllerTestSupport;
 import org.junit.jupiter.api.Nested;
@@ -20,23 +19,18 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import java.util.Collections;
 import java.util.stream.Stream;
 
+import static com.petmanagement.owners.support.OwnerTestBuilder.CreateOwnerCommandBuilder.aCreateOwnerCommand;
+import static com.petmanagement.owners.support.OwnerTestBuilder.UpdateOwnerCommandBuilder.aUpdateOwnerCommand;
+import static com.petmanagement.owners.support.OwnerTestBuilder.aOwner;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = OwnerController.class)
@@ -52,11 +46,10 @@ class OwnerControllerTest extends ControllerTestSupport {
     @MockitoBean
     private UpdateOwnerUseCase updateOwnerUseCase;
 
-    private RequestPostProcessor authenticatedAs(OwnerId ownerId) {
-        return authentication(
-                new UsernamePasswordAuthenticationToken(ownerId.value(), null, Collections.emptyList())
-        );
-    }
+    private static final String OWNERS = OwnerController.OWNERS;
+    private static final String ME = OwnerController.OWNERS + OwnerController.ME;
+
+    private static final OwnerId AUTHENTICATED_OWNER_ID = TestOwnerMother.DEFAULT_OWNER_ID;
 
     @Nested
     class Create {
@@ -64,14 +57,14 @@ class OwnerControllerTest extends ControllerTestSupport {
         @Test
         void shouldReturn201WithLocation() throws Exception {
             // Given
-            var command = OwnerTestBuilder.CreateOwnerCommandBuilder.aCreateOwnerCommand().build();
+            var command = aCreateOwnerCommand().build();
             var request = toRequest(command);
 
             given(createOwnerUseCase.execute(command))
                     .willReturn(TestOwnerMother.DEFAULT_OWNER_ID);
 
             // When/Then
-            postOwner(request)
+            performPost(OWNERS, request)
                     .andExpect(status().isCreated())
                     .andExpect(header().string("Location", OwnerController.OWNERS + OwnerController.ME));
 
@@ -84,7 +77,7 @@ class OwnerControllerTest extends ControllerTestSupport {
                 String description, CreateOwnerRequest request, String field
         ) throws Exception {
             // When/Then
-            postOwner(request)
+            performPost(OWNERS, request)
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
 
@@ -94,14 +87,14 @@ class OwnerControllerTest extends ControllerTestSupport {
         @Test
         void shouldReturn409WhenOwnerAlreadyExists() throws Exception {
             // Given
-            var command = OwnerTestBuilder.CreateOwnerCommandBuilder.aCreateOwnerCommand().build();
+            var command = aCreateOwnerCommand().build();
             var request = toRequest(command);
 
             given(createOwnerUseCase.execute(command))
                     .willThrow(new OwnerAlreadyExistsException());
 
             // When/Then
-            postOwner(request)
+            performPost(OWNERS, request)
                     .andExpect(status().isConflict())
                     .andExpect(jsonPath("$.error").value("OWNER_ALREADY_EXISTS"));
         }
@@ -114,12 +107,6 @@ class OwnerControllerTest extends ControllerTestSupport {
                     command.email().value(),
                     command.phone().value()
             );
-        }
-
-        private ResultActions postOwner(Object body) throws Exception {
-            return mockMvc.perform(post(OwnerController.OWNERS)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonMapper.writeValueAsString(body)));
         }
 
         static Stream<Arguments> invalidRequests() {
@@ -155,55 +142,42 @@ class OwnerControllerTest extends ControllerTestSupport {
         @Test
         void shouldReturn200WithOwnerData() throws Exception {
             // Given
-            var ownerId = TestOwnerMother.DEFAULT_OWNER_ID;
-            var owner = OwnerTestBuilder.aOwner().build();
+            var command = new GetOwnerUseCase.GetOwnerCommand(TestOwnerMother.DEFAULT_OWNER_ID);
+            var owner = aOwner().build();
 
-            given(getOwnerUseCase.execute(new GetOwnerUseCase.GetOwnerCommand(ownerId)))
+            given(getOwnerUseCase.execute(command))
                     .willReturn(owner);
 
             // When/Then
-            getMe(ownerId)
+            performAuthenticatedGet(ME)
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.name").value(TestOwnerMother.OWNER_NAME_JOHN.value()))
                     .andExpect(jsonPath("$.email").value(TestOwnerMother.EMAIL_JOHN.value()))
                     .andExpect(jsonPath("$.phone").value(TestOwnerMother.PHONE_JOHN.value()));
 
-            verify(getOwnerUseCase).execute(new GetOwnerUseCase.GetOwnerCommand(ownerId));
-        }
-
-        @Test
-        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
-            // When/Then
-            getMeWithoutAuth()
-                    .andExpect(status().isUnauthorized());
-
-            verifyNoInteractions(getOwnerUseCase);
+            verify(getOwnerUseCase).execute(command);
         }
 
         @Test
         void shouldReturn404WhenOwnerDoesNotExist() throws Exception {
             // Given
-            var ownerId = TestOwnerMother.NON_EXISTING_OWNER_ID;
-
             given(getOwnerUseCase.execute(any()))
                     .willThrow(new OwnerNotFoundException());
 
             // When/Then
-            getMe(ownerId)
+            performAuthenticatedGet(ME)
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("OWNER_NOT_FOUND"));
         }
 
-        // === Helpers ===
+        @Test
+        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
+            // When/Then
+            performGet(ME)
+                    .andExpect(status().isUnauthorized());
 
-        private ResultActions getMe(OwnerId ownerId) throws Exception {
-            return mockMvc.perform(get(OwnerController.OWNERS + OwnerController.ME)
-                    .with(authenticatedAs(ownerId)));
-        }
-
-        private ResultActions getMeWithoutAuth() throws Exception {
-            return mockMvc.perform(get(OwnerController.OWNERS + OwnerController.ME));
+            verifyNoInteractions(getOwnerUseCase);
         }
 
     }
@@ -214,9 +188,8 @@ class OwnerControllerTest extends ControllerTestSupport {
         @Test
         void shouldReturn200WithUpdatedOwnerData() throws Exception {
             // Given
-            var ownerId = TestOwnerMother.DEFAULT_OWNER_ID;
-            var command = OwnerTestBuilder.UpdateOwnerCommandBuilder.aUpdateOwnerCommand().build();
-            var updated = OwnerTestBuilder.aOwner()
+            var command = aUpdateOwnerCommand().withId(AUTHENTICATED_OWNER_ID).build();
+            var updated = aOwner()
                     .withName(TestOwnerMother.OWNER_NAME_ROBERT)
                     .withEmail(TestOwnerMother.EMAIL_ROBERT)
                     .withPhoneNumber(TestOwnerMother.PHONE_ROBERT)
@@ -226,7 +199,7 @@ class OwnerControllerTest extends ControllerTestSupport {
                     .willReturn(updated);
 
             // When/Then
-            putMe(ownerId, toRequest(command))
+            performAuthenticatedPut(ME, toRequest(command))
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.name").value(TestOwnerMother.OWNER_NAME_ROBERT.value()))
@@ -242,7 +215,7 @@ class OwnerControllerTest extends ControllerTestSupport {
                 String description, UpdateOwnerRequest request, String field
         ) throws Exception {
             // When/Then
-            putMe(TestOwnerMother.DEFAULT_OWNER_ID, request)
+            performAuthenticatedPut(ME, request)
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
 
@@ -250,32 +223,15 @@ class OwnerControllerTest extends ControllerTestSupport {
         }
 
         @Test
-        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
-            // Given
-            var command = OwnerTestBuilder.UpdateOwnerCommandBuilder.aUpdateOwnerCommand().build();
-            var request = toRequest(command);
-
-            // When/Then
-            putMeWithoutAuth(request)
-                    .andExpect(status().isUnauthorized());
-
-            verifyNoInteractions(updateOwnerUseCase);
-        }
-
-        @Test
         void shouldReturn404WhenOwnerDoesNotExist() throws Exception {
             // Given
-            var ownerId = TestOwnerMother.NON_EXISTING_OWNER_ID;
-            var command = OwnerTestBuilder.UpdateOwnerCommandBuilder
-                    .aUpdateOwnerCommand()
-                    .withId(ownerId)
-                    .build();
+            var request = toRequest(aUpdateOwnerCommand().build());
 
             given(updateOwnerUseCase.execute(any()))
                     .willThrow(new OwnerNotFoundException());
 
             // When/Then
-            putMe(ownerId, toRequest(command))
+            performAuthenticatedPut(ME, request)
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("OWNER_NOT_FOUND"));
         }
@@ -283,20 +239,29 @@ class OwnerControllerTest extends ControllerTestSupport {
         @Test
         void shouldReturn409WhenEmailBelongsToAnotherOwner() throws Exception {
             // Given
-            var ownerId = TestOwnerMother.DEFAULT_OWNER_ID;
-            var command = OwnerTestBuilder.UpdateOwnerCommandBuilder
-                    .aUpdateOwnerCommand()
-                    .withId(ownerId)
+            var request = toRequest(aUpdateOwnerCommand()
                     .withEmail(TestOwnerMother.EMAIL_JOHN)
-                    .build();
+                    .build());
 
             given(updateOwnerUseCase.execute(any()))
                     .willThrow(new OwnerAlreadyExistsException());
 
             // When/Then
-            putMe(ownerId, toRequest(command))
+            performAuthenticatedPut(ME, request)
                     .andExpect(status().isConflict())
                     .andExpect(jsonPath("$.error").value("OWNER_ALREADY_EXISTS"));
+        }
+
+        @Test
+        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
+            // Given
+            var request = toRequest(aUpdateOwnerCommand().build());
+
+            // When/Then
+            performPut(ME, request)
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(updateOwnerUseCase);
         }
 
         // === Helpers ===
@@ -307,19 +272,6 @@ class OwnerControllerTest extends ControllerTestSupport {
                     command.email().value(),
                     command.phone().value()
             );
-        }
-
-        private ResultActions putMe(OwnerId ownerId, Object body) throws Exception {
-            return mockMvc.perform(put(OwnerController.OWNERS + OwnerController.ME)
-                    .with(authenticatedAs(ownerId))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonMapper.writeValueAsString(body)));
-        }
-
-        private ResultActions putMeWithoutAuth(Object body) throws Exception {
-            return mockMvc.perform(put(OwnerController.OWNERS + OwnerController.ME)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonMapper.writeValueAsString(body)));
         }
 
         static Stream<Arguments> invalidRequests() {
