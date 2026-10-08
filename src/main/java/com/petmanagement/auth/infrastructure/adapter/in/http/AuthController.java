@@ -2,9 +2,11 @@ package com.petmanagement.auth.infrastructure.adapter.in.http;
 
 import com.petmanagement.auth.application.port.in.RefreshSessionUseCase;
 import com.petmanagement.auth.application.port.in.RequestAuthenticationUseCase;
+import com.petmanagement.auth.application.port.in.RevokeSessionUseCase;
 import com.petmanagement.auth.application.port.in.VerifyAuthenticationUseCase;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RefreshSessionRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RequestAuthenticationRequest;
+import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RevokeSessionRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.VerifyAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.response.TokenResponse;
 import com.petmanagement.auth.infrastructure.adapter.in.http.mapper.AuthHttpMapper;
@@ -25,6 +27,7 @@ class AuthController {
     static final String REQUEST = "/request";
     static final String VERIFY = "/verify";
     static final String REFRESH = "/refresh";
+    static final String REVOKE = "/revoke";
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
@@ -32,17 +35,20 @@ class AuthController {
     private final RequestAuthenticationUseCase requestAuthenticationUseCase;
     private final VerifyAuthenticationUseCase verifyAuthenticationUseCase;
     private final RefreshSessionUseCase refreshSessionUseCase;
+    private final RevokeSessionUseCase revokeSessionUseCase;
 
     AuthController(
             AuthHttpMapper mapper,
             RequestAuthenticationUseCase requestAuthenticationUseCase,
             VerifyAuthenticationUseCase verifyAuthenticationUseCase,
-            RefreshSessionUseCase refreshSessionUseCase
+            RefreshSessionUseCase refreshSessionUseCase,
+            RevokeSessionUseCase revokeSessionUseCase
     ) {
         this.mapper = mapper;
         this.requestAuthenticationUseCase = requestAuthenticationUseCase;
         this.verifyAuthenticationUseCase = verifyAuthenticationUseCase;
         this.refreshSessionUseCase = refreshSessionUseCase;
+        this.revokeSessionUseCase = revokeSessionUseCase;
     }
 
     @PostMapping(REQUEST)
@@ -76,6 +82,17 @@ class AuthController {
         log.info("Session refreshed");
 
         return ResponseEntity.ok(mapper.toTokenResponse(result));
+    }
+
+    @PostMapping(REVOKE)
+    ResponseEntity<Void> revokeSession(@Valid @RequestBody RevokeSessionRequest request) {
+        log.info("Revoking session");
+
+        revokeSessionUseCase.execute(mapper.toRevokeSessionCommand(request));
+
+        log.info("Session revoked");
+
+        return ResponseEntity.noContent().build();
     }
 
 }
