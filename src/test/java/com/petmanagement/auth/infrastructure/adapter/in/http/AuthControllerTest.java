@@ -5,14 +5,12 @@ import com.petmanagement.auth.application.port.in.RequestAuthenticationUseCase;
 import com.petmanagement.auth.application.port.in.RevokeSessionUseCase;
 import com.petmanagement.auth.application.port.in.VerifyAuthenticationUseCase;
 import com.petmanagement.auth.domain.exception.*;
-import com.petmanagement.auth.domain.model.valueobject.OwnerId;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RefreshSessionRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RequestAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RevokeSessionRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.VerifyAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.mapper.AuthHttpMapper;
 import com.petmanagement.auth.support.TestAuthenticationMother;
-import com.petmanagement.auth.support.TestSessionMother;
 import com.petmanagement.support.ControllerTestSupport;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,13 +19,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import java.util.Collections;
 import java.util.stream.Stream;
 
 import static com.petmanagement.auth.support.AuthenticationTestBuilder.RequestAuthenticationCommandBuilder.aRequestAuthenticationCommand;
@@ -38,8 +31,6 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
@@ -61,6 +52,8 @@ class AuthControllerTest extends ControllerTestSupport {
     @Nested
     class RequestAuthentication {
 
+        private static final String REQUEST = AuthController.AUTH + AuthController.REQUEST;
+
         @Test
         void shouldReturn202WithoutBody() throws Exception {
             // Given
@@ -68,7 +61,7 @@ class AuthControllerTest extends ControllerTestSupport {
             var request = toRequest(command);
 
             // When/Then
-            postRequest(request)
+            performPost(REQUEST, request)
                     .andExpect(status().isAccepted())
                     .andExpect(content().string(""));
 
@@ -81,7 +74,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 String description, RequestAuthenticationRequest request
         ) throws Exception {
             // When/Then
-            postRequest(request)
+            performPost(REQUEST, request)
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
 
@@ -97,7 +90,7 @@ class AuthControllerTest extends ControllerTestSupport {
                     .when(requestAuthenticationUseCase).execute(any());
 
             // When/Then
-            postRequest(request)
+            performPost(REQUEST, request)
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("OWNER_NOT_FOUND"));
         }
@@ -108,12 +101,6 @@ class AuthControllerTest extends ControllerTestSupport {
                 RequestAuthenticationUseCase.RequestAuthenticationCommand command
         ) {
             return new RequestAuthenticationRequest(command.email().value());
-        }
-
-        private ResultActions postRequest(Object body) throws Exception {
-            return mockMvc.perform(post(AuthController.AUTH + AuthController.REQUEST)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonMapper.writeValueAsString(body)));
         }
 
         static Stream<Arguments> invalidRequests() {
@@ -130,6 +117,8 @@ class AuthControllerTest extends ControllerTestSupport {
     @Nested
     class VerifyAuthentication {
 
+        private static final String VERIFY = AuthController.AUTH + AuthController.VERIFY;
+
         @Test
         void shouldReturn200WithTokens() throws Exception {
             // Given
@@ -140,7 +129,7 @@ class AuthControllerTest extends ControllerTestSupport {
                     .willReturn(new VerifyAuthenticationUseCase.VerifyAuthenticationResult("access-token", "refresh-token"));
 
             // When/Then
-            postVerify(request)
+            performPost(VERIFY, request)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.accessToken").value("access-token"))
                     .andExpect(jsonPath("$.refreshToken").value("refresh-token"));
@@ -154,7 +143,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 String description, VerifyAuthenticationRequest request, String field
         ) throws Exception {
             // When/Then
-            postVerify(request)
+            performPost(VERIFY, request)
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
 
@@ -168,7 +157,7 @@ class AuthControllerTest extends ControllerTestSupport {
             given(verifyAuthenticationUseCase.execute(any())).willThrow(new OwnerNotFoundException());
 
             // When/Then
-            postVerify(request)
+            performPost(VERIFY, request)
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("OWNER_NOT_FOUND"));
         }
@@ -181,7 +170,7 @@ class AuthControllerTest extends ControllerTestSupport {
                     .willThrow(new ActiveAuthenticationNotFoundException());
 
             // When/Then
-            postVerify(request)
+            performPost(VERIFY, request)
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.error").value("ACTIVE_AUTHENTICATION_NOT_FOUND"));
         }
@@ -194,7 +183,7 @@ class AuthControllerTest extends ControllerTestSupport {
                     .willThrow(new AuthenticationAlreadyUsedException());
 
             // When/Then
-            postVerify(request)
+            performPost(VERIFY, request)
                     .andExpect(status().isConflict())
                     .andExpect(jsonPath("$.error").value("AUTHENTICATION_ALREADY_USED"));
         }
@@ -207,7 +196,7 @@ class AuthControllerTest extends ControllerTestSupport {
                     .willThrow(new AuthenticationExpiredException());
 
             // When/Then
-            postVerify(request)
+            performPost(VERIFY, request)
                     .andExpect(status().isGone())
                     .andExpect(jsonPath("$.error").value("AUTHENTICATION_EXPIRED"));
         }
@@ -220,7 +209,7 @@ class AuthControllerTest extends ControllerTestSupport {
                     .willThrow(new InvalidAuthenticationCodeException());
 
             // When/Then
-            postVerify(request)
+            performPost(VERIFY, request)
                     .andExpect(status().isUnauthorized())
                     .andExpect(jsonPath("$.error").value("INVALID_AUTHENTICATION_CODE"));
         }
@@ -231,12 +220,6 @@ class AuthControllerTest extends ControllerTestSupport {
                 VerifyAuthenticationUseCase.VerifyAuthenticationCommand command
         ) {
             return new VerifyAuthenticationRequest(command.email().value(), command.code().value());
-        }
-
-        private ResultActions postVerify(Object body) throws Exception {
-            return mockMvc.perform(post(AuthController.AUTH + AuthController.VERIFY)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonMapper.writeValueAsString(body)));
         }
 
         static Stream<Arguments> invalidRequests() {
@@ -258,6 +241,8 @@ class AuthControllerTest extends ControllerTestSupport {
     @Nested
     class RefreshSession {
 
+        private static final String REFRESH = AuthController.AUTH + AuthController.REFRESH;
+
         @Test
         void shouldReturn200WithNewTokens() throws Exception {
             // Given
@@ -268,7 +253,7 @@ class AuthControllerTest extends ControllerTestSupport {
                     .willReturn(new RefreshSessionUseCase.RefreshSessionResult("new-access-token", "new-refresh-token"));
 
             // When/Then
-            postRefresh(request)
+            performPost(REFRESH, request)
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.accessToken").value("new-access-token"))
                     .andExpect(jsonPath("$.refreshToken").value("new-refresh-token"));
@@ -282,7 +267,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 String description, RefreshSessionRequest request
         ) throws Exception {
             // When/Then
-            postRefresh(request)
+            performPost(REFRESH, request)
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
 
@@ -301,7 +286,7 @@ class AuthControllerTest extends ControllerTestSupport {
                     .willThrow(exception);
 
             // When/Then
-            postRefresh(request)
+            performPost(REFRESH, request)
                     .andExpect(status().isUnauthorized())
                     .andExpect(jsonPath("$.error").value("INVALID_SESSION"));
         }
@@ -310,12 +295,6 @@ class AuthControllerTest extends ControllerTestSupport {
 
         private RefreshSessionRequest toRequest(RefreshSessionUseCase.RefreshSessionCommand command) {
             return new RefreshSessionRequest(command.refreshToken().value());
-        }
-
-        private ResultActions postRefresh(Object body) throws Exception {
-            return mockMvc.perform(post(AuthController.AUTH + AuthController.REFRESH)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonMapper.writeValueAsString(body)));
         }
 
         static Stream<Arguments> invalidRequests() {
@@ -340,6 +319,8 @@ class AuthControllerTest extends ControllerTestSupport {
     @Nested
     class RevokeSession {
 
+        private static final String REVOKE = AuthController.AUTH + AuthController.REVOKE;
+
         @Test
         void shouldReturn204WithoutBody() throws Exception {
             // Given
@@ -347,7 +328,7 @@ class AuthControllerTest extends ControllerTestSupport {
             var request = toRequest(command);
 
             // When/Then
-            postRevoke(request)
+            performAuthenticatedPost(REVOKE, request)
                     .andExpect(status().isNoContent())
                     .andExpect(content().string(""));
 
@@ -360,7 +341,7 @@ class AuthControllerTest extends ControllerTestSupport {
                 String description, RevokeSessionRequest request
         ) throws Exception {
             // When/Then
-            postRevoke(request)
+            performAuthenticatedPost(REVOKE, request)
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
 
@@ -376,7 +357,7 @@ class AuthControllerTest extends ControllerTestSupport {
                     .when(revokeSessionUseCase).execute(any());
 
             // When/Then
-            postRevoke(request)
+            performAuthenticatedPost(REVOKE, request)
                     .andExpect(status().isUnauthorized())
                     .andExpect(jsonPath("$.error").value("INVALID_SESSION"));
         }
@@ -387,7 +368,7 @@ class AuthControllerTest extends ControllerTestSupport {
             var request = toRequest(aRevokeSessionCommand().build());
 
             // When/Then
-            postRevokeWithoutAuth(request)
+            performPost(REVOKE, request)
                     .andExpect(status().isUnauthorized());
 
             verifyNoInteractions(revokeSessionUseCase);
@@ -397,25 +378,6 @@ class AuthControllerTest extends ControllerTestSupport {
 
         private RevokeSessionRequest toRequest(RevokeSessionUseCase.RevokeSessionCommand command) {
             return new RevokeSessionRequest(command.refreshToken().value());
-        }
-
-        private ResultActions postRevoke(Object body) throws Exception {
-            return mockMvc.perform(post(AuthController.AUTH + AuthController.REVOKE)
-                    .with(authenticatedAs(TestSessionMother.EXISTING_OWNER_ID))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonMapper.writeValueAsString(body)));
-        }
-
-        private ResultActions postRevokeWithoutAuth(Object body) throws Exception {
-            return mockMvc.perform(post(AuthController.AUTH + AuthController.REVOKE)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonMapper.writeValueAsString(body)));
-        }
-
-        private RequestPostProcessor authenticatedAs(OwnerId ownerId) {
-            return authentication(
-                    new UsernamePasswordAuthenticationToken(ownerId.value(), null, Collections.emptyList())
-            );
         }
 
         static Stream<Arguments> invalidRequests() {
