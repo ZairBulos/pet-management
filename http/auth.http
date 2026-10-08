@@ -14,3 +14,11 @@ Content-Type: application/json
   "email": "chris.jones@example.com",
   "code": ""
 }
+
+### Refresh session
+POST {{host}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": ""
+}
