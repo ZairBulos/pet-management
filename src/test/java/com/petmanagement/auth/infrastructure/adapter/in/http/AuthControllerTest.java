@@ -2,13 +2,17 @@ package com.petmanagement.auth.infrastructure.adapter.in.http;
 
 import com.petmanagement.auth.application.port.in.RefreshSessionUseCase;
 import com.petmanagement.auth.application.port.in.RequestAuthenticationUseCase;
+import com.petmanagement.auth.application.port.in.RevokeSessionUseCase;
 import com.petmanagement.auth.application.port.in.VerifyAuthenticationUseCase;
 import com.petmanagement.auth.domain.exception.*;
+import com.petmanagement.auth.domain.model.valueobject.OwnerId;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RefreshSessionRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RequestAuthenticationRequest;
+import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RevokeSessionRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.VerifyAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.mapper.AuthHttpMapper;
 import com.petmanagement.auth.support.TestAuthenticationMother;
+import com.petmanagement.auth.support.TestSessionMother;
 import com.petmanagement.support.ControllerTestSupport;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,18 +22,23 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import java.util.Collections;
 import java.util.stream.Stream;
 
 import static com.petmanagement.auth.support.AuthenticationTestBuilder.RequestAuthenticationCommandBuilder.aRequestAuthenticationCommand;
 import static com.petmanagement.auth.support.AuthenticationTestBuilder.VerifyAuthenticationCommandBuilder.aVerifyAuthenticationCommand;
 import static com.petmanagement.auth.support.SessionTestBuilder.RefreshSessionCommandBuilder.aRefreshSessionCommand;
+import static com.petmanagement.auth.support.SessionTestBuilder.RevokeSessionCommandBuilder.aRevokeSessionCommand;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -45,6 +54,9 @@ class AuthControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private RefreshSessionUseCase refreshSessionUseCase;
+
+    @MockitoBean
+    private RevokeSessionUseCase revokeSessionUseCase;
 
     @Nested
     class RequestAuthentication {
@@ -320,6 +332,97 @@ class AuthControllerTest extends ControllerTestSupport {
                     arguments("session is expired", new SessionExpiredException()),
                     arguments("session is revoked", new SessionRevokedException()),
                     arguments("session reuse is detected", new SessionReuseDetectedException())
+            );
+        }
+
+    }
+
+    @Nested
+    class RevokeSession {
+
+        @Test
+        void shouldReturn204WithoutBody() throws Exception {
+            // Given
+            var command = aRevokeSessionCommand().build();
+            var request = toRequest(command);
+
+            // When/Then
+            postRevoke(request)
+                    .andExpect(status().isNoContent())
+                    .andExpect(content().string(""));
+
+            verify(revokeSessionUseCase).execute(command);
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("invalidRequests")
+        void shouldReturn400WhenRequestIsInvalid(
+                String description, RevokeSessionRequest request
+        ) throws Exception {
+            // When/Then
+            postRevoke(request)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+
+            verifyNoInteractions(revokeSessionUseCase);
+        }
+
+        @Test
+        void shouldReturn401WhenSessionDoesNotExist() throws Exception {
+            // Given
+            var request = toRequest(aRevokeSessionCommand().build());
+
+            doThrow(new SessionNotFoundException())
+                    .when(revokeSessionUseCase).execute(any());
+
+            // When/Then
+            postRevoke(request)
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(jsonPath("$.error").value("INVALID_SESSION"));
+        }
+
+        @Test
+        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
+            // Given
+            var request = toRequest(aRevokeSessionCommand().build());
+
+            // When/Then
+            postRevokeWithoutAuth(request)
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(revokeSessionUseCase);
+        }
+
+        // === Helpers ===
+
+        private RevokeSessionRequest toRequest(RevokeSessionUseCase.RevokeSessionCommand command) {
+            return new RevokeSessionRequest(command.refreshToken().value());
+        }
+
+        private ResultActions postRevoke(Object body) throws Exception {
+            return mockMvc.perform(post(AuthController.AUTH + AuthController.REVOKE)
+                    .with(authenticatedAs(TestSessionMother.EXISTING_OWNER_ID))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(body)));
+        }
+
+        private ResultActions postRevokeWithoutAuth(Object body) throws Exception {
+            return mockMvc.perform(post(AuthController.AUTH + AuthController.REVOKE)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(body)));
+        }
+
+        private RequestPostProcessor authenticatedAs(OwnerId ownerId) {
+            return authentication(
+                    new UsernamePasswordAuthenticationToken(ownerId.value(), null, Collections.emptyList())
+            );
+        }
+
+        static Stream<Arguments> invalidRequests() {
+            return Stream.of(
+                    arguments("refresh token is null", new RevokeSessionRequest(null)),
+                    arguments("refresh token is empty", new RevokeSessionRequest("")),
+                    arguments("refresh token is blank", new RevokeSessionRequest("   "))
             );
         }
 
