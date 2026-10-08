@@ -22,3 +22,12 @@ Content-Type: application/json
 {
   "refreshToken": ""
 }
+
+### Revoke session
+POST {{host}}/api/auth/revoke
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "refreshToken": ""
+}
