@@ -1,7 +1,10 @@
 package com.petmanagement.auth.infrastructure.adapter.in.http;
 
 import com.petmanagement.auth.application.port.in.RequestAuthenticationUseCase;
+import com.petmanagement.auth.application.port.in.VerifyAuthenticationUseCase;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RequestAuthenticationRequest;
+import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.VerifyAuthenticationRequest;
+import com.petmanagement.auth.infrastructure.adapter.in.http.dto.response.TokenResponse;
 import com.petmanagement.auth.infrastructure.adapter.in.http.mapper.AuthHttpMapper;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -18,18 +21,22 @@ class AuthController {
 
     static final String AUTH = "/api/auth";
     static final String REQUEST = "/request";
+    static final String VERIFY = "/verify";
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthHttpMapper mapper;
     private final RequestAuthenticationUseCase requestAuthenticationUseCase;
+    private final VerifyAuthenticationUseCase verifyAuthenticationUseCase;
 
     AuthController(
             AuthHttpMapper mapper,
-            RequestAuthenticationUseCase requestAuthenticationUseCase
+            RequestAuthenticationUseCase requestAuthenticationUseCase,
+            VerifyAuthenticationUseCase verifyAuthenticationUseCase
     ) {
         this.mapper = mapper;
         this.requestAuthenticationUseCase = requestAuthenticationUseCase;
+        this.verifyAuthenticationUseCase = verifyAuthenticationUseCase;
     }
 
     @PostMapping(REQUEST)
@@ -41,6 +48,17 @@ class AuthController {
         log.info("Authentication requested");
 
         return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping(VERIFY)
+    ResponseEntity<TokenResponse> verifyAuthentication(@Valid @RequestBody VerifyAuthenticationRequest request) {
+        log.info("Verifying authentication email={}", request.email());
+
+        var result = verifyAuthenticationUseCase.execute(mapper.toVerifyAuthenticationCommand(request));
+
+        log.info("Authentication verified");
+
+        return ResponseEntity.ok(mapper.toTokenResponse(result));
     }
 
 }

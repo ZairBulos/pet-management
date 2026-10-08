@@ -1,6 +1,6 @@
 package com.petmanagement.auth.infrastructure.adapter.in.http;
 
-import com.petmanagement.auth.domain.exception.OwnerNotFoundException;
+import com.petmanagement.auth.domain.exception.*;
 import com.petmanagement.shared.domain.model.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -32,6 +32,58 @@ class AuthExceptionHandler {
     ) {
         return ErrorResponse.of(
                 "OWNER_NOT_FOUND",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(ActiveAuthenticationNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse handleActiveAuthenticationNotFound(
+            ActiveAuthenticationNotFoundException ex,
+            HttpServletRequest request
+    ) {
+        return ErrorResponse.of(
+                "ACTIVE_AUTHENTICATION_NOT_FOUND",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(AuthenticationAlreadyUsedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    ErrorResponse handleAuthenticationAlreadyUsed(
+            AuthenticationAlreadyUsedException ex,
+            HttpServletRequest request
+    ) {
+        return ErrorResponse.of(
+                "AUTHENTICATION_ALREADY_USED",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(AuthenticationExpiredException.class)
+    @ResponseStatus(HttpStatus.GONE)
+    ErrorResponse handleAuthenticationExpired(
+            AuthenticationExpiredException ex,
+            HttpServletRequest request
+    ) {
+        return ErrorResponse.of(
+                "AUTHENTICATION_EXPIRED",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(InvalidAuthenticationCodeException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    ErrorResponse handleInvalidAuthenticationCode(
+            RuntimeException ex,
+            HttpServletRequest request
+    ) {
+        return ErrorResponse.of(
+                "INVALID_AUTHENTICATION_CODE",
                 ex.getMessage(),
                 request.getRequestURI()
         );
