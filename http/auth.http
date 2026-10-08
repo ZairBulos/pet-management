@@ -5,3 +5,12 @@ Content-Type: application/json
 {
   "email": "chris.jones@example.com"
 }
+
+### Verify authentication
+POST {{host}}/api/auth/verify
+Content-Type: application/json
+
+{
+  "email": "chris.jones@example.com",
+  "code": ""
+}
