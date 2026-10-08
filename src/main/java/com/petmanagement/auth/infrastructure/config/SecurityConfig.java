@@ -61,6 +61,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/owners").permitAll()
                         .requestMatchers("/api/auth/request").permitAll()
                         .requestMatchers("/api/auth/verify").permitAll()
+                        .requestMatchers("/api/auth/refresh").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception

@@ -89,4 +89,22 @@ class AuthExceptionHandler {
         );
     }
 
+    @ExceptionHandler({
+            SessionNotFoundException.class,
+            SessionReuseDetectedException.class,
+            SessionRevokedException.class,
+            SessionExpiredException.class
+    })
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    ErrorResponse handleInvalidSession(
+            RuntimeException ex,
+            HttpServletRequest request
+    ) {
+        return ErrorResponse.of(
+                "INVALID_SESSION",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
 }

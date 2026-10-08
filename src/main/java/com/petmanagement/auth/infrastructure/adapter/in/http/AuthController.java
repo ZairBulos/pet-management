@@ -1,7 +1,9 @@
 package com.petmanagement.auth.infrastructure.adapter.in.http;
 
+import com.petmanagement.auth.application.port.in.RefreshSessionUseCase;
 import com.petmanagement.auth.application.port.in.RequestAuthenticationUseCase;
 import com.petmanagement.auth.application.port.in.VerifyAuthenticationUseCase;
+import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RefreshSessionRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RequestAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.VerifyAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.response.TokenResponse;
@@ -22,21 +24,25 @@ class AuthController {
     static final String AUTH = "/api/auth";
     static final String REQUEST = "/request";
     static final String VERIFY = "/verify";
+    static final String REFRESH = "/refresh";
 
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthHttpMapper mapper;
     private final RequestAuthenticationUseCase requestAuthenticationUseCase;
     private final VerifyAuthenticationUseCase verifyAuthenticationUseCase;
+    private final RefreshSessionUseCase refreshSessionUseCase;
 
     AuthController(
             AuthHttpMapper mapper,
             RequestAuthenticationUseCase requestAuthenticationUseCase,
-            VerifyAuthenticationUseCase verifyAuthenticationUseCase
+            VerifyAuthenticationUseCase verifyAuthenticationUseCase,
+            RefreshSessionUseCase refreshSessionUseCase
     ) {
         this.mapper = mapper;
         this.requestAuthenticationUseCase = requestAuthenticationUseCase;
         this.verifyAuthenticationUseCase = verifyAuthenticationUseCase;
+        this.refreshSessionUseCase = refreshSessionUseCase;
     }
 
     @PostMapping(REQUEST)
@@ -57,6 +63,17 @@ class AuthController {
         var result = verifyAuthenticationUseCase.execute(mapper.toVerifyAuthenticationCommand(request));
 
         log.info("Authentication verified");
+
+        return ResponseEntity.ok(mapper.toTokenResponse(result));
+    }
+
+    @PostMapping(REFRESH)
+    ResponseEntity<TokenResponse> refreshSession(@Valid @RequestBody RefreshSessionRequest request) {
+        log.info("Refreshing session");
+
+        var result = refreshSessionUseCase.execute(mapper.toRefreshSessionCommand(request));
+
+        log.info("Session refreshed");
 
         return ResponseEntity.ok(mapper.toTokenResponse(result));
     }

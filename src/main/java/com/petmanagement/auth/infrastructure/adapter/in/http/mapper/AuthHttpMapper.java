@@ -1,9 +1,12 @@
 package com.petmanagement.auth.infrastructure.adapter.in.http.mapper;
 
+import com.petmanagement.auth.application.port.in.RefreshSessionUseCase;
 import com.petmanagement.auth.application.port.in.RequestAuthenticationUseCase;
 import com.petmanagement.auth.application.port.in.VerifyAuthenticationUseCase;
 import com.petmanagement.auth.domain.model.valueobject.AuthenticationCode;
 import com.petmanagement.auth.domain.model.valueobject.Email;
+import com.petmanagement.auth.domain.model.valueobject.SessionRefreshToken;
+import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RefreshSessionRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.RequestAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.request.VerifyAuthenticationRequest;
 import com.petmanagement.auth.infrastructure.adapter.in.http.dto.response.TokenResponse;
@@ -27,8 +30,20 @@ public class AuthHttpMapper {
         );
     }
 
+    public RefreshSessionUseCase.RefreshSessionCommand toRefreshSessionCommand(
+            RefreshSessionRequest request
+    ) {
+        return new RefreshSessionUseCase.RefreshSessionCommand(new SessionRefreshToken(request.refreshToken()));
+    }
+
     public TokenResponse toTokenResponse(
             VerifyAuthenticationUseCase.VerifyAuthenticationResult result
+    ) {
+        return new TokenResponse(result.accessToken(), result.refreshToken());
+    }
+
+    public TokenResponse toTokenResponse(
+            RefreshSessionUseCase.RefreshSessionResult result
     ) {
         return new TokenResponse(result.accessToken(), result.refreshToken());
     }
