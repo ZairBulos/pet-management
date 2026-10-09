@@ -15,3 +15,7 @@ Content-Type: application/json
 ### Get by id
 GET {{host}}/api/pets/{{petId}}
 Authorization: Bearer {{token}}
+
+### Get by owner
+GET {{host}}/api/pets
+Authorization: Bearer {{token}}
