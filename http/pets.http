@@ -11,3 +11,7 @@ Content-Type: application/json
   "sex": "FEMALE",
   "birthDate": "2023-01-01"
 }
+
+### Get by id
+GET {{host}}/api/pets/{{petId}}
+Authorization: Bearer {{token}}
