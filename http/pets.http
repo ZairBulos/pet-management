@@ -1,0 +1,13 @@
+### Create
+POST {{host}}/api/pets
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Bellatrix",
+  "species": "Cat",
+  "breed": "European Shorthair",
+  "coat": "Orange-White",
+  "sex": "FEMALE",
+  "birthDate": "2023-01-01"
+}
