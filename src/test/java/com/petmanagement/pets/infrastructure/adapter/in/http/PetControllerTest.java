@@ -1,6 +1,8 @@
 package com.petmanagement.pets.infrastructure.adapter.in.http;
 
 import com.petmanagement.pets.application.port.in.CreatePetUseCase;
+import com.petmanagement.pets.application.port.in.GetPetUseCase;
+import com.petmanagement.pets.domain.exception.PetNotFoundException;
 import com.petmanagement.pets.domain.model.valueobject.Breed;
 import com.petmanagement.pets.domain.model.valueobject.OwnerId;
 import com.petmanagement.pets.infrastructure.adapter.in.http.dto.request.CreatePetRequest;
@@ -15,13 +17,16 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.util.stream.Stream;
 
 import static com.petmanagement.pets.support.PetTestBuilder.CreatePetCommandBuilder.aCreatePetCommand;
+import static com.petmanagement.pets.support.PetTestBuilder.aPet;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -33,6 +38,9 @@ class PetControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private CreatePetUseCase createPetUseCase;
+
+    @MockitoBean
+    private GetPetUseCase getPetUseCase;
 
     private static final String PETS = PetController.PETS;
 
@@ -149,6 +157,56 @@ class PetControllerTest extends ControllerTestSupport {
                     arguments("birth date is null", new CreatePetRequest(name, species, breed, coat, sex, null), "birthDate"),
                     arguments("birth date is in the future", new CreatePetRequest(name, species, breed, coat, sex, LocalDate.now().plusDays(1)), "birthDate")
             );
+        }
+
+    }
+
+    @Nested
+    class Get {
+
+        @Test
+        void shouldReturn200WithPetData() throws Exception {
+            // Given
+            var pet = aPet().build();
+            var command = new GetPetUseCase.GetPetCommand(pet.getId());
+
+            given(getPetUseCase.execute(command))
+                    .willReturn(pet);
+
+            // When/Then
+            performAuthenticatedGet(PETS + "/" + pet.getId().value())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(pet.getId().value().toString()))
+                    .andExpect(jsonPath("$.name").value(TestPetMother.PET_NAME_BUDDY.value()))
+                    .andExpect(jsonPath("$.species").value(TestPetMother.SPECIES_DOG.value()))
+                    .andExpect(jsonPath("$.breed").value(TestPetMother.BREED_GOLDEN_RETRIEVER.value()))
+                    .andExpect(jsonPath("$.coat").value(TestPetMother.COAT_GOLDEN.value()))
+                    .andExpect(jsonPath("$.sex").value(TestPetMother.SEX_MALE.name()))
+                    .andExpect(jsonPath("$.birthDate").value(TestPetMother.BIRTH_DATE_STANDARD.toString()));
+
+            verify(getPetUseCase).execute(command);
+        }
+
+        @Test
+        void shouldReturn404WhenPetDoesNotExist() throws Exception {
+            // Given
+            given(getPetUseCase.execute(any()))
+                    .willThrow(new PetNotFoundException());
+
+            // When/Then
+            performAuthenticatedGet(PETS + "/" + TestPetMother.NON_EXISTENT_PET_ID.value())
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").value("PET_NOT_FOUND"));
+        }
+
+        @Test
+        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
+            // When/Then
+            performGet(PETS + "/" + TestPetMother.DEFAULT_PET_ID.value())
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(getPetUseCase);
         }
 
     }
