@@ -2,6 +2,7 @@ package com.petmanagement.pets.infrastructure.adapter.in.http;
 
 import com.petmanagement.pets.application.port.in.CreatePetUseCase;
 import com.petmanagement.pets.application.port.in.GetPetUseCase;
+import com.petmanagement.pets.application.port.in.GetPetsByOwnerUseCase;
 import com.petmanagement.pets.infrastructure.adapter.in.http.dto.request.CreatePetRequest;
 import com.petmanagement.pets.infrastructure.adapter.in.http.dto.response.PetResponse;
 import com.petmanagement.pets.infrastructure.adapter.in.http.mapper.PetHttpMapper;
@@ -13,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -27,15 +29,18 @@ class PetController {
     private final PetHttpMapper mapper;
     private final CreatePetUseCase createPetUseCase;
     private final GetPetUseCase getPetUseCase;
+    private final GetPetsByOwnerUseCase getPetsByOwnerUseCase;
 
     PetController(
             PetHttpMapper mapper,
             CreatePetUseCase createPetUseCase,
-            GetPetUseCase getPetUseCase
+            GetPetUseCase getPetUseCase,
+            GetPetsByOwnerUseCase getPetsByOwnerUseCase
     ) {
         this.mapper = mapper;
         this.createPetUseCase = createPetUseCase;
         this.getPetUseCase = getPetUseCase;
+        this.getPetsByOwnerUseCase = getPetsByOwnerUseCase;
     }
 
     @PostMapping
@@ -61,6 +66,15 @@ class PetController {
         var pet = getPetUseCase.execute(mapper.toGetPetCommand(id));
 
         return ResponseEntity.ok(mapper.toPetResponse(pet));
+    }
+
+    @GetMapping
+    ResponseEntity<List<PetResponse>> getByOwner(@AuthenticationPrincipal UUID ownerId) {
+        log.info("Getting pets ownerId={}", ownerId);
+
+        var pets = getPetsByOwnerUseCase.execute(mapper.toGetPetsByOwnerQuery(ownerId));
+
+        return ResponseEntity.ok(mapper.toPetResponses(pets));
     }
 
 }
