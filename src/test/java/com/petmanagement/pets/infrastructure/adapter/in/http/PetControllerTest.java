@@ -2,6 +2,7 @@ package com.petmanagement.pets.infrastructure.adapter.in.http;
 
 import com.petmanagement.pets.application.port.in.CreatePetUseCase;
 import com.petmanagement.pets.application.port.in.GetPetUseCase;
+import com.petmanagement.pets.application.port.in.GetPetsByOwnerUseCase;
 import com.petmanagement.pets.domain.exception.PetNotFoundException;
 import com.petmanagement.pets.domain.model.valueobject.Breed;
 import com.petmanagement.pets.domain.model.valueobject.OwnerId;
@@ -21,10 +22,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.petmanagement.pets.support.PetTestBuilder.CreatePetCommandBuilder.aCreatePetCommand;
 import static com.petmanagement.pets.support.PetTestBuilder.aPet;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -41,6 +44,9 @@ class PetControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private GetPetUseCase getPetUseCase;
+
+    @MockitoBean
+    private GetPetsByOwnerUseCase getPetsByOwnerUseCase;
 
     private static final String PETS = PetController.PETS;
 
@@ -207,6 +213,55 @@ class PetControllerTest extends ControllerTestSupport {
                     .andExpect(status().isUnauthorized());
 
             verifyNoInteractions(getPetUseCase);
+        }
+
+    }
+
+    @Nested
+    class GetByOwner {
+
+        @Test
+        void shouldReturn200WithPets() throws Exception {
+            // Given
+            var query = new GetPetsByOwnerUseCase.GetPetsByOwnerQuery(AUTHENTICATED_OWNER_ID);
+            var first = aPet().build();
+            var second = aPet().withPetName(TestPetMother.PET_NAME_LUNA).build();
+
+            given(getPetsByOwnerUseCase.execute(query))
+                    .willReturn(List.of(first, second));
+
+            // When/Then
+            performAuthenticatedGet(PETS)
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$", hasSize(2)))
+                    .andExpect(jsonPath("$[0].id").value(first.getId().value().toString()))
+                    .andExpect(jsonPath("$[0].name").value(TestPetMother.PET_NAME_BUDDY.value()))
+                    .andExpect(jsonPath("$[1].id").value(second.getId().value().toString()))
+                    .andExpect(jsonPath("$[1].name").value(TestPetMother.PET_NAME_LUNA.value()));
+
+            verify(getPetsByOwnerUseCase).execute(query);
+        }
+
+        @Test
+        void shouldReturn200WithEmptyListWhenOwnerHasNoPets() throws Exception {
+            // Given
+            given(getPetsByOwnerUseCase.execute(any()))
+                    .willReturn(List.of());
+
+            // When/Then
+            performAuthenticatedGet(PETS)
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$", hasSize(0)));
+        }
+
+        @Test
+        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
+            // When/Then
+            performGet(PETS)
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(getPetsByOwnerUseCase);
         }
 
     }
