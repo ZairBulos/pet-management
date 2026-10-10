@@ -3,7 +3,9 @@ package com.petmanagement.pets.infrastructure.adapter.in.http;
 import com.petmanagement.pets.application.port.in.CreatePetUseCase;
 import com.petmanagement.pets.application.port.in.GetPetUseCase;
 import com.petmanagement.pets.application.port.in.GetPetsByOwnerUseCase;
+import com.petmanagement.pets.application.port.in.UpdatePetUseCase;
 import com.petmanagement.pets.infrastructure.adapter.in.http.dto.request.CreatePetRequest;
+import com.petmanagement.pets.infrastructure.adapter.in.http.dto.request.UpdatePetRequest;
 import com.petmanagement.pets.infrastructure.adapter.in.http.dto.response.PetResponse;
 import com.petmanagement.pets.infrastructure.adapter.in.http.mapper.PetHttpMapper;
 import jakarta.validation.Valid;
@@ -30,17 +32,20 @@ class PetController {
     private final CreatePetUseCase createPetUseCase;
     private final GetPetUseCase getPetUseCase;
     private final GetPetsByOwnerUseCase getPetsByOwnerUseCase;
+    private final UpdatePetUseCase updatePetUseCase;
 
     PetController(
             PetHttpMapper mapper,
             CreatePetUseCase createPetUseCase,
             GetPetUseCase getPetUseCase,
-            GetPetsByOwnerUseCase getPetsByOwnerUseCase
+            GetPetsByOwnerUseCase getPetsByOwnerUseCase,
+            UpdatePetUseCase updatePetUseCase
     ) {
         this.mapper = mapper;
         this.createPetUseCase = createPetUseCase;
         this.getPetUseCase = getPetUseCase;
         this.getPetsByOwnerUseCase = getPetsByOwnerUseCase;
+        this.updatePetUseCase = updatePetUseCase;
     }
 
     @PostMapping
@@ -75,6 +80,20 @@ class PetController {
         var pets = getPetsByOwnerUseCase.execute(mapper.toGetPetsByOwnerQuery(ownerId));
 
         return ResponseEntity.ok(mapper.toPetResponses(pets));
+    }
+
+    @PutMapping(ID)
+    ResponseEntity<PetResponse> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdatePetRequest request
+    ) {
+        log.info("Updating pet id={}", id);
+
+        var pet = updatePetUseCase.execute(mapper.toUpdatePetCommand(id, request));
+
+        log.info("Pet updated={}", pet);
+
+        return ResponseEntity.ok(mapper.toPetResponse(pet));
     }
 
 }

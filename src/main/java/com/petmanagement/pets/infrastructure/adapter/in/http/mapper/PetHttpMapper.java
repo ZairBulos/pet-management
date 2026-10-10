@@ -3,9 +3,11 @@ package com.petmanagement.pets.infrastructure.adapter.in.http.mapper;
 import com.petmanagement.pets.application.port.in.CreatePetUseCase;
 import com.petmanagement.pets.application.port.in.GetPetUseCase;
 import com.petmanagement.pets.application.port.in.GetPetsByOwnerUseCase;
+import com.petmanagement.pets.application.port.in.UpdatePetUseCase;
 import com.petmanagement.pets.domain.model.aggregate.Pet;
 import com.petmanagement.pets.domain.model.valueobject.*;
 import com.petmanagement.pets.infrastructure.adapter.in.http.dto.request.CreatePetRequest;
+import com.petmanagement.pets.infrastructure.adapter.in.http.dto.request.UpdatePetRequest;
 import com.petmanagement.pets.infrastructure.adapter.in.http.dto.response.PetResponse;
 import org.springframework.stereotype.Component;
 
@@ -30,12 +32,23 @@ public class PetHttpMapper {
         );
     }
 
-    public GetPetUseCase.GetPetCommand toGetPetCommand(UUID petId) {
+    public GetPetUseCase.GetPetCommand toGetPetCommand(
+            UUID petId
+    ) {
         return new GetPetUseCase.GetPetCommand(PetId.of(petId));
     }
 
-    public GetPetsByOwnerUseCase.GetPetsByOwnerQuery toGetPetsByOwnerQuery(UUID ownerId) {
+    public GetPetsByOwnerUseCase.GetPetsByOwnerQuery toGetPetsByOwnerQuery(
+            UUID ownerId
+    ) {
         return new GetPetsByOwnerUseCase.GetPetsByOwnerQuery(OwnerId.of(ownerId));
+    }
+
+    public UpdatePetUseCase.UpdatePetCommand toUpdatePetCommand(
+            UUID petId,
+            UpdatePetRequest request
+    ) {
+        return new UpdatePetUseCase.UpdatePetCommand(PetId.of(petId), new PetName(request.name()));
     }
 
     public PetResponse toPetResponse(Pet pet) {
