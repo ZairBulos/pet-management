@@ -19,3 +19,12 @@ Authorization: Bearer {{token}}
 ### Get by owner
 GET {{host}}/api/pets
 Authorization: Bearer {{token}}
+
+### Update
+PUT {{host}}/api/pets/{{petId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Bellatrix Helena Lestrange Bonham Carter"
+}
