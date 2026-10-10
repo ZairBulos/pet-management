@@ -3,10 +3,12 @@ package com.petmanagement.pets.infrastructure.adapter.in.http;
 import com.petmanagement.pets.application.port.in.CreatePetUseCase;
 import com.petmanagement.pets.application.port.in.GetPetUseCase;
 import com.petmanagement.pets.application.port.in.GetPetsByOwnerUseCase;
+import com.petmanagement.pets.application.port.in.UpdatePetUseCase;
 import com.petmanagement.pets.domain.exception.PetNotFoundException;
 import com.petmanagement.pets.domain.model.valueobject.Breed;
 import com.petmanagement.pets.domain.model.valueobject.OwnerId;
 import com.petmanagement.pets.infrastructure.adapter.in.http.dto.request.CreatePetRequest;
+import com.petmanagement.pets.infrastructure.adapter.in.http.dto.request.UpdatePetRequest;
 import com.petmanagement.pets.infrastructure.adapter.in.http.mapper.PetHttpMapper;
 import com.petmanagement.pets.support.TestOwnerIdMother;
 import com.petmanagement.pets.support.TestPetMother;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.petmanagement.pets.support.PetTestBuilder.CreatePetCommandBuilder.aCreatePetCommand;
+import static com.petmanagement.pets.support.PetTestBuilder.UpdatePetCommandBuilder.aUpdatePetCommand;
 import static com.petmanagement.pets.support.PetTestBuilder.aPet;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -47,6 +50,9 @@ class PetControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private GetPetsByOwnerUseCase getPetsByOwnerUseCase;
+
+    @MockitoBean
+    private UpdatePetUseCase updatePetUseCase;
 
     private static final String PETS = PetController.PETS;
 
@@ -262,6 +268,85 @@ class PetControllerTest extends ControllerTestSupport {
                     .andExpect(status().isUnauthorized());
 
             verifyNoInteractions(getPetsByOwnerUseCase);
+        }
+
+    }
+
+    @Nested
+    class Update {
+
+        @Test
+        void shouldReturn200WithUpdatedPetData() throws Exception {
+            // Given
+            var command = aUpdatePetCommand().build();
+            var updated = aPet().withPetName(command.name()).build();
+
+            given(updatePetUseCase.execute(command))
+                    .willReturn(updated);
+
+            // When/Then
+            performAuthenticatedPut(PETS + "/" + command.petId().value(), toRequest(command))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(updated.getId().value().toString()))
+                    .andExpect(jsonPath("$.name").value(command.name().value()));
+
+            verify(updatePetUseCase).execute(command);
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("invalidRequests")
+        void shouldReturn400WhenNameIsInvalid(
+                String description, UpdatePetRequest request
+        ) throws Exception {
+            // When/Then
+            performAuthenticatedPut(PETS + "/" + TestPetMother.DEFAULT_PET_ID.value(), request)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+
+            verifyNoInteractions(updatePetUseCase);
+        }
+
+        @Test
+        void shouldReturn404WhenPetDoesNotExist() throws Exception {
+            // Given
+            var command = aUpdatePetCommand().withId(TestPetMother.NON_EXISTENT_PET_ID).build();
+
+            given(updatePetUseCase.execute(any()))
+                    .willThrow(new PetNotFoundException());
+
+            // When/Then
+            performAuthenticatedPut(PETS + "/" + command.petId().value(), toRequest(command))
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").value("PET_NOT_FOUND"));
+        }
+
+        @Test
+        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
+            // Given
+            var command = aUpdatePetCommand().build();
+
+            // When/Then
+            performPut(PETS + "/" + command.petId().value(), toRequest(command))
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(updatePetUseCase);
+        }
+
+        // === Helpers ===
+
+        private UpdatePetRequest toRequest(UpdatePetUseCase.UpdatePetCommand command) {
+            return new UpdatePetRequest(command.name().value());
+        }
+
+        static Stream<Arguments> invalidRequests() {
+            return Stream.of(
+                    arguments("name is null", new UpdatePetRequest(null)),
+                    arguments("name is empty", new UpdatePetRequest("")),
+                    arguments("name is blank", new UpdatePetRequest("   ")),
+                    arguments("name has 1 char after trim", new UpdatePetRequest("  A  ")),
+                    arguments("name exceeds 100 chars", new UpdatePetRequest("a".repeat(101)))
+            );
         }
 
     }
