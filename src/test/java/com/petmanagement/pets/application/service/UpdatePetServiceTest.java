@@ -41,6 +41,11 @@ class UpdatePetServiceTest {
             // Then
             assertNotNull(result);
             assertEquals(command.name(), result.getName());
+            assertEquals(command.species(), result.getSpecies());
+            assertEquals(command.breed(), result.getBreed());
+            assertEquals(command.coat(), result.getCoat());
+            assertEquals(command.sex(), result.getSex());
+            assertEquals(command.birthDate(), result.getBirthDate());
         }
 
     }

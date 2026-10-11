@@ -195,10 +195,20 @@ public final class PetTestBuilder {
 
         private PetId petId;
         private PetName petName;
+        private Species species;
+        private Breed breed;
+        private Coat coat;
+        private Sex sex;
+        private LocalDate birthDate;
 
         private UpdatePetCommandBuilder() {
             this.petId = TestPetMother.DEFAULT_PET_ID;
             this.petName = TestPetMother.PET_NAME_CHARLIE;
+            this.species = TestPetMother.SPECIES_CAT;
+            this.breed = TestPetMother.BREED_SIAMESE;
+            this.coat = TestPetMother.COAT_BLACK;
+            this.sex = TestPetMother.SEX_FEMALE;
+            this.birthDate = TestPetMother.BIRTH_DATE_YOUNG;
         }
 
         public static UpdatePetCommandBuilder aUpdatePetCommand() {
@@ -225,8 +235,48 @@ public final class PetTestBuilder {
             return this;
         }
 
+        public UpdatePetCommandBuilder withSpecies(Species species) {
+            this.species = species;
+            return this;
+        }
+
+        public UpdatePetCommandBuilder withSpecies(String species) {
+            this.species = new Species(species);
+            return this;
+        }
+
+        public UpdatePetCommandBuilder withBreed(Breed breed) {
+            this.breed = breed;
+            return this;
+        }
+
+        public UpdatePetCommandBuilder withBreed(String breed) {
+            this.breed = new Breed(breed);
+            return this;
+        }
+
+        public UpdatePetCommandBuilder withCoat(Coat coat) {
+            this.coat = coat;
+            return this;
+        }
+
+        public UpdatePetCommandBuilder withCoat(String coat) {
+            this.coat = new Coat(coat);
+            return this;
+        }
+
+        public UpdatePetCommandBuilder withSex(Sex sex) {
+            this.sex = sex;
+            return this;
+        }
+
+        public UpdatePetCommandBuilder withBirthDate(LocalDate birthDate) {
+            this.birthDate = birthDate;
+            return this;
+        }
+
         public UpdatePetUseCase.UpdatePetCommand build() {
-            return new UpdatePetUseCase.UpdatePetCommand(petId, petName);
+            return new UpdatePetUseCase.UpdatePetCommand(petId, petName, species, breed, coat, sex, birthDate);
         }
 
     }

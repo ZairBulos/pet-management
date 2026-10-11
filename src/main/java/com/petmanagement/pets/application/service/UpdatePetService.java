@@ -22,7 +22,14 @@ class UpdatePetService implements UpdatePetUseCase {
         var pet = repository.findById(command.petId())
                 .orElseThrow(PetNotFoundException::new);
 
-        pet.rename(command.name());
+        pet.update(
+                command.name(),
+                command.species(),
+                command.breed(),
+                command.coat(),
+                command.sex(),
+                command.birthDate()
+        );
 
         repository.save(pet);
 
