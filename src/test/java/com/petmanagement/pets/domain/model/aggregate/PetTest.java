@@ -380,25 +380,126 @@ class PetTest {
     }
 
     @Nested
-    class Rename {
+    class Update {
 
         @Test
-        void shouldRenamePet() {
+        void shouldUpdatePet() {
             var pet = PetTestBuilder.aPet().build();
             var newName = TestPetMother.PET_NAME_CHARLIE;
+            var newSpecies = TestPetMother.SPECIES_CAT;
+            var newBreed = TestPetMother.BREED_SIAMESE;
+            var newCoat = TestPetMother.COAT_BLACK;
+            var newSex = TestPetMother.SEX_FEMALE;
+            var newBirthDate = TestPetMother.BIRTH_DATE_YOUNG;
 
-            pet.rename(newName);
+            pet.update(newName, newSpecies, newBreed, newCoat, newSex, newBirthDate);
 
             assertEquals(newName, pet.getName());
+            assertEquals(newSpecies, pet.getSpecies());
+            assertEquals(newBreed, pet.getBreed());
+            assertEquals(newCoat, pet.getCoat());
+            assertEquals(newSex, pet.getSex());
+            assertEquals(newBirthDate, pet.getBirthDate());
         }
 
         @Test
-        void shouldThrowWhenRenamingWithNullName() {
+        void shouldConvertNullBreedToUnknownOnUpdate() {
+            var pet = PetTestBuilder.aPet().build();
+
+            pet.update(
+                    TestPetMother.PET_NAME_CHARLIE,
+                    TestPetMother.SPECIES_CAT,
+                    null,
+                    TestPetMother.COAT_BLACK,
+                    TestPetMother.SEX_FEMALE,
+                    TestPetMother.BIRTH_DATE_YOUNG
+            );
+
+            assertTrue(pet.getBreed().isUnknown());
+        }
+
+        @Test
+        void shouldThrowWhenUpdatingWithNullName() {
             var pet = PetTestBuilder.aPet().build();
 
             assertThrows(
                     NullPointerException.class,
-                    () -> pet.rename(null)
+                    () -> pet.update(
+                            null,
+                            TestPetMother.SPECIES_CAT,
+                            TestPetMother.BREED_SIAMESE,
+                            TestPetMother.COAT_BLACK,
+                            TestPetMother.SEX_FEMALE,
+                            TestPetMother.BIRTH_DATE_YOUNG
+                    )
+            );
+        }
+
+        @Test
+        void shouldThrowWhenUpdatingWithNullSpecies() {
+            var pet = PetTestBuilder.aPet().build();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> pet.update(
+                            TestPetMother.PET_NAME_CHARLIE,
+                            null,
+                            TestPetMother.BREED_SIAMESE,
+                            TestPetMother.COAT_BLACK,
+                            TestPetMother.SEX_FEMALE,
+                            TestPetMother.BIRTH_DATE_YOUNG
+                    )
+            );
+        }
+
+        @Test
+        void shouldThrowWhenUpdatingWithNullCoat() {
+            var pet = PetTestBuilder.aPet().build();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> pet.update(
+                            TestPetMother.PET_NAME_CHARLIE,
+                            TestPetMother.SPECIES_CAT,
+                            TestPetMother.BREED_SIAMESE,
+                            null,
+                            TestPetMother.SEX_FEMALE,
+                            TestPetMother.BIRTH_DATE_YOUNG
+                    )
+            );
+        }
+
+        @Test
+        void shouldThrowWhenUpdatingWithNullSex() {
+            var pet = PetTestBuilder.aPet().build();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> pet.update(
+                            TestPetMother.PET_NAME_CHARLIE,
+                            TestPetMother.SPECIES_CAT,
+                            TestPetMother.BREED_SIAMESE,
+                            TestPetMother.COAT_BLACK,
+                            null,
+                            TestPetMother.BIRTH_DATE_YOUNG
+                    )
+            );
+        }
+
+        @Test
+        void shouldThrowWhenUpdatingWithNullBirthDate() {
+            var pet = PetTestBuilder.aPet().build();
+
+            assertThrows(
+                    NullPointerException.class,
+                    () -> pet.update(
+                            TestPetMother.PET_NAME_CHARLIE,
+                            TestPetMother.SPECIES_CAT,
+                            TestPetMother.BREED_SIAMESE,
+                            TestPetMother.COAT_BLACK,
+                            TestPetMother.SEX_FEMALE,
+                            null
+                    )
             );
         }
 

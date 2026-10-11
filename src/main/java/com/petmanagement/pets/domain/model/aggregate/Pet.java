@@ -15,11 +15,11 @@ public final class Pet {
     private final PetId id;
     private final OwnerId ownerId;
     private PetName name;
-    private final Species species;
-    private final Breed breed;
-    private final Coat coat;
-    private final Sex sex;
-    private final LocalDate birthDate;
+    private Species species;
+    private Breed breed;
+    private Coat coat;
+    private Sex sex;
+    private LocalDate birthDate;
     private final Instant createdAt;
     private Instant updatedAt;
 
@@ -91,6 +91,23 @@ public final class Pet {
     // === Business Operation ===
     public void rename(PetName newName) {
         this.name = Objects.requireNonNull(newName, "The pet's name cannot be null");
+        touch();
+    }
+
+    public void update(
+            PetName newName,
+            Species newSpecies,
+            Breed newBreed,
+            Coat newCoat,
+            Sex newSex,
+            LocalDate newBirthDate
+    ) {
+        this.name = Objects.requireNonNull(newName, "The pet's name cannot be null");
+        this.species = Objects.requireNonNull(newSpecies, "Species cannot be null");
+        this.breed = newBreed == null ? Breed.unknown() : newBreed;
+        this.coat = Objects.requireNonNull(newCoat, "Coat cannot be null");
+        this.sex = Objects.requireNonNull(newSex, "Sex cannot be null");
+        this.birthDate = Objects.requireNonNull(newBirthDate, "Birth date cannot be null");
         touch();
     }
 
