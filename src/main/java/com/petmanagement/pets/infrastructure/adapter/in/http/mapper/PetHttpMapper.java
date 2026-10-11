@@ -48,7 +48,15 @@ public class PetHttpMapper {
             UUID petId,
             UpdatePetRequest request
     ) {
-        return new UpdatePetUseCase.UpdatePetCommand(PetId.of(petId), new PetName(request.name()));
+        return new UpdatePetUseCase.UpdatePetCommand(
+                PetId.of(petId),
+                new PetName(request.name()),
+                new Species(request.species()),
+                new Breed(request.breed()),
+                new Coat(request.coat()),
+                request.sex(),
+                request.birthDate()
+        );
     }
 
     public PetResponse toPetResponse(Pet pet) {

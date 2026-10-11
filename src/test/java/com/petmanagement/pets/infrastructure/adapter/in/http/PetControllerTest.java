@@ -279,7 +279,14 @@ class PetControllerTest extends ControllerTestSupport {
         void shouldReturn200WithUpdatedPetData() throws Exception {
             // Given
             var command = aUpdatePetCommand().build();
-            var updated = aPet().withPetName(command.name()).build();
+            var updated = aPet()
+                    .withPetName(command.name())
+                    .withSpecies(command.species())
+                    .withBreed(command.breed())
+                    .withCoat(command.coat())
+                    .withSex(command.sex())
+                    .withBirthDate(command.birthDate())
+                    .build();
 
             given(updatePetUseCase.execute(command))
                     .willReturn(updated);
@@ -289,7 +296,12 @@ class PetControllerTest extends ControllerTestSupport {
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.id").value(updated.getId().value().toString()))
-                    .andExpect(jsonPath("$.name").value(command.name().value()));
+                    .andExpect(jsonPath("$.name").value(command.name().value()))
+                    .andExpect(jsonPath("$.species").value(command.species().value()))
+                    .andExpect(jsonPath("$.breed").value(command.breed().value()))
+                    .andExpect(jsonPath("$.coat").value(command.coat().value()))
+                    .andExpect(jsonPath("$.sex").value(command.sex().name()))
+                    .andExpect(jsonPath("$.birthDate").value(command.birthDate().toString()));
 
             verify(updatePetUseCase).execute(command);
         }
@@ -336,16 +348,50 @@ class PetControllerTest extends ControllerTestSupport {
         // === Helpers ===
 
         private UpdatePetRequest toRequest(UpdatePetUseCase.UpdatePetCommand command) {
-            return new UpdatePetRequest(command.name().value());
+            return new UpdatePetRequest(
+                    command.name().value(),
+                    command.species().value(),
+                    command.breed().value(),
+                    command.coat().value(),
+                    command.sex(),
+                    command.birthDate()
+            );
         }
 
         static Stream<Arguments> invalidRequests() {
+            var name = TestPetMother.PET_NAME_CHARLIE.value();
+            var species = TestPetMother.SPECIES_CAT.value();
+            var breed = TestPetMother.BREED_SIAMESE.value();
+            var coat = TestPetMother.COAT_ORANGE_WHITE.value();
+            var sex = TestPetMother.SEX_FEMALE;
+            var birthDate = TestPetMother.BIRTH_DATE_YOUNG;
+
             return Stream.of(
-                    arguments("name is null", new UpdatePetRequest(null)),
-                    arguments("name is empty", new UpdatePetRequest("")),
-                    arguments("name is blank", new UpdatePetRequest("   ")),
-                    arguments("name has 1 char after trim", new UpdatePetRequest("  A  ")),
-                    arguments("name exceeds 100 chars", new UpdatePetRequest("a".repeat(101)))
+                    // name
+                    arguments("name is null", new UpdatePetRequest(null, species, breed, coat, sex, birthDate), "name"),
+                    arguments("name is blank", new UpdatePetRequest("   ", species, breed, coat, sex, birthDate), "name"),
+                    arguments("name has 1 char after trim", new UpdatePetRequest("  A  ", species, breed, coat, sex, birthDate), "name"),
+                    arguments("name exceeds 100 chars", new UpdatePetRequest("a".repeat(101), species, breed, coat, sex, birthDate), "name"),
+
+                    // species
+                    arguments("species is null", new UpdatePetRequest(name, null, breed, coat, sex, birthDate), "species"),
+                    arguments("species is blank", new UpdatePetRequest(name, "   ", breed, coat, sex, birthDate), "species"),
+                    arguments("species exceeds 60 chars", new UpdatePetRequest(name, "a".repeat(61), breed, coat, sex, birthDate), "species"),
+
+                    // breed
+                    arguments("breed exceeds 100 chars", new UpdatePetRequest(name, species, "a".repeat(101), coat, sex, birthDate), "breed"),
+
+                    // coat
+                    arguments("coat is null", new UpdatePetRequest(name, species, breed, null, sex, birthDate), "coat"),
+                    arguments("coat is blank", new UpdatePetRequest(name, species, breed, "   ", sex, birthDate), "coat"),
+                    arguments("coat exceeds 100 chars", new UpdatePetRequest(name, species, breed, "a".repeat(101), sex, birthDate), "coat"),
+
+                    // sex
+                    arguments("sex is null", new UpdatePetRequest(name, species, breed, coat, null, birthDate), "sex"),
+
+                    // birthDate
+                    arguments("birth date is null", new UpdatePetRequest(name, species, breed, coat, sex, null), "birthDate"),
+                    arguments("birth date is in the future", new UpdatePetRequest(name, species, breed, coat, sex, LocalDate.now().plusDays(1)), "birthDate")
             );
         }
 
