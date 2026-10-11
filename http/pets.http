@@ -26,5 +26,10 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "name": "Bellatrix Helena Lestrange Bonham Carter"
+  "name": "",
+  "species": "",
+  "breed": "",
+  "coat": "",
+  "sex": "",
+  "birthDate": ""
 }
