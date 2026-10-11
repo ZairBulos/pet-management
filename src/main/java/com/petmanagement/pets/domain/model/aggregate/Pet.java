@@ -48,6 +48,7 @@ public final class Pet {
     }
 
     // === Factory ===
+
     public static Pet create(
             OwnerId ownerId,
             PetName name,
@@ -88,11 +89,7 @@ public final class Pet {
         return new Pet(id, ownerId, name, species, breed, coat, sex, birthDate, createdAt, updatedAt);
     }
 
-    // === Business Operation ===
-    public void rename(PetName newName) {
-        this.name = Objects.requireNonNull(newName, "The pet's name cannot be null");
-        touch();
-    }
+    // === Business Operations ===
 
     public void update(
             PetName newName,
@@ -120,6 +117,7 @@ public final class Pet {
     }
 
     // === Getters ===
+
     public PetId getId() {
         return id;
     }
@@ -161,6 +159,7 @@ public final class Pet {
     }
 
     // === Object Methods ===
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
