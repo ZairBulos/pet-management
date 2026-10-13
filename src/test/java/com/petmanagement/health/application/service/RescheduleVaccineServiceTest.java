@@ -41,7 +41,7 @@ class RescheduleVaccineServiceTest {
 
             var command = VaccineTestBuilder.RescheduleVaccineCommandBuilder
                     .aRescheduleVaccineCommand()
-                    .withId(vaccine.getId())
+                    .withId(vaccine.id())
                     .build();
 
             // When
@@ -49,19 +49,18 @@ class RescheduleVaccineServiceTest {
 
             // Then
             assertNotNull(result);
-            assertEquals(command.nextDueDate(), result.getNextDueDate().value());
+            assertEquals(command.nextDueDate(), result.nextDueDate().value());
         }
 
         @Test
         void shouldPublishVaccineRescheduledEvent() {
             // Given
             var vaccine = VaccineTestBuilder.aVaccine().build();
-            vaccine.pullEvents();
             repository.save(vaccine);
 
             var command = VaccineTestBuilder.RescheduleVaccineCommandBuilder
                     .aRescheduleVaccineCommand()
-                    .withId(vaccine.getId())
+                    .withId(vaccine.id())
                     .build();
 
             // When

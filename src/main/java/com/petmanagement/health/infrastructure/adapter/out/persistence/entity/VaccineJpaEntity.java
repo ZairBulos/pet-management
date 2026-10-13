@@ -31,9 +31,6 @@ public class VaccineJpaEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
     // === Constructors ===
 
     protected VaccineJpaEntity() {
@@ -46,8 +43,7 @@ public class VaccineJpaEntity {
             LocalDate vaccinationDate,
             String vaccineName,
             LocalDate nextDueDate,
-            Instant createdAt,
-            Instant updatedAt
+            Instant createdAt
     ) {
         this.id = id;
         this.petId = petId;
@@ -55,7 +51,6 @@ public class VaccineJpaEntity {
         this.vaccineName = vaccineName;
         this.nextDueDate = nextDueDate;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     // === Getters & Setters ===
@@ -108,14 +103,6 @@ public class VaccineJpaEntity {
         this.createdAt = createdAt;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     // === Object Methods ===
 
     @Override
@@ -127,7 +114,6 @@ public class VaccineJpaEntity {
                 ", vaccineName='" + vaccineName + '\'' +
                 ", nextDueDate=" + nextDueDate +
                 ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
                 '}';
     }
 

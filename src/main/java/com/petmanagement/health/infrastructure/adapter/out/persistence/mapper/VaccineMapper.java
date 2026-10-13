@@ -13,13 +13,12 @@ public class VaccineMapper {
 
     public VaccineJpaEntity toJpaEntity(Vaccine vaccine) {
         return new VaccineJpaEntity(
-                vaccine.getId().value(),
-                vaccine.getPetId().value(),
-                vaccine.getVaccinationDate(),
-                vaccine.getVaccineName().value(),
-                vaccine.getNextDueDate().value(),
-                vaccine.getCreatedAt(),
-                vaccine.getUpdatedAt()
+                vaccine.id().value(),
+                vaccine.petId().value(),
+                vaccine.vaccinationDate(),
+                vaccine.vaccineName().value(),
+                vaccine.nextDueDate().value(),
+                vaccine.createdAt()
         );
     }
 
@@ -30,8 +29,7 @@ public class VaccineMapper {
                 entity.getVaccinationDate(),
                 new VaccineName(entity.getVaccineName()),
                 new NextDueDate(entity.getNextDueDate()),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
+                entity.getCreatedAt()
         );
     }
 

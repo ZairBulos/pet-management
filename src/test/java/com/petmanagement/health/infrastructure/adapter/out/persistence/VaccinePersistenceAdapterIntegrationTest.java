@@ -1,5 +1,6 @@
 package com.petmanagement.health.infrastructure.adapter.out.persistence;
 
+import com.petmanagement.health.domain.model.aggregate.Vaccine;
 import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.health.infrastructure.adapter.out.persistence.mapper.VaccineMapper;
 import com.petmanagement.health.support.TestCommonMother;
@@ -35,7 +36,7 @@ class VaccinePersistenceAdapterIntegrationTest {
             adapter.save(vaccine);
 
             // When
-            var result = adapter.findById(vaccine.getId());
+            var result = adapter.findById(vaccine.id());
 
             // Then
             assertTrue(result.isPresent());
@@ -124,8 +125,8 @@ class VaccinePersistenceAdapterIntegrationTest {
 
             // Then
             assertEquals(2, result.numberOfElements());
-            assertEquals(TestCommonMother.RECENT_DATE, result.content().getFirst().getVaccinationDate());
-            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().getVaccinationDate());
+            assertEquals(TestCommonMother.RECENT_DATE, result.content().getFirst().vaccinationDate());
+            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().vaccinationDate());
         }
 
     }
@@ -142,7 +143,7 @@ class VaccinePersistenceAdapterIntegrationTest {
             adapter.save(vaccine);
 
             // Then
-            var result = adapter.findById(vaccine.getId());
+            var result = adapter.findById(vaccine.id());
             assertTrue(result.isPresent());
         }
 
@@ -152,18 +153,22 @@ class VaccinePersistenceAdapterIntegrationTest {
             var vaccine = VaccineTestBuilder.aVaccine().build();
             adapter.save(vaccine);
 
-            vaccine.update(
-                    vaccine.getVaccinationDate(),
-                    TestVaccineMother.VACCINE_NAME_DISTEMPER
+            var updated = Vaccine.reconstitute(
+                    vaccine.id(),
+                    vaccine.petId(),
+                    vaccine.vaccinationDate(),
+                    TestVaccineMother.VACCINE_NAME_DISTEMPER,
+                    vaccine.nextDueDate(),
+                    vaccine.createdAt()
             );
 
             // When
-            adapter.save(vaccine);
+            adapter.save(updated);
 
             // Then
-            var result = adapter.findById(vaccine.getId());
+            var result = adapter.findById(vaccine.id());
             assertTrue(result.isPresent());
-            assertEquals(TestVaccineMother.VACCINE_NAME_DISTEMPER, result.get().getVaccineName());
+            assertEquals(TestVaccineMother.VACCINE_NAME_DISTEMPER, result.get().vaccineName());
         }
 
     }

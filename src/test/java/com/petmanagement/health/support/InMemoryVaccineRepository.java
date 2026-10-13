@@ -21,8 +21,8 @@ public final class InMemoryVaccineRepository implements VaccineRepositoryPort {
     @Override
     public PageResponse<Vaccine> findByPetId(PetId petId, PageRequest pageRequest) {
         var allRecords = vaccines.values().stream()
-                .filter(vaccine -> vaccine.getPetId().equals(petId))
-                .sorted(Comparator.comparing(Vaccine::getVaccinationDate).reversed())
+                .filter(vaccine -> vaccine.petId().equals(petId))
+                .sorted(Comparator.comparing(Vaccine::vaccinationDate).reversed())
                 .toList();
 
         var start = pageRequest.page() * pageRequest.size();
@@ -42,7 +42,7 @@ public final class InMemoryVaccineRepository implements VaccineRepositoryPort {
 
     @Override
     public void save(Vaccine vaccine) {
-        vaccines.put(vaccine.getId(), vaccine);
+        vaccines.put(vaccine.id(), vaccine);
     }
 
     // === Helpers ===

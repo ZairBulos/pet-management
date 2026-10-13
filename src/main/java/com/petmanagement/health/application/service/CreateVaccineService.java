@@ -42,7 +42,7 @@ class CreateVaccineService implements CreateVaccineUseCase {
 
         publisher.publishAll(vaccine.pullEvents());
 
-        return vaccine.getId();
+        return vaccine.id();
     }
 
 }

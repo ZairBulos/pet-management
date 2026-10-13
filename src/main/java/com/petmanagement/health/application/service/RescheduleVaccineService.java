@@ -25,13 +25,13 @@ class RescheduleVaccineService implements RescheduleVaccineUseCase {
         var vaccine = repository.findById(command.vaccineId())
                 .orElseThrow(VaccineNotFoundException::new);
 
-        vaccine.reschedule(command.nextDueDate());
+        var rescheduled = vaccine.rescheduled(command.nextDueDate());
 
-        repository.save(vaccine);
+        repository.save(rescheduled);
 
-        publisher.publishAll(vaccine.pullEvents());
+        publisher.publishAll(rescheduled.pullEvents());
 
-        return vaccine;
+        return rescheduled;
     }
 
 }

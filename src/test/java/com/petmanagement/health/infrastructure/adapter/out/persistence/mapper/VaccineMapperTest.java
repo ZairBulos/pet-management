@@ -27,11 +27,11 @@ class VaccineMapperTest {
 
             // Then
             assertNotNull(result);
-            assertEquals(vaccine.getId().value(), result.getId());
-            assertEquals(vaccine.getPetId().value(), result.getPetId());
-            assertEquals(vaccine.getVaccinationDate(), result.getVaccinationDate());
-            assertEquals(vaccine.getVaccineName().value(), result.getVaccineName());
-            assertEquals(vaccine.getNextDueDate().value(), result.getNextDueDate());
+            assertEquals(vaccine.id().value(), result.getId());
+            assertEquals(vaccine.petId().value(), result.getPetId());
+            assertEquals(vaccine.vaccinationDate(), result.getVaccinationDate());
+            assertEquals(vaccine.vaccineName().value(), result.getVaccineName());
+            assertEquals(vaccine.nextDueDate().value(), result.getNextDueDate());
         }
 
     }
@@ -49,11 +49,11 @@ class VaccineMapperTest {
 
             // Then
             assertNotNull(result);
-            assertEquals(TestVaccineMother.DEFAULT_VACCINE_ID, result.getId());
-            assertEquals(TestPetIdMother.EXISTING_PET_ID, result.getPetId());
-            assertEquals(TestVaccineMother.VACCINE_VACCINATION_DATE, result.getVaccinationDate());
-            assertEquals(TestVaccineMother.VACCINE_NAME_RABIES, result.getVaccineName());
-            assertEquals(TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR, result.getNextDueDate());
+            assertEquals(TestVaccineMother.DEFAULT_VACCINE_ID, result.id());
+            assertEquals(TestPetIdMother.EXISTING_PET_ID, result.petId());
+            assertEquals(TestVaccineMother.VACCINE_VACCINATION_DATE, result.vaccinationDate());
+            assertEquals(TestVaccineMother.VACCINE_NAME_RABIES, result.vaccineName());
+            assertEquals(TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR, result.nextDueDate());
         }
 
     }

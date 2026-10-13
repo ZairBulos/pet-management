@@ -2,7 +2,6 @@ package com.petmanagement.health.domain.model.aggregate;
 
 import com.petmanagement.health.domain.event.VaccineCreated;
 import com.petmanagement.health.domain.event.VaccineRescheduled;
-import com.petmanagement.health.domain.event.VaccineUpdated;
 import com.petmanagement.health.domain.model.valueobject.VaccineId;
 import com.petmanagement.health.support.TestCommonMother;
 import com.petmanagement.health.support.TestPetIdMother;
@@ -25,13 +24,12 @@ class VaccineTest {
         void shouldCreateVaccine() {
             var vaccine = VaccineTestBuilder.aVaccine().build();
 
-            assertNotNull(vaccine.getId());
-            assertEquals(TestPetIdMother.EXISTING_PET_ID, vaccine.getPetId());
-            assertEquals(TestVaccineMother.VACCINE_VACCINATION_DATE, vaccine.getVaccinationDate());
-            assertEquals(TestVaccineMother.VACCINE_NAME_RABIES, vaccine.getVaccineName());
-            assertEquals(TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR, vaccine.getNextDueDate());
-            assertNotNull(vaccine.getCreatedAt());
-            assertNotNull(vaccine.getUpdatedAt());
+            assertNotNull(vaccine.id());
+            assertEquals(TestPetIdMother.EXISTING_PET_ID, vaccine.petId());
+            assertEquals(TestVaccineMother.VACCINE_VACCINATION_DATE, vaccine.vaccinationDate());
+            assertEquals(TestVaccineMother.VACCINE_NAME_RABIES, vaccine.vaccineName());
+            assertEquals(TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR, vaccine.nextDueDate());
+            assertNotNull(vaccine.createdAt());
         }
 
         @Test
@@ -48,14 +46,7 @@ class VaccineTest {
             var vaccine1 = VaccineTestBuilder.aVaccine().build();
             var vaccine2 = VaccineTestBuilder.aVaccine().build();
 
-            assertNotEquals(vaccine1.getId(), vaccine2.getId());
-        }
-
-        @Test
-        void shouldHaveSameCreatedAndUpdatedAtOnCreation() {
-            var vaccine = VaccineTestBuilder.aVaccine().build();
-
-            assertEquals(vaccine.getCreatedAt(), vaccine.getUpdatedAt());
+            assertNotEquals(vaccine1.id(), vaccine2.id());
         }
 
         @Test
@@ -119,7 +110,6 @@ class VaccineTest {
         void shouldReconstituteVaccine() {
             var id = VaccineId.generate();
             var createdAt = Instant.parse("2024-01-15T10:00:00Z");
-            var updatedAt = Instant.parse("2024-01-20T15:30:00Z");
 
             var vaccine = Vaccine.reconstitute(
                     id,
@@ -127,17 +117,15 @@ class VaccineTest {
                     TestCommonMother.EARLY_DATE,
                     TestVaccineMother.VACCINE_NAME_RABIES,
                     TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR,
-                    createdAt,
-                    updatedAt
+                    createdAt
             );
 
-            assertEquals(id, vaccine.getId());
-            assertEquals(TestPetIdMother.EXISTING_PET_ID, vaccine.getPetId());
-            assertEquals(TestCommonMother.EARLY_DATE, vaccine.getVaccinationDate());
-            assertEquals(TestVaccineMother.VACCINE_NAME_RABIES, vaccine.getVaccineName());
-            assertEquals(TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR, vaccine.getNextDueDate());
-            assertEquals(createdAt, vaccine.getCreatedAt());
-            assertEquals(updatedAt, vaccine.getUpdatedAt());
+            assertEquals(id, vaccine.id());
+            assertEquals(TestPetIdMother.EXISTING_PET_ID, vaccine.petId());
+            assertEquals(TestCommonMother.EARLY_DATE, vaccine.vaccinationDate());
+            assertEquals(TestVaccineMother.VACCINE_NAME_RABIES, vaccine.vaccineName());
+            assertEquals(TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR, vaccine.nextDueDate());
+            assertEquals(createdAt, vaccine.createdAt());
         }
 
         @Test
@@ -152,7 +140,6 @@ class VaccineTest {
                             TestCommonMother.EARLY_DATE,
                             TestVaccineMother.VACCINE_NAME_RABIES,
                             TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR,
-                            now,
                             now
                     )
             );
@@ -160,17 +147,17 @@ class VaccineTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullPetId() {
+            var id = VaccineId.generate();
             var now = Instant.now();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Vaccine.reconstitute(
-                            VaccineId.generate(),
+                            id,
                             null,
                             TestCommonMother.EARLY_DATE,
                             TestVaccineMother.VACCINE_NAME_RABIES,
                             TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR,
-                            now,
                             now
                     )
             );
@@ -178,17 +165,17 @@ class VaccineTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullVaccinationDate() {
+            var id = VaccineId.generate();
             var now = Instant.now();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Vaccine.reconstitute(
-                            VaccineId.generate(),
+                            id,
                             TestPetIdMother.EXISTING_PET_ID,
                             null,
                             TestVaccineMother.VACCINE_NAME_RABIES,
                             TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR,
-                            now,
                             now
                     )
             );
@@ -196,17 +183,17 @@ class VaccineTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullVaccineName() {
+            var id = VaccineId.generate();
             var now = Instant.now();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Vaccine.reconstitute(
-                            VaccineId.generate(),
+                            id,
                             TestPetIdMother.EXISTING_PET_ID,
                             TestCommonMother.EARLY_DATE,
                             null,
                             TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR,
-                            now,
                             now
                     )
             );
@@ -214,17 +201,17 @@ class VaccineTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullNextDueDate() {
+            var id = VaccineId.generate();
             var now = Instant.now();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Vaccine.reconstitute(
-                            VaccineId.generate(),
+                            id,
                             TestPetIdMother.EXISTING_PET_ID,
                             TestCommonMother.EARLY_DATE,
                             TestVaccineMother.VACCINE_NAME_RABIES,
                             null,
-                            now,
                             now
                     )
             );
@@ -232,35 +219,16 @@ class VaccineTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullCreatedAt() {
-            var now = Instant.now();
+            var id = VaccineId.generate();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Vaccine.reconstitute(
-                            VaccineId.generate(),
+                            id,
                             TestPetIdMother.EXISTING_PET_ID,
                             TestCommonMother.EARLY_DATE,
                             TestVaccineMother.VACCINE_NAME_RABIES,
                             TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR,
-                            null,
-                            now
-                    )
-            );
-        }
-
-        @Test
-        void shouldThrowWhenReconstituteWithNullUpdatedAt() {
-            var now = Instant.now();
-
-            assertThrows(
-                    NullPointerException.class,
-                    () -> Vaccine.reconstitute(
-                            VaccineId.generate(),
-                            TestPetIdMother.EXISTING_PET_ID,
-                            TestCommonMother.EARLY_DATE,
-                            TestVaccineMother.VACCINE_NAME_RABIES,
-                            TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR,
-                            now,
                             null
                     )
             );
@@ -269,78 +237,37 @@ class VaccineTest {
     }
 
     @Nested
-    class Update {
-
-        @Test
-        void shouldUpdateVaccine() {
-            var vaccine = VaccineTestBuilder.aVaccine().build();
-            var newVaccinationDate = TestCommonMother.UPDATE_DATE;
-            var newVaccineName = TestVaccineMother.VACCINE_NAME_DISTEMPER;
-
-            vaccine.update(newVaccinationDate, newVaccineName);
-
-            assertEquals(newVaccinationDate, vaccine.getVaccinationDate());
-            assertEquals(newVaccineName, vaccine.getVaccineName());
-        }
-
-        @Test
-        void shouldPublishVaccineUpdatedEvent() {
-            var vaccine = VaccineTestBuilder.aVaccine().build();
-            vaccine.pullEvents();
-
-            var newVaccinationDate = TestCommonMother.MIDDLE_DATE;
-            var newVaccineName = TestVaccineMother.VACCINE_NAME_DISTEMPER;
-
-            vaccine.update(newVaccinationDate, newVaccineName);
-            var events = vaccine.pullEvents();
-
-            assertEquals(1, events.size());
-            assertInstanceOf(VaccineUpdated.class, events.getFirst());
-        }
-
-        @Test
-        void shouldThrowWhenUpdatingWithNullVaccinationDate() {
-            var vaccine = VaccineTestBuilder.aVaccine().build();
-
-            assertThrows(
-                    NullPointerException.class,
-                    () -> vaccine.update(null, TestVaccineMother.VACCINE_NAME_DISTEMPER)
-            );
-        }
-
-        @Test
-        void shouldThrowWhenUpdatingWithNullVaccineName() {
-            var vaccine = VaccineTestBuilder.aVaccine().build();
-
-            assertThrows(
-                    NullPointerException.class,
-                    () -> vaccine.update(TestCommonMother.MIDDLE_DATE, null)
-            );
-        }
-    }
-
-    @Nested
     class Reschedule {
 
         @Test
-        void shouldRescheduleNextDueDate() {
+        void shouldReturnNewVaccineWithRescheduledNextDueDate() {
             var vaccine = VaccineTestBuilder.aVaccine().build();
             var newNextDueDate = LocalDate.of(2028, 1, 1);
 
-            vaccine.reschedule(newNextDueDate);
+            var rescheduled = vaccine.rescheduled(newNextDueDate);
 
-            assertEquals(newNextDueDate, vaccine.getNextDueDate().value());
+            assertEquals(newNextDueDate, rescheduled.nextDueDate().value());
+        }
+
+        @Test
+        void shouldKeepIdentityAndOtherFieldsWhenRescheduling() {
+            var vaccine = VaccineTestBuilder.aVaccine().build();
+
+            var rescheduled = vaccine.rescheduled(LocalDate.of(2028, 1, 1));
+
+            assertEquals(vaccine.id(), rescheduled.id());
+            assertEquals(vaccine.petId(), rescheduled.petId());
+            assertEquals(vaccine.vaccinationDate(), rescheduled.vaccinationDate());
+            assertEquals(vaccine.vaccineName(), rescheduled.vaccineName());
+            assertEquals(vaccine.createdAt(), rescheduled.createdAt());
         }
 
         @Test
         void shouldPublishVaccineRescheduledEvent() {
             var vaccine = VaccineTestBuilder.aVaccine().build();
-            vaccine.pullEvents();
 
-            var newNextDueDate = LocalDate.of(2028, 1, 1);
-
-            vaccine.reschedule(newNextDueDate);
-            var events = vaccine.pullEvents();
+            var rescheduled = vaccine.rescheduled(LocalDate.of(2028, 1, 1));
+            var events = rescheduled.pullEvents();
 
             assertEquals(1, events.size());
             assertInstanceOf(VaccineRescheduled.class, events.getFirst());
@@ -352,7 +279,7 @@ class VaccineTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> vaccine.reschedule(null)
+                    () -> vaccine.rescheduled(null)
             );
         }
 
@@ -364,7 +291,7 @@ class VaccineTest {
 
             assertThrows(
                     IllegalArgumentException.class,
-                    () -> vaccine.reschedule(TestCommonMother.EARLY_DATE)
+                    () -> vaccine.rescheduled(TestCommonMother.EARLY_DATE)
             );
         }
 
@@ -378,7 +305,7 @@ class VaccineTest {
 
             assertThrows(
                     IllegalArgumentException.class,
-                    () -> vaccine.reschedule(invalidNextDueDate)
+                    () -> vaccine.rescheduled(invalidNextDueDate)
             );
         }
 

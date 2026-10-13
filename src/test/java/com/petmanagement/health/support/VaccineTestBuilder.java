@@ -2,7 +2,6 @@ package com.petmanagement.health.support;
 
 import com.petmanagement.health.application.port.in.CreateVaccineUseCase;
 import com.petmanagement.health.application.port.in.RescheduleVaccineUseCase;
-import com.petmanagement.health.application.port.in.UpdateVaccineUseCase;
 import com.petmanagement.health.domain.model.aggregate.Vaccine;
 import com.petmanagement.health.domain.model.valueobject.NextDueDate;
 import com.petmanagement.health.domain.model.valueobject.PetId;
@@ -123,53 +122,6 @@ public final class VaccineTestBuilder {
 
         public CreateVaccineUseCase.CreateVaccineCommand build() {
             return new CreateVaccineUseCase.CreateVaccineCommand(petId, vaccinationDate, vaccineName, nextDueDate);
-        }
-
-    }
-
-    public static class UpdateVaccineCommandBuilder {
-
-        private VaccineId vaccineId;
-        private LocalDate vaccinationDate;
-        private VaccineName vaccineName;
-
-        private UpdateVaccineCommandBuilder() {
-            this.vaccineId = TestVaccineMother.DEFAULT_VACCINE_ID;
-            this.vaccinationDate = TestCommonMother.UPDATE_DATE;
-            this.vaccineName = TestVaccineMother.VACCINE_NAME_RABIES;
-        }
-
-        public static UpdateVaccineCommandBuilder aUpdateVaccineCommand() {
-            return new UpdateVaccineCommandBuilder();
-        }
-
-        public UpdateVaccineCommandBuilder withId(VaccineId vaccineId) {
-            this.vaccineId = vaccineId;
-            return this;
-        }
-
-        public UpdateVaccineCommandBuilder withId(String vaccineId) {
-            this.vaccineId = VaccineId.of(vaccineId);
-            return this;
-        }
-
-        public UpdateVaccineCommandBuilder withVaccinationDate(LocalDate vaccinationDate) {
-            this.vaccinationDate = vaccinationDate;
-            return this;
-        }
-
-        public UpdateVaccineCommandBuilder withVaccineName(VaccineName vaccineName) {
-            this.vaccineName = vaccineName;
-            return this;
-        }
-
-        public UpdateVaccineCommandBuilder withVaccineName(String vaccineName) {
-            this.vaccineName = new VaccineName(vaccineName);
-            return this;
-        }
-
-        public UpdateVaccineUseCase.UpdateVaccineCommand build() {
-            return new UpdateVaccineUseCase.UpdateVaccineCommand(vaccineId, vaccinationDate, vaccineName);
         }
 
     }

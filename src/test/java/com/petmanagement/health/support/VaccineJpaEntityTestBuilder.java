@@ -14,7 +14,6 @@ public final class VaccineJpaEntityTestBuilder {
     private String vaccineName;
     private LocalDate nextDueDate;
     private Instant createdAt;
-    private Instant updatedAt;
 
     private VaccineJpaEntityTestBuilder() {
         this.id = TestVaccineMother.DEFAULT_VACCINE_ID.value();
@@ -23,7 +22,6 @@ public final class VaccineJpaEntityTestBuilder {
         this.vaccineName = TestVaccineMother.VACCINE_NAME_RABIES.value();
         this.nextDueDate = TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR.value();
         this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
     }
 
     public static VaccineJpaEntityTestBuilder aVaccineJpaEntity() {
@@ -60,11 +58,6 @@ public final class VaccineJpaEntityTestBuilder {
         return this;
     }
 
-    public VaccineJpaEntityTestBuilder withUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-        return this;
-    }
-
     public VaccineJpaEntity build() {
         return new VaccineJpaEntity(
                 id,
@@ -72,8 +65,7 @@ public final class VaccineJpaEntityTestBuilder {
                 vaccinationDate,
                 vaccineName,
                 nextDueDate,
-                createdAt,
-                updatedAt
+                createdAt
         );
     }
 
