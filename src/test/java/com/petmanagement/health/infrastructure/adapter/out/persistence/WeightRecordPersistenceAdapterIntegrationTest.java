@@ -35,7 +35,7 @@ class WeightRecordPersistenceAdapterIntegrationTest {
             adapter.save(weightRecord);
 
             // When
-            var result = adapter.findById(weightRecord.getId());
+            var result = adapter.findById(weightRecord.id());
 
             // Then
             assertTrue(result.isPresent());
@@ -124,8 +124,8 @@ class WeightRecordPersistenceAdapterIntegrationTest {
 
             // Then
             assertEquals(2, result.numberOfElements());
-            assertEquals(TestCommonMother.RECENT_DATE, result.content().getFirst().getWeightDate());
-            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().getWeightDate());
+            assertEquals(TestCommonMother.RECENT_DATE, result.content().getFirst().weightDate());
+            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().weightDate());
         }
 
     }
@@ -142,28 +142,8 @@ class WeightRecordPersistenceAdapterIntegrationTest {
             adapter.save(weightRecord);
 
             // Then
-            var result = adapter.findById(weightRecord.getId());
+            var result = adapter.findById(weightRecord.id());
             assertTrue(result.isPresent());
-        }
-
-        @Test
-        void shouldUpdateWeightRecordWhenSavingExisting() {
-            // Given
-            var weightRecord = WeightRecordTestBuilder.aWeightRecord().build();
-            adapter.save(weightRecord);
-
-            weightRecord.update(
-                    weightRecord.getWeightDate(),
-                    TestWeightRecordMother.UPDATED_WEIGHT
-            );
-
-            // When
-            adapter.save(weightRecord);
-
-            // Then
-            var result = adapter.findById(weightRecord.getId());
-            assertTrue(result.isPresent());
-            assertEquals(TestWeightRecordMother.UPDATED_WEIGHT, result.get().getWeight());
         }
 
     }

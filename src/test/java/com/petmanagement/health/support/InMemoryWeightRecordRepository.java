@@ -21,8 +21,8 @@ public final class InMemoryWeightRecordRepository implements WeightRecordReposit
     @Override
     public PageResponse<WeightRecord> findByPetId(PetId petId, PageRequest pageRequest) {
         var allRecords = weightRecords.values().stream()
-                .filter(weightRecord -> weightRecord.getPetId().equals(petId))
-                .sorted(Comparator.comparing(WeightRecord::getWeightDate).reversed())
+                .filter(weightRecord -> weightRecord.petId().equals(petId))
+                .sorted(Comparator.comparing(WeightRecord::weightDate).reversed())
                 .toList();
 
         var start = pageRequest.page() * pageRequest.size();
@@ -42,7 +42,7 @@ public final class InMemoryWeightRecordRepository implements WeightRecordReposit
 
     @Override
     public void save(WeightRecord weightRecord) {
-        weightRecords.put(weightRecord.getId(), weightRecord);
+        weightRecords.put(weightRecord.id(), weightRecord);
     }
 
     // === Helpers ===

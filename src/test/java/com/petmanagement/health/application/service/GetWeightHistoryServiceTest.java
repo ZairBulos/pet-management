@@ -66,8 +66,8 @@ class GetWeightHistoryServiceTest {
             assertEquals(0, result.page());
             assertEquals(10, result.size());
 
-            assertEquals(TestCommonMother.MIDDLE_DATE, result.content().getFirst().getWeightDate());
-            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().getWeightDate());
+            assertEquals(TestCommonMother.MIDDLE_DATE, result.content().getFirst().weightDate());
+            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().weightDate());
         }
 
     }

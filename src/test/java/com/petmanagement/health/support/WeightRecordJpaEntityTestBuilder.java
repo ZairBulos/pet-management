@@ -14,7 +14,6 @@ public final class WeightRecordJpaEntityTestBuilder {
     private LocalDate weightDate;
     private BigDecimal weight;
     private Instant createdAt;
-    private Instant updatedAt;
 
     private WeightRecordJpaEntityTestBuilder() {
         this.id = TestWeightRecordMother.DEFAULT_WEIGHT_RECORD_ID.value();
@@ -22,7 +21,6 @@ public final class WeightRecordJpaEntityTestBuilder {
         this.weightDate = TestCommonMother.EARLY_DATE;
         this.weight = TestWeightRecordMother.MEDIUM_WEIGHT.value();
         this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
     }
 
     public static WeightRecordJpaEntityTestBuilder aWeightRecordJpaEntity() {
@@ -54,19 +52,13 @@ public final class WeightRecordJpaEntityTestBuilder {
         return this;
     }
 
-    public WeightRecordJpaEntityTestBuilder withUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-        return this;
-    }
-
     public WeightRecordJpaEntity build() {
         return new WeightRecordJpaEntity(
                 id,
                 petId,
                 weightDate,
                 weight,
-                createdAt,
-                updatedAt
+                createdAt
         );
     }
 

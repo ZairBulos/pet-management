@@ -19,7 +19,6 @@ public final class TestWeightRecordMother {
     public static final Weight LIGHT_WEIGHT = Weight.of(3.4);
     public static final Weight MEDIUM_WEIGHT = Weight.of(5.0);
     public static final Weight HEAVY_WEIGHT = Weight.of(8.5);
-    public static final Weight UPDATED_WEIGHT = Weight.of(5.8);
 
     private TestWeightRecordMother() {
     }

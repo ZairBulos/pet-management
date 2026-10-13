@@ -36,7 +36,7 @@ class CreateWeightRecordService implements CreateWeightRecordUseCase {
 
         repository.save(weightRecord);
 
-        return weightRecord.getId();
+        return weightRecord.id();
     }
 
 }

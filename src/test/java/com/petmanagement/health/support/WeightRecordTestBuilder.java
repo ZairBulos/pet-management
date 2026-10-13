@@ -1,11 +1,9 @@
 package com.petmanagement.health.support;
 
 import com.petmanagement.health.application.port.in.CreateWeightRecordUseCase;
-import com.petmanagement.health.application.port.in.UpdateWeightRecordUseCase;
 import com.petmanagement.health.domain.model.aggregate.WeightRecord;
 import com.petmanagement.health.domain.model.valueobject.PetId;
 import com.petmanagement.health.domain.model.valueobject.Weight;
-import com.petmanagement.health.domain.model.valueobject.WeightRecordId;
 
 import java.time.LocalDate;
 
@@ -97,53 +95,6 @@ public final class WeightRecordTestBuilder {
 
         public CreateWeightRecordUseCase.CreateWeightRecordCommand build() {
             return new CreateWeightRecordUseCase.CreateWeightRecordCommand(petId, weightDate, weight);
-        }
-
-    }
-
-    public static class UpdateWeightRecordCommandBuilder {
-
-        private WeightRecordId weightRecordId;
-        private LocalDate weightDate;
-        private Weight weight;
-
-        private UpdateWeightRecordCommandBuilder() {
-            this.weightRecordId = TestWeightRecordMother.DEFAULT_WEIGHT_RECORD_ID;
-            this.weightDate = TestCommonMother.UPDATE_DATE;
-            this.weight = TestWeightRecordMother.UPDATED_WEIGHT;
-        }
-
-        public static UpdateWeightRecordCommandBuilder aUpdateWeightRecordCommand() {
-            return new UpdateWeightRecordCommandBuilder();
-        }
-
-        public UpdateWeightRecordCommandBuilder withId(WeightRecordId weightRecordId) {
-            this.weightRecordId = weightRecordId;
-            return this;
-        }
-
-        public UpdateWeightRecordCommandBuilder withId(String weightRecordId) {
-            this.weightRecordId = WeightRecordId.of(weightRecordId);
-            return this;
-        }
-
-        public UpdateWeightRecordCommandBuilder withWeightDate(LocalDate weightDate) {
-            this.weightDate = weightDate;
-            return this;
-        }
-
-        public UpdateWeightRecordCommandBuilder withWeight(Weight weight) {
-            this.weight = weight;
-            return this;
-        }
-
-        public UpdateWeightRecordCommandBuilder withWeight(double weight) {
-            this.weight = Weight.of(weight);
-            return this;
-        }
-
-        public UpdateWeightRecordUseCase.UpdateWeightRecordCommand build() {
-            return new UpdateWeightRecordUseCase.UpdateWeightRecordCommand(weightRecordId, weightDate, weight);
         }
 
     }

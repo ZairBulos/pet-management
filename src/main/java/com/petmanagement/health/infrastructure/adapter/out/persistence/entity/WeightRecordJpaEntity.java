@@ -29,9 +29,6 @@ public class WeightRecordJpaEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
     // === Constructors ===
 
     protected WeightRecordJpaEntity() {
@@ -43,15 +40,13 @@ public class WeightRecordJpaEntity {
             UUID petId,
             LocalDate weightDate,
             BigDecimal weight,
-            Instant createdAt,
-            Instant updatedAt
+            Instant createdAt
     ) {
         this.id = id;
         this.petId = petId;
         this.weightDate = weightDate;
         this.weight = weight;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     // === Getters & Setters ===
@@ -96,14 +91,6 @@ public class WeightRecordJpaEntity {
         this.createdAt = createdAt;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     // === Object Methods ===
 
     @Override
@@ -114,7 +101,6 @@ public class WeightRecordJpaEntity {
                 ", weightDate=" + weightDate +
                 ", weight=" + weight +
                 ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
                 '}';
     }
 

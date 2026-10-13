@@ -12,12 +12,11 @@ public class WeightRecordMapper {
 
     public WeightRecordJpaEntity toJpaEntity(WeightRecord weightRecord) {
         return new WeightRecordJpaEntity(
-                weightRecord.getId().value(),
-                weightRecord.getPetId().value(),
-                weightRecord.getWeightDate(),
-                weightRecord.getWeight().value(),
-                weightRecord.getCreatedAt(),
-                weightRecord.getUpdatedAt()
+                weightRecord.id().value(),
+                weightRecord.petId().value(),
+                weightRecord.weightDate(),
+                weightRecord.weight().value(),
+                weightRecord.createdAt()
         );
     }
 
@@ -27,8 +26,7 @@ public class WeightRecordMapper {
                 PetId.of(entity.getPetId()),
                 entity.getWeightDate(),
                 new Weight(entity.getWeight()),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
+                entity.getCreatedAt()
         );
     }
 

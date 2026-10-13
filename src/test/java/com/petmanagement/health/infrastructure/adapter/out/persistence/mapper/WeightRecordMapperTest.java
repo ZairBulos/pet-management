@@ -24,12 +24,11 @@ class WeightRecordMapperTest {
 
             // Then
             assertNotNull(result);
-            assertEquals(weightRecord.getId().value(), result.getId());
-            assertEquals(weightRecord.getPetId().value(), result.getPetId());
-            assertEquals(weightRecord.getWeightDate(), result.getWeightDate());
-            assertEquals(weightRecord.getWeight().value(), result.getWeight());
-            assertEquals(weightRecord.getCreatedAt(), result.getCreatedAt());
-            assertEquals(weightRecord.getUpdatedAt(), result.getUpdatedAt());
+            assertEquals(weightRecord.id().value(), result.getId());
+            assertEquals(weightRecord.petId().value(), result.getPetId());
+            assertEquals(weightRecord.weightDate(), result.getWeightDate());
+            assertEquals(weightRecord.weight().value(), result.getWeight());
+            assertEquals(weightRecord.createdAt(), result.getCreatedAt());
         }
 
     }
@@ -47,10 +46,10 @@ class WeightRecordMapperTest {
 
             // Then
             assertNotNull(result);
-            assertEquals(TestWeightRecordMother.DEFAULT_WEIGHT_RECORD_ID, result.getId());
-            assertEquals(TestPetIdMother.EXISTING_PET_ID, result.getPetId());
-            assertEquals(TestCommonMother.EARLY_DATE, result.getWeightDate());
-            assertEquals(TestWeightRecordMother.MEDIUM_WEIGHT, result.getWeight());
+            assertEquals(TestWeightRecordMother.DEFAULT_WEIGHT_RECORD_ID, result.id());
+            assertEquals(TestPetIdMother.EXISTING_PET_ID, result.petId());
+            assertEquals(TestCommonMother.EARLY_DATE, result.weightDate());
+            assertEquals(TestWeightRecordMother.MEDIUM_WEIGHT, result.weight());
         }
 
     }
