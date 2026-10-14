@@ -1,0 +1,10 @@
+### Create weight record
+POST {{host}}/api/health/weight-records
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "petId": "",
+  "weightDate": "",
+  "weight": 4.80
+}
