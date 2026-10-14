@@ -66,8 +66,8 @@ class GetDewormingHistoryServiceTest {
             assertEquals(0, result.page());
             assertEquals(10, result.size());
 
-            assertEquals(TestCommonMother.MIDDLE_DATE, result.content().getFirst().getDewormingDate());
-            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().getDewormingDate());
+            assertEquals(TestCommonMother.MIDDLE_DATE, result.content().getFirst().dewormingDate());
+            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().dewormingDate());
         }
 
     }

@@ -42,7 +42,7 @@ class RescheduleDewormingServiceTest {
 
             var command = DewormingTestBuilder.RescheduleDewormingCommandBuilder
                     .aRescheduleDewormingCommand()
-                    .withId(deworming.getId())
+                    .withId(deworming.id())
                     .build();
 
             // When
@@ -50,19 +50,18 @@ class RescheduleDewormingServiceTest {
 
             // Then
             assertNotNull(result);
-            assertEquals(command.nextDueDate(), result.getNextDueDate().value());
+            assertEquals(command.nextDueDate(), result.nextDueDate().value());
         }
 
         @Test
         void shouldPublishDewormingRescheduledEvent() {
             // Given
             var deworming = DewormingTestBuilder.aDeworming().build();
-            deworming.pullEvents();
             repository.save(deworming);
 
             var command = DewormingTestBuilder.RescheduleDewormingCommandBuilder
                     .aRescheduleDewormingCommand()
-                    .withId(deworming.getId())
+                    .withId(deworming.id())
                     .build();
 
             // When

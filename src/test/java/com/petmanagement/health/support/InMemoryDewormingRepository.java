@@ -21,8 +21,8 @@ public final class InMemoryDewormingRepository implements DewormingRepositoryPor
     @Override
     public PageResponse<Deworming> findByPetId(PetId petId, PageRequest pageRequest) {
         var allRecords = dewormings.values().stream()
-                .filter(deworming -> deworming.getPetId().equals(petId))
-                .sorted(Comparator.comparing(Deworming::getDewormingDate).reversed())
+                .filter(deworming -> deworming.petId().equals(petId))
+                .sorted(Comparator.comparing(Deworming::dewormingDate).reversed())
                 .toList();
 
         var start = pageRequest.page() * pageRequest.size();
@@ -42,7 +42,7 @@ public final class InMemoryDewormingRepository implements DewormingRepositoryPor
 
     @Override
     public void save(Deworming deworming) {
-        dewormings.put(deworming.getId(), deworming);
+        dewormings.put(deworming.id(), deworming);
     }
 
     // === Helpers ===

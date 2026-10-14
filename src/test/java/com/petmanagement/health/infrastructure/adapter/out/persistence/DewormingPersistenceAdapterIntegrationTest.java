@@ -1,5 +1,6 @@
 package com.petmanagement.health.infrastructure.adapter.out.persistence;
 
+import com.petmanagement.health.domain.model.aggregate.Deworming;
 import com.petmanagement.support.RepositoryTest;
 import com.petmanagement.health.infrastructure.adapter.out.persistence.mapper.DewormingMapper;
 import com.petmanagement.health.support.DewormingTestBuilder;
@@ -35,11 +36,11 @@ class DewormingPersistenceAdapterIntegrationTest {
             adapter.save(deworming);
 
             // When
-            var result = adapter.findById(deworming.getId());
+            var result = adapter.findById(deworming.id());
 
             // Then
             assertTrue(result.isPresent());
-            assertEquals(deworming.getId(), result.get().getId());
+            assertEquals(deworming.id(), result.get().id());
         }
 
         @Test
@@ -125,8 +126,8 @@ class DewormingPersistenceAdapterIntegrationTest {
 
             // Then
             assertEquals(2, result.numberOfElements());
-            assertEquals(TestCommonMother.RECENT_DATE, result.content().getFirst().getDewormingDate());
-            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().getDewormingDate());
+            assertEquals(TestCommonMother.RECENT_DATE, result.content().getFirst().dewormingDate());
+            assertEquals(TestCommonMother.EARLY_DATE, result.content().getLast().dewormingDate());
         }
 
     }
@@ -143,7 +144,7 @@ class DewormingPersistenceAdapterIntegrationTest {
             adapter.save(deworming);
 
             // Then
-            var result = adapter.findById(deworming.getId());
+            var result = adapter.findById(deworming.id());
             assertTrue(result.isPresent());
         }
 
@@ -153,20 +154,24 @@ class DewormingPersistenceAdapterIntegrationTest {
             var deworming = DewormingTestBuilder.aDeworming().build();
             adapter.save(deworming);
 
-            deworming.update(
-                    deworming.getDewormingDate(),
+            var updated = Deworming.reconstitute(
+                    deworming.id(),
+                    deworming.petId(),
+                    deworming.dewormingDate(),
                     TestDewormingMother.DRUG_NAME_ADVANTAGE,
-                    TestDewormingMother.DRUG_DOSE_SPOT_ON
+                    TestDewormingMother.DRUG_DOSE_SPOT_ON,
+                    deworming.nextDueDate(),
+                    deworming.createdAt()
             );
 
             // When
-            adapter.save(deworming);
+            adapter.save(updated);
 
             // Then
-            var result = adapter.findById(deworming.getId());
+            var result = adapter.findById(deworming.id());
             assertTrue(result.isPresent());
-            assertEquals(TestDewormingMother.DRUG_NAME_ADVANTAGE, result.get().getDrugName());
-            assertEquals(TestDewormingMother.DRUG_DOSE_SPOT_ON, result.get().getDrugDose());
+            assertEquals(TestDewormingMother.DRUG_NAME_ADVANTAGE, result.get().drugName());
+            assertEquals(TestDewormingMother.DRUG_DOSE_SPOT_ON, result.get().drugDose());
         }
 
     }

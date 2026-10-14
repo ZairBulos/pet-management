@@ -15,7 +15,6 @@ public final class DewormingJpaEntityTestBuilder {
     private String drugDose;
     private LocalDate nextDueDate;
     private Instant createdAt;
-    private Instant updatedAt;
 
     private DewormingJpaEntityTestBuilder() {
         this.id = TestDewormingMother.DEFAULT_DEWORMING_ID.value();
@@ -25,7 +24,6 @@ public final class DewormingJpaEntityTestBuilder {
         this.drugDose = TestDewormingMother.DRUG_DOSE_TABLET.value();
         this.nextDueDate = TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS.value();
         this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
     }
 
     public static DewormingJpaEntityTestBuilder aDewormingJpaEntity() {
@@ -67,11 +65,6 @@ public final class DewormingJpaEntityTestBuilder {
         return this;
     }
 
-    public DewormingJpaEntityTestBuilder withUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-        return this;
-    }
-
     public DewormingJpaEntity build() {
         return new DewormingJpaEntity(
                 id,
@@ -80,8 +73,7 @@ public final class DewormingJpaEntityTestBuilder {
                 drugName,
                 drugDose,
                 nextDueDate,
-                createdAt,
-                updatedAt
+                createdAt
         );
     }
 

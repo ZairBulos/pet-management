@@ -2,7 +2,6 @@ package com.petmanagement.health.support;
 
 import com.petmanagement.health.application.port.in.CreateDewormingUseCase;
 import com.petmanagement.health.application.port.in.RescheduleDewormingUseCase;
-import com.petmanagement.health.application.port.in.UpdateDewormingUseCase;
 import com.petmanagement.health.domain.model.aggregate.Deworming;
 import com.petmanagement.health.domain.model.valueobject.*;
 
@@ -154,70 +153,6 @@ public final class DewormingTestBuilder {
                     drugName,
                     drugDose,
                     nextDueDate
-            );
-        }
-
-    }
-
-    public static class UpdateDewormingCommandBuilder {
-
-        private DewormingId dewormingId;
-        private LocalDate dewormingDate;
-        private DrugName drugName;
-        private DrugDose drugDose;
-
-        private UpdateDewormingCommandBuilder() {
-            this.dewormingId = TestDewormingMother.DEFAULT_DEWORMING_ID;
-            this.dewormingDate = TestCommonMother.UPDATE_DATE;
-            this.drugName = TestDewormingMother.DRUG_NAME_ADVOCATE;
-            this.drugDose = TestDewormingMother.DRUG_DOSE_LIQUID;
-        }
-
-        public static UpdateDewormingCommandBuilder aUpdateDewormingCommand() {
-            return new UpdateDewormingCommandBuilder();
-        }
-
-        public UpdateDewormingCommandBuilder withId(DewormingId dewormingId) {
-            this.dewormingId = dewormingId;
-            return this;
-        }
-
-        public UpdateDewormingCommandBuilder withId(String dewormingId) {
-            this.dewormingId = DewormingId.of(dewormingId);
-            return this;
-        }
-
-        public UpdateDewormingCommandBuilder withDewormingDate(LocalDate dewormingDate) {
-            this.dewormingDate = dewormingDate;
-            return this;
-        }
-
-        public UpdateDewormingCommandBuilder withDrugName(DrugName drugName) {
-            this.drugName = drugName;
-            return this;
-        }
-
-        public UpdateDewormingCommandBuilder withDrugName(String drugName) {
-            this.drugName = new DrugName(drugName);
-            return this;
-        }
-
-        public UpdateDewormingCommandBuilder withDrugDose(DrugDose drugDose) {
-            this.drugDose = drugDose;
-            return this;
-        }
-
-        public UpdateDewormingCommandBuilder withDrugDose(String drugDose) {
-            this.drugDose = new DrugDose(drugDose);
-            return this;
-        }
-
-        public UpdateDewormingUseCase.UpdateDewormingCommand build() {
-            return new UpdateDewormingUseCase.UpdateDewormingCommand(
-                    dewormingId,
-                    dewormingDate,
-                    drugName,
-                    drugDose
             );
         }
 

@@ -34,9 +34,6 @@ public class DewormingJpaEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
     // === Contructors ===
 
     protected DewormingJpaEntity() {
@@ -50,8 +47,7 @@ public class DewormingJpaEntity {
             String drugName,
             String drugDose,
             LocalDate nextDueDate,
-            Instant createdAt,
-            Instant updatedAt
+            Instant createdAt
     ) {
         this.id = id;
         this.petId = petId;
@@ -60,7 +56,6 @@ public class DewormingJpaEntity {
         this.drugDose = drugDose;
         this.nextDueDate = nextDueDate;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
     }
 
     // === Getters & Setters ===
@@ -121,14 +116,6 @@ public class DewormingJpaEntity {
         this.createdAt = createdAt;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     // === Object Methods ===
 
     @Override
@@ -141,7 +128,6 @@ public class DewormingJpaEntity {
                 ", drugDose='" + drugDose + '\'' +
                 ", nextDueDate=" + nextDueDate +
                 ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
                 '}';
     }
 

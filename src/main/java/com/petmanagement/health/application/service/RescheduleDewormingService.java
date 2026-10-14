@@ -25,13 +25,13 @@ class RescheduleDewormingService implements RescheduleDewormingUseCase {
         var deworming = repository.findById(command.dewormingId())
                 .orElseThrow(DewormingNotFoundException::new);
 
-        deworming.reschedule(command.nextDueDate());
+        var rescheduled = deworming.rescheduled(command.nextDueDate());
 
-        repository.save(deworming);
+        repository.save(rescheduled);
 
-        publisher.publishAll(deworming.pullEvents());
+        publisher.publishAll(rescheduled.pullEvents());
 
-        return deworming;
+        return rescheduled;
     }
 
 }

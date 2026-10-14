@@ -10,14 +10,13 @@ public class DewormingMapper {
 
     public DewormingJpaEntity toJpaEntity(Deworming deworming) {
         return new DewormingJpaEntity(
-                deworming.getId().value(),
-                deworming.getPetId().value(),
-                deworming.getDewormingDate(),
-                deworming.getDrugName().value(),
-                deworming.getDrugDose().value(),
-                deworming.getNextDueDate().value(),
-                deworming.getCreatedAt(),
-                deworming.getUpdatedAt()
+                deworming.id().value(),
+                deworming.petId().value(),
+                deworming.dewormingDate(),
+                deworming.drugName().value(),
+                deworming.drugDose().value(),
+                deworming.nextDueDate().value(),
+                deworming.createdAt()
         );
     }
 
@@ -29,8 +28,7 @@ public class DewormingMapper {
                 new DrugName(entity.getDrugName()),
                 new DrugDose(entity.getDrugDose()),
                 new NextDueDate(entity.getNextDueDate()),
-                entity.getCreatedAt(),
-                entity.getUpdatedAt()
+                entity.getCreatedAt()
         );
     }
 

@@ -43,7 +43,7 @@ class CreateDewormingService implements CreateDewormingUseCase {
 
         publisher.publishAll(deworming.pullEvents());
 
-        return deworming.getId();
+        return deworming.id();
     }
 
 }

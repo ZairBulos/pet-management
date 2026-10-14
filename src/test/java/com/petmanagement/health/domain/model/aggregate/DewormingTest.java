@@ -2,10 +2,8 @@ package com.petmanagement.health.domain.model.aggregate;
 
 import com.petmanagement.health.domain.event.DewormingCreated;
 import com.petmanagement.health.domain.event.DewormingRescheduled;
-import com.petmanagement.health.domain.event.DewormingUpdated;
 import com.petmanagement.health.domain.model.valueobject.DewormingId;
 import com.petmanagement.health.support.DewormingTestBuilder;
-import com.petmanagement.health.support.TestCommonMother;
 import com.petmanagement.health.support.TestDewormingMother;
 import com.petmanagement.health.support.TestPetIdMother;
 import org.junit.jupiter.api.Nested;
@@ -25,14 +23,13 @@ class DewormingTest {
         void shouldCreateDeworming() {
             var deworming = DewormingTestBuilder.aDeworming().build();
 
-            assertNotNull(deworming.getId());
-            assertEquals(TestPetIdMother.EXISTING_PET_ID, deworming.getPetId());
-            assertEquals(TestDewormingMother.DEWORMING_DATE, deworming.getDewormingDate());
-            assertEquals(TestDewormingMother.DRUG_NAME_DRONTAL, deworming.getDrugName());
-            assertEquals(TestDewormingMother.DRUG_DOSE_TABLET, deworming.getDrugDose());
-            assertEquals(TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS, deworming.getNextDueDate());
-            assertNotNull(deworming.getCreatedAt());
-            assertNotNull(deworming.getUpdatedAt());
+            assertNotNull(deworming.id());
+            assertEquals(TestPetIdMother.EXISTING_PET_ID, deworming.petId());
+            assertEquals(TestDewormingMother.DEWORMING_DATE, deworming.dewormingDate());
+            assertEquals(TestDewormingMother.DRUG_NAME_DRONTAL, deworming.drugName());
+            assertEquals(TestDewormingMother.DRUG_DOSE_TABLET, deworming.drugDose());
+            assertEquals(TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS, deworming.nextDueDate());
+            assertNotNull(deworming.createdAt());
         }
 
         @Test
@@ -49,14 +46,7 @@ class DewormingTest {
             var deworming1 = DewormingTestBuilder.aDeworming().build();
             var deworming2 = DewormingTestBuilder.aDeworming().build();
 
-            assertNotEquals(deworming1.getId(), deworming2.getId());
-        }
-
-        @Test
-        void shouldHaveSameCreatedAndUpdatedAtOnCreation() {
-            var deworming = DewormingTestBuilder.aDeworming().build();
-
-            assertEquals(deworming.getCreatedAt(), deworming.getUpdatedAt());
+            assertNotEquals(deworming1.id(), deworming2.id());
         }
 
         @Test
@@ -138,7 +128,6 @@ class DewormingTest {
         void shouldReconstituteDeworming() {
             var id = DewormingId.generate();
             var createdAt = Instant.parse("2024-01-15T10:00:00Z");
-            var updatedAt = Instant.parse("2024-01-20T15:30:00Z");
 
             var deworming = Deworming.reconstitute(
                     id,
@@ -147,18 +136,16 @@ class DewormingTest {
                     TestDewormingMother.DRUG_NAME_DRONTAL,
                     TestDewormingMother.DRUG_DOSE_TABLET,
                     TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS,
-                    createdAt,
-                    updatedAt
+                    createdAt
             );
 
-            assertEquals(id, deworming.getId());
-            assertEquals(TestPetIdMother.EXISTING_PET_ID, deworming.getPetId());
-            assertEquals(TestDewormingMother.DEWORMING_DATE, deworming.getDewormingDate());
-            assertEquals(TestDewormingMother.DRUG_NAME_DRONTAL, deworming.getDrugName());
-            assertEquals(TestDewormingMother.DRUG_DOSE_TABLET, deworming.getDrugDose());
-            assertEquals(TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS, deworming.getNextDueDate());
-            assertEquals(createdAt, deworming.getCreatedAt());
-            assertEquals(updatedAt, deworming.getUpdatedAt());
+            assertEquals(id, deworming.id());
+            assertEquals(TestPetIdMother.EXISTING_PET_ID, deworming.petId());
+            assertEquals(TestDewormingMother.DEWORMING_DATE, deworming.dewormingDate());
+            assertEquals(TestDewormingMother.DRUG_NAME_DRONTAL, deworming.drugName());
+            assertEquals(TestDewormingMother.DRUG_DOSE_TABLET, deworming.drugDose());
+            assertEquals(TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS, deworming.nextDueDate());
+            assertEquals(createdAt, deworming.createdAt());
         }
 
         @Test
@@ -174,7 +161,6 @@ class DewormingTest {
                             TestDewormingMother.DRUG_NAME_DRONTAL,
                             TestDewormingMother.DRUG_DOSE_TABLET,
                             TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS,
-                            now,
                             now
                     )
             );
@@ -182,18 +168,18 @@ class DewormingTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullPetId() {
+            var id = DewormingId.generate();
             var now = Instant.now();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Deworming.reconstitute(
-                            DewormingId.generate(),
+                            id,
                             null,
                             TestDewormingMother.DEWORMING_DATE,
                             TestDewormingMother.DRUG_NAME_DRONTAL,
                             TestDewormingMother.DRUG_DOSE_TABLET,
                             TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS,
-                            now,
                             now
                     )
             );
@@ -201,18 +187,18 @@ class DewormingTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullDewormingDate() {
+            var id = DewormingId.generate();
             var now = Instant.now();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Deworming.reconstitute(
-                            DewormingId.generate(),
+                            id,
                             TestPetIdMother.EXISTING_PET_ID,
                             null,
                             TestDewormingMother.DRUG_NAME_DRONTAL,
                             TestDewormingMother.DRUG_DOSE_TABLET,
                             TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS,
-                            now,
                             now
                     )
             );
@@ -220,18 +206,18 @@ class DewormingTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullDrugName() {
+            var id = DewormingId.generate();
             var now = Instant.now();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Deworming.reconstitute(
-                            DewormingId.generate(),
+                            id,
                             TestPetIdMother.EXISTING_PET_ID,
                             TestDewormingMother.DEWORMING_DATE,
                             null,
                             TestDewormingMother.DRUG_DOSE_TABLET,
                             TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS,
-                            now,
                             now
                     )
             );
@@ -239,18 +225,18 @@ class DewormingTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullDrugDose() {
+            var id = DewormingId.generate();
             var now = Instant.now();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Deworming.reconstitute(
-                            DewormingId.generate(),
+                            id,
                             TestPetIdMother.EXISTING_PET_ID,
                             TestDewormingMother.DEWORMING_DATE,
                             TestDewormingMother.DRUG_NAME_DRONTAL,
                             null,
                             TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS,
-                            now,
                             now
                     )
             );
@@ -258,18 +244,18 @@ class DewormingTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullNextDueDate() {
+            var id = DewormingId.generate();
             var now = Instant.now();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Deworming.reconstitute(
-                            DewormingId.generate(),
+                            id,
                             TestPetIdMother.EXISTING_PET_ID,
                             TestDewormingMother.DEWORMING_DATE,
                             TestDewormingMother.DRUG_NAME_DRONTAL,
                             TestDewormingMother.DRUG_DOSE_TABLET,
                             null,
-                            now,
                             now
                     )
             );
@@ -277,114 +263,17 @@ class DewormingTest {
 
         @Test
         void shouldThrowWhenReconstituteWithNullCreatedAt() {
-            var now = Instant.now();
+            var id = DewormingId.generate();
 
             assertThrows(
                     NullPointerException.class,
                     () -> Deworming.reconstitute(
-                            DewormingId.generate(),
+                            id,
                             TestPetIdMother.EXISTING_PET_ID,
                             TestDewormingMother.DEWORMING_DATE,
                             TestDewormingMother.DRUG_NAME_DRONTAL,
                             TestDewormingMother.DRUG_DOSE_TABLET,
                             TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS,
-                            null,
-                            now
-                    )
-            );
-        }
-
-        @Test
-        void shouldThrowWhenReconstituteWithNullUpdatedAt() {
-            var now = Instant.now();
-
-            assertThrows(
-                    NullPointerException.class,
-                    () -> Deworming.reconstitute(
-                            DewormingId.generate(),
-                            TestPetIdMother.EXISTING_PET_ID,
-                            TestDewormingMother.DEWORMING_DATE,
-                            TestDewormingMother.DRUG_NAME_DRONTAL,
-                            TestDewormingMother.DRUG_DOSE_TABLET,
-                            TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS,
-                            now,
-                            null
-                    )
-            );
-        }
-
-    }
-
-    @Nested
-    class Update {
-
-        @Test
-        void shouldUpdateDeworming() {
-            var deworming = DewormingTestBuilder.aDeworming().build();
-            var newDewormingDate = TestCommonMother.UPDATE_DATE;
-            var newDrugName = TestDewormingMother.DRUG_NAME_ADVOCATE;
-            var newDrugDose = TestDewormingMother.DRUG_DOSE_LIQUID;
-
-            deworming.update(newDewormingDate, newDrugName, newDrugDose);
-
-            assertEquals(newDewormingDate, deworming.getDewormingDate());
-            assertEquals(newDrugName, deworming.getDrugName());
-            assertEquals(newDrugDose, deworming.getDrugDose());
-        }
-
-        @Test
-        void shouldPublishDewormingUpdatedEvent() {
-            var deworming = DewormingTestBuilder.aDeworming().build();
-            deworming.pullEvents();
-
-            var newDewormingDate = TestCommonMother.UPDATE_DATE;
-            var newDrugName = TestDewormingMother.DRUG_NAME_ADVOCATE;
-            var newDrugDose = TestDewormingMother.DRUG_DOSE_LIQUID;
-
-            deworming.update(newDewormingDate, newDrugName, newDrugDose);
-            var events = deworming.pullEvents();
-
-            assertEquals(1, events.size());
-            assertInstanceOf(DewormingUpdated.class, events.getFirst());
-        }
-
-        @Test
-        void shouldThrowWhenUpdatingWithNullDewormingDate() {
-            var deworming = DewormingTestBuilder.aDeworming().build();
-
-            assertThrows(
-                    NullPointerException.class,
-                    () -> deworming.update(
-                            null,
-                            TestDewormingMother.DRUG_NAME_ADVOCATE,
-                            TestDewormingMother.DRUG_DOSE_LIQUID
-                    )
-            );
-        }
-
-        @Test
-        void shouldThrowWhenUpdatingWithNullDrugName() {
-            var deworming = DewormingTestBuilder.aDeworming().build();
-
-            assertThrows(
-                    NullPointerException.class,
-                    () -> deworming.update(
-                            TestCommonMother.UPDATE_DATE,
-                            null,
-                            TestDewormingMother.DRUG_DOSE_LIQUID
-                    )
-            );
-        }
-
-        @Test
-        void shouldThrowWhenUpdatingWithNullDrugDose() {
-            var deworming = DewormingTestBuilder.aDeworming().build();
-
-            assertThrows(
-                    NullPointerException.class,
-                    () -> deworming.update(
-                            TestCommonMother.UPDATE_DATE,
-                            TestDewormingMother.DRUG_NAME_ADVOCATE,
                             null
                     )
             );
@@ -396,24 +285,35 @@ class DewormingTest {
     class Reschedule {
 
         @Test
-        void shouldRescheduleNextDueDate() {
+        void shouldReturnNewDewormingWithRescheduledNextDueDate() {
             var deworming = DewormingTestBuilder.aDeworming().build();
             var newNextDueDate = TestDewormingMother.NEXT_DUE_DATE_SIX_MONTHS.value();
 
-            deworming.reschedule(newNextDueDate);
+            var rescheduled = deworming.rescheduled(newNextDueDate);
 
-            assertEquals(newNextDueDate, deworming.getNextDueDate().value());
+            assertEquals(newNextDueDate, rescheduled.nextDueDate().value());
+        }
+
+        @Test
+        void shouldKeepIdentityAndOtherFieldsWhenRescheduling() {
+            var deworming = DewormingTestBuilder.aDeworming().build();
+
+            var rescheduled = deworming.rescheduled(TestDewormingMother.NEXT_DUE_DATE_SIX_MONTHS.value());
+
+            assertEquals(deworming.id(), rescheduled.id());
+            assertEquals(deworming.petId(), rescheduled.petId());
+            assertEquals(deworming.dewormingDate(), rescheduled.dewormingDate());
+            assertEquals(deworming.drugName(), rescheduled.drugName());
+            assertEquals(deworming.drugDose(), rescheduled.drugDose());
+            assertEquals(deworming.createdAt(), rescheduled.createdAt());
         }
 
         @Test
         void shouldPublishDewormingRescheduledEvent() {
             var deworming = DewormingTestBuilder.aDeworming().build();
-            deworming.pullEvents();
 
-            var newNextDueDate = TestDewormingMother.NEXT_DUE_DATE_SIX_MONTHS.value();
-
-            deworming.reschedule(newNextDueDate);
-            var events = deworming.pullEvents();
+            var rescheduled = deworming.rescheduled(TestDewormingMother.NEXT_DUE_DATE_SIX_MONTHS.value());
+            var events = rescheduled.pullEvents();
 
             assertEquals(1, events.size());
             assertInstanceOf(DewormingRescheduled.class, events.getFirst());
@@ -425,7 +325,7 @@ class DewormingTest {
 
             assertThrows(
                     NullPointerException.class,
-                    () -> deworming.reschedule(null)
+                    () -> deworming.rescheduled(null)
             );
         }
 
@@ -437,7 +337,7 @@ class DewormingTest {
 
             assertThrows(
                     IllegalArgumentException.class,
-                    () -> deworming.reschedule(TestDewormingMother.DEWORMING_DATE)
+                    () -> deworming.rescheduled(TestDewormingMother.DEWORMING_DATE)
             );
         }
 
@@ -451,7 +351,7 @@ class DewormingTest {
 
             assertThrows(
                     IllegalArgumentException.class,
-                    () -> deworming.reschedule(invalidNextDueDate)
+                    () -> deworming.rescheduled(invalidNextDueDate)
             );
         }
 
@@ -488,7 +388,7 @@ class DewormingTest {
         @Test
         void shouldReturnNegativeDaysWhenNextDueDateHasPassed() {
             var deworming = DewormingTestBuilder.aDeworming()
-                    .withNextDueDate(TestDewormingMother.DEWORMING_DATE)
+                    .withDewormingDate(TestDewormingMother.DEWORMING_DATE)
                     .withNextDueDate(TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS)
                     .build();
 
