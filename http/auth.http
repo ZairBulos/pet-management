@@ -31,3 +31,7 @@ Content-Type: application/json
 {
   "refreshToken": ""
 }
+
+### Get vaccine history
+GET {{host}}/api/health/vaccines?petId={{petId}}&page=0&size=10
+Authorization: Bearer {{token}}
