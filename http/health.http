@@ -25,3 +25,13 @@ Content-Type: application/json
   "vaccineName": "",
   "nextDueDate": ""
 }
+
+### Reschedule vaccine
+PATCH {{host}}/api/health/vaccines
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "vaccineId": "",
+  "nextDueDate": ""
+}
