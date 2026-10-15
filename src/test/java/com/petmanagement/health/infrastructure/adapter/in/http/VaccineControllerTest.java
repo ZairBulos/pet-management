@@ -2,10 +2,14 @@ package com.petmanagement.health.infrastructure.adapter.in.http;
 
 import com.petmanagement.health.application.port.in.CreateVaccineUseCase;
 import com.petmanagement.health.application.port.in.GetVaccineHistoryUseCase;
+import com.petmanagement.health.application.port.in.RescheduleVaccineUseCase;
 import com.petmanagement.health.domain.exception.PetNotFoundException;
+import com.petmanagement.health.domain.exception.VaccineNotFoundException;
+import com.petmanagement.health.domain.model.valueobject.NextDueDate;
 import com.petmanagement.health.domain.model.valueobject.PetId;
 import com.petmanagement.health.domain.model.valueobject.VaccineId;
 import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.CreateVaccineRequest;
+import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.RescheduleVaccineRequest;
 import com.petmanagement.health.infrastructure.adapter.in.http.mapper.VaccineHttpMapper;
 import com.petmanagement.health.support.TestCommonMother;
 import com.petmanagement.health.support.TestPetIdMother;
@@ -46,6 +50,9 @@ class VaccineControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private GetVaccineHistoryUseCase getVaccineHistoryUseCase;
+
+    @MockitoBean
+    private RescheduleVaccineUseCase rescheduleVaccineUseCase;
 
     private static final String VACCINES = VaccineController.VACCINES;
 
@@ -262,6 +269,106 @@ class VaccineControllerTest extends ControllerTestSupport {
                     .andExpect(status().isUnauthorized());
 
             verifyNoInteractions(getVaccineHistoryUseCase);
+        }
+
+    }
+
+    @Nested
+    class Reschedule {
+
+        private static final LocalDate NEW_DUE_DATE = LocalDate.now().plusYears(1);
+
+        @Test
+        void shouldReturn200WithRescheduledVaccine() throws Exception {
+            // Given
+            var vaccine = aVaccine().build();
+            var command = new RescheduleVaccineUseCase.RescheduleVaccineCommand(vaccine.id(), NEW_DUE_DATE);
+            var rescheduled = aVaccine().withNextDueDate(new NextDueDate(NEW_DUE_DATE)).build();
+
+            given(rescheduleVaccineUseCase.execute(command))
+                    .willReturn(rescheduled);
+
+            // When/Then
+            performAuthenticatedPatch(VACCINES, toRequest(command))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(rescheduled.id().value().toString()))
+                    .andExpect(jsonPath("$.vaccineName").value(rescheduled.vaccineName().value()))
+                    .andExpect(jsonPath("$.nextDueDate").value(NEW_DUE_DATE.toString()));
+
+            verify(rescheduleVaccineUseCase).execute(command);
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("invalidRequests")
+        void shouldReturn400WhenFieldIsInvalid(
+                String description, RescheduleVaccineRequest request, String field
+        ) throws Exception {
+            // When/Then
+            performAuthenticatedPatch(VACCINES, request)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+
+            verifyNoInteractions(rescheduleVaccineUseCase);
+        }
+
+        @Test
+        void shouldReturn400WhenNextDueDateIsNotAfterVaccinationDate() throws Exception {
+            // Given
+            var request = new RescheduleVaccineRequest(VaccineId.generate().value(), NEW_DUE_DATE);
+
+            given(rescheduleVaccineUseCase.execute(any()))
+                    .willThrow(new IllegalArgumentException("Next due date must be after base date"));
+
+            // When/Then
+            performAuthenticatedPatch(VACCINES, request)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+        }
+
+        @Test
+        void shouldReturn404WhenVaccineDoesNotExist() throws Exception {
+            // Given
+            var request = new RescheduleVaccineRequest(
+                    TestVaccineMother.NON_EXISTENT_VACCINE_ID.value(),
+                    NEW_DUE_DATE
+            );
+
+            given(rescheduleVaccineUseCase.execute(any()))
+                    .willThrow(new VaccineNotFoundException());
+
+            // When/Then
+            performAuthenticatedPatch(VACCINES, request)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").value("VACCINE_NOT_FOUND"));
+        }
+
+        @Test
+        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
+            // Given
+            var request = new RescheduleVaccineRequest(VaccineId.generate().value(), NEW_DUE_DATE);
+
+            // When/Then
+            performPatch(VACCINES, request)
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(rescheduleVaccineUseCase);
+        }
+
+        // === Helpers ===
+
+        private RescheduleVaccineRequest toRequest(RescheduleVaccineUseCase.RescheduleVaccineCommand command) {
+            return new RescheduleVaccineRequest(command.vaccineId().value(), command.nextDueDate());
+        }
+
+        static Stream<Arguments> invalidRequests() {
+            var vaccineId = TestVaccineMother.DEFAULT_VACCINE_ID.value();
+
+            return Stream.of(
+                    arguments("vaccine id is null", new RescheduleVaccineRequest(null, NEW_DUE_DATE), "vaccineId"),
+                    arguments("next due date is null", new RescheduleVaccineRequest(vaccineId, null), "nextDueDate"),
+                    arguments("next due date is in the past", new RescheduleVaccineRequest(vaccineId, LocalDate.now().minusDays(1)), "nextDueDate")
+            );
         }
 
     }
