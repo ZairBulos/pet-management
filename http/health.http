@@ -8,3 +8,8 @@ Content-Type: application/json
   "weightDate": "",
   "weight": 4.80
 }
+
+### Get weight history
+GET {{host}}/api/health/weight-records?petId={{petId}}&page=0&size=10
+Authorization: Bearer {{token}}
+Content-Type: application/json
