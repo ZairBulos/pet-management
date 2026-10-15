@@ -20,9 +20,7 @@ import tools.jackson.databind.json.JsonMapper;
 import java.util.Collections;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @Import({
         SecurityConfig.class,
@@ -55,6 +53,10 @@ public abstract class ControllerTestSupport {
         return mockMvc.perform(withJson(put(url), body));
     }
 
+    protected ResultActions performPatch(String url, Object body) throws Exception {
+        return mockMvc.perform(withJson(patch(url), body));
+    }
+
     // === Authenticated ===
 
     protected ResultActions performAuthenticatedGet(String url) throws Exception {
@@ -67,6 +69,10 @@ public abstract class ControllerTestSupport {
 
     protected ResultActions performAuthenticatedPut(String url, Object body) throws Exception {
         return mockMvc.perform(withJson(put(url), body).with(authenticated()));
+    }
+
+    protected ResultActions performAuthenticatedPatch(String url, Object body) throws Exception {
+        return mockMvc.perform(withJson(patch(url), body).with(authenticated()));
     }
 
     // === Internals ===
