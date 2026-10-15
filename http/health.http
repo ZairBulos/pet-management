@@ -13,3 +13,15 @@ Content-Type: application/json
 GET {{host}}/api/health/weight-records?petId={{petId}}&page=0&size=10
 Authorization: Bearer {{token}}
 Content-Type: application/json
+
+### Create vaccine
+POST {{host}}/api/health/vaccines
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "petId": "",
+  "vaccinationDate": "",
+  "vaccineName": "",
+  "nextDueDate": ""
+}
