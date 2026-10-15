@@ -1,6 +1,7 @@
 package com.petmanagement.health.infrastructure.adapter.in.http;
 
 import com.petmanagement.health.domain.exception.PetNotFoundException;
+import com.petmanagement.health.domain.exception.VaccineNotFoundException;
 import com.petmanagement.shared.domain.model.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,19 @@ class VaccineExceptionHandler {
     ) {
         return ErrorResponse.of(
                 "PET_NOT_FOUND",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(VaccineNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse handleVaccineNotFound(
+            VaccineNotFoundException ex,
+            HttpServletRequest request
+    ) {
+        return ErrorResponse.of(
+                "VACCINE_NOT_FOUND",
                 ex.getMessage(),
                 request.getRequestURI()
         );
