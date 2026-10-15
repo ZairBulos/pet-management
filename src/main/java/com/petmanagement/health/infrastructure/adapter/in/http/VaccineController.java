@@ -1,18 +1,19 @@
 package com.petmanagement.health.infrastructure.adapter.in.http;
 
 import com.petmanagement.health.application.port.in.CreateVaccineUseCase;
+import com.petmanagement.health.application.port.in.GetVaccineHistoryUseCase;
 import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.CreateVaccineRequest;
+import com.petmanagement.health.infrastructure.adapter.in.http.dto.response.VaccineResponse;
 import com.petmanagement.health.infrastructure.adapter.in.http.mapper.VaccineHttpMapper;
+import com.petmanagement.shared.domain.model.PageResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(VaccineController.VACCINES)
@@ -24,13 +25,16 @@ class VaccineController {
 
     private final VaccineHttpMapper mapper;
     private final CreateVaccineUseCase createVaccineUseCase;
+    private final GetVaccineHistoryUseCase getVaccineHistoryUseCase;
 
     VaccineController(
             VaccineHttpMapper mapper,
-            CreateVaccineUseCase createVaccineUseCase
+            CreateVaccineUseCase createVaccineUseCase,
+            GetVaccineHistoryUseCase getVaccineHistoryUseCase
     ) {
         this.mapper = mapper;
         this.createVaccineUseCase = createVaccineUseCase;
+        this.getVaccineHistoryUseCase = getVaccineHistoryUseCase;
     }
 
     @PostMapping
@@ -44,6 +48,21 @@ class VaccineController {
         var location = URI.create(VACCINES);
 
         return ResponseEntity.created(location).build();
+    }
+
+    @GetMapping
+    ResponseEntity<PageResponse<VaccineResponse>> history(
+            @RequestParam UUID petId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        log.info("Getting vaccine history petId={} page={} size={}", petId, page, size);
+
+        var history = getVaccineHistoryUseCase.execute(mapper.toGetVaccineHistoryQuery(petId, page, size));
+
+        log.info("Vaccine history petId={} totalElements={}", petId, history.totalElements());
+
+        return ResponseEntity.ok().body(mapper.toVaccineHistoryResponse(history));
     }
 
 }
