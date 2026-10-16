@@ -48,3 +48,7 @@ Content-Type: application/json
   "drugDose": "",
   "nextDueDate": ""
 }
+
+### Get deworming history
+GET {{host}}/api/health/dewormings?petId={{petId}}&page=0&size=10
+Authorization: Bearer {{token}}
