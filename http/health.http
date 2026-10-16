@@ -35,3 +35,16 @@ Content-Type: application/json
   "vaccineId": "",
   "nextDueDate": ""
 }
+
+### Create deworming
+POST {{host}}/api/health/dewormings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "petId": "",
+  "dewormingDate": "",
+  "drugName": "",
+  "drugDose": "",
+  "nextDueDate": ""
+}
