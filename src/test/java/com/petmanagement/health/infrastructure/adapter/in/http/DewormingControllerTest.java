@@ -1,25 +1,33 @@
 package com.petmanagement.health.infrastructure.adapter.in.http;
 
 import com.petmanagement.health.application.port.in.CreateDewormingUseCase;
+import com.petmanagement.health.application.port.in.GetDewormingHistoryUseCase;
 import com.petmanagement.health.domain.exception.PetNotFoundException;
+import com.petmanagement.health.domain.model.valueobject.PetId;
 import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.CreateDewormingRequest;
 import com.petmanagement.health.infrastructure.adapter.in.http.mapper.DewormingHttpMapper;
 import com.petmanagement.health.support.TestCommonMother;
 import com.petmanagement.health.support.TestDewormingMother;
 import com.petmanagement.health.support.TestPetIdMother;
+import com.petmanagement.shared.domain.model.PageRequest;
+import com.petmanagement.shared.domain.model.PageResponse;
 import com.petmanagement.support.ControllerTestSupport;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.petmanagement.health.support.DewormingTestBuilder.CreateDewormingCommandBuilder.aCreateDewormingCommand;
+import static com.petmanagement.health.support.DewormingTestBuilder.aDeworming;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -33,6 +41,9 @@ class DewormingControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private CreateDewormingUseCase createDewormingUseCase;
+
+    @MockitoBean
+    private GetDewormingHistoryUseCase getDewormingHistoryUseCase;
 
     private static final String DEWORMINGS = DewormingController.DEWORMINGS;
 
@@ -138,6 +149,126 @@ class DewormingControllerTest extends ControllerTestSupport {
                     arguments("next due date is null", new CreateDewormingRequest(petId, date, drug, dose, null), "nextDueDate"),
                     arguments("next due date is in the past", new CreateDewormingRequest(petId, date, drug, dose, TestCommonMother.EARLY_DATE), "nextDueDate")
             );
+        }
+
+    }
+
+    @Nested
+    class History {
+
+        private static final PetId PET_ID = TestPetIdMother.EXISTING_PET_ID;
+
+        @Test
+        void shouldReturn200WithDewormingHistory() throws Exception {
+            // Given
+            var deworming = aDeworming().withPetId(PET_ID).build();
+            var query = new GetDewormingHistoryUseCase.GetDewormingHistoryQuery(PET_ID, PageRequest.of(0, 10));
+
+            given(getDewormingHistoryUseCase.execute(query))
+                    .willReturn(PageResponse.of(List.of(deworming), 0, 10, 1));
+
+            // When/Then
+            performAuthenticatedGet(DEWORMINGS + "?petId=" + PET_ID.value() + "&page=0&size=10")
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.content.length()").value(1))
+                    .andExpect(jsonPath("$.content[0].id").value(deworming.id().value().toString()))
+                    .andExpect(jsonPath("$.content[0].dewormingDate").value(deworming.dewormingDate().toString()))
+                    .andExpect(jsonPath("$.content[0].drugName").value(deworming.drugName().value()))
+                    .andExpect(jsonPath("$.content[0].drugDose").value(deworming.drugDose().value()))
+                    .andExpect(jsonPath("$.content[0].nextDueDate").value(deworming.nextDueDate().value().toString()))
+                    .andExpect(jsonPath("$.page").value(0))
+                    .andExpect(jsonPath("$.size").value(10))
+                    .andExpect(jsonPath("$.totalElements").value(1))
+                    .andExpect(jsonPath("$.totalPages").value(1));
+
+            verify(getDewormingHistoryUseCase).execute(query);
+        }
+
+        @Test
+        void shouldUseDefaultPaginationWhenNotProvided() throws Exception {
+            // Given
+            var query = new GetDewormingHistoryUseCase.GetDewormingHistoryQuery(PET_ID, PageRequest.of(0, 10));
+
+            given(getDewormingHistoryUseCase.execute(query))
+                    .willReturn(PageResponse.empty(0, 10));
+
+            // When/Then
+            performAuthenticatedGet(DEWORMINGS + "?petId=" + PET_ID.value())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content.length()").value(0))
+                    .andExpect(jsonPath("$.totalElements").value(0))
+                    .andExpect(jsonPath("$.totalPages").value(0));
+
+            verify(getDewormingHistoryUseCase).execute(query);
+        }
+
+        @Test
+        void shouldUseProvidedPaginationParams() throws Exception {
+            // Given
+            var query = new GetDewormingHistoryUseCase.GetDewormingHistoryQuery(PET_ID, PageRequest.of(2, 5));
+
+            given(getDewormingHistoryUseCase.execute(query))
+                    .willReturn(PageResponse.of(List.of(), 2, 5, 11));
+
+            // When/Then
+            performAuthenticatedGet(DEWORMINGS + "?petId=" + PET_ID.value() + "&page=2&size=5")
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.page").value(2))
+                    .andExpect(jsonPath("$.size").value(5))
+                    .andExpect(jsonPath("$.totalPages").value(3));
+
+            verify(getDewormingHistoryUseCase).execute(query);
+        }
+
+        @Test
+        void shouldReturn400WhenPetIdIsMissing() throws Exception {
+            // When/Then
+            performAuthenticatedGet(DEWORMINGS)
+                    .andExpect(status().isBadRequest());
+
+            verifyNoInteractions(getDewormingHistoryUseCase);
+        }
+
+        @Test
+        void shouldReturn400WhenPetIdIsNotAUuid() throws Exception {
+            // When/Then
+            performAuthenticatedGet(DEWORMINGS + "?petId=not-a-uuid")
+                    .andExpect(status().isBadRequest());
+
+            verifyNoInteractions(getDewormingHistoryUseCase);
+        }
+
+        @ParameterizedTest(name = "page={0}, size={1}")
+        @CsvSource({"-1, 10", "0, 0", "0, -5"})
+        void shouldReturn400WhenPaginationIsInvalid(int page, int size) throws Exception {
+            // When/Then
+            performAuthenticatedGet(DEWORMINGS + "?petId=" + PET_ID.value() + "&page=" + page + "&size=" + size)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+
+            verifyNoInteractions(getDewormingHistoryUseCase);
+        }
+
+        @Test
+        void shouldReturn404WhenPetDoesNotExist() throws Exception {
+            // Given
+            given(getDewormingHistoryUseCase.execute(any()))
+                    .willThrow(new PetNotFoundException());
+
+            // When/Then
+            performAuthenticatedGet(DEWORMINGS + "?petId=" + PET_ID.value())
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").value("PET_NOT_FOUND"));
+        }
+
+        @Test
+        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
+            // When/Then
+            performGet(DEWORMINGS + "?petId=" + PET_ID.value())
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(getDewormingHistoryUseCase);
         }
 
     }
