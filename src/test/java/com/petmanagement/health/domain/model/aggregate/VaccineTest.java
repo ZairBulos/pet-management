@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -242,7 +241,7 @@ class VaccineTest {
         @Test
         void shouldReturnNewVaccineWithRescheduledNextDueDate() {
             var vaccine = VaccineTestBuilder.aVaccine().build();
-            var newNextDueDate = LocalDate.of(2028, 1, 1);
+            var newNextDueDate = TestCommonMother.FUTURE_DATE;
 
             var rescheduled = vaccine.rescheduled(newNextDueDate);
 
@@ -253,7 +252,7 @@ class VaccineTest {
         void shouldKeepIdentityAndOtherFieldsWhenRescheduling() {
             var vaccine = VaccineTestBuilder.aVaccine().build();
 
-            var rescheduled = vaccine.rescheduled(LocalDate.of(2028, 1, 1));
+            var rescheduled = vaccine.rescheduled(TestCommonMother.FUTURE_DATE);
 
             assertEquals(vaccine.id(), rescheduled.id());
             assertEquals(vaccine.petId(), rescheduled.petId());
@@ -266,7 +265,7 @@ class VaccineTest {
         void shouldPublishVaccineRescheduledEvent() {
             var vaccine = VaccineTestBuilder.aVaccine().build();
 
-            var rescheduled = vaccine.rescheduled(LocalDate.of(2028, 1, 1));
+            var rescheduled = vaccine.rescheduled(TestCommonMother.FUTURE_DATE);
             var events = rescheduled.pullEvents();
 
             assertEquals(1, events.size());
@@ -317,11 +316,11 @@ class VaccineTest {
         @Test
         void shouldReturnDaysRemainingUntilNextDueDate() {
             var vaccine = VaccineTestBuilder.aVaccine()
-                    .withVaccinationDate(TestCommonMother.EARLY_DATE)
+                    .withVaccinationDate(TestVaccineMother.VACCINE_VACCINATION_DATE)
                     .withNextDueDate(TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR)
                     .build();
 
-            var today = LocalDate.of(2027, 1, 1);
+            var today = TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR.value().minusDays(243);
 
             var daysRemaining = vaccine.daysRemaining(today);
 
@@ -342,7 +341,7 @@ class VaccineTest {
         @Test
         void shouldReturnNegativeDaysWhenNextDueDateHasPassed() {
             var vaccine = VaccineTestBuilder.aVaccine()
-                    .withVaccinationDate(TestCommonMother.EARLY_DATE)
+                    .withVaccinationDate(TestVaccineMother.VACCINE_VACCINATION_DATE)
                     .withNextDueDate(TestVaccineMother.NEXT_DUE_DATE_ONE_YEAR)
                     .build();
 

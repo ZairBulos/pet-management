@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -367,7 +366,7 @@ class DewormingTest {
                     .withNextDueDate(TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS)
                     .build();
 
-            var today = LocalDate.of(2026, 4, 15);
+            var today = TestDewormingMother.NEXT_DUE_DATE_THREE_MONTHS.value().minusDays(61);
 
             var daysRemaining = deworming.daysRemaining(today);
 

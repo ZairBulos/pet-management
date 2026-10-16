@@ -8,11 +8,12 @@ public final class TestCommonMother {
 
     // === Dates ===
 
-    public static final LocalDate EARLY_DATE = LocalDate.of(2026, 1, 10);
-    public static final LocalDate MIDDLE_DATE = LocalDate.of(2026, 3, 10);
-    public static final LocalDate RECENT_DATE = LocalDate.of(2026, 4, 5);
-    public static final LocalDate UPDATE_DATE = LocalDate.of(2026, 4, 10);
-    public static final LocalDate FUTURE_DATE = LocalDate.of(2026, 12, 31);
+    private static final LocalDate TODAY = LocalDate.now();
+
+    public static final LocalDate EARLY_DATE = LocalDate.of(TODAY.getYear() - 1, 1, 10);
+    public static final LocalDate MIDDLE_DATE = LocalDate.of(TODAY.getYear() - 1, 7, 1);
+    public static final LocalDate RECENT_DATE = TODAY.minusDays(7);
+    public static final LocalDate FUTURE_DATE = TODAY.plusYears(1);
 
     // === Page Requests ===
 

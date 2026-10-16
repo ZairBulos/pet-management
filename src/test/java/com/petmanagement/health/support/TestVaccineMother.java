@@ -18,18 +18,20 @@ public final class TestVaccineMother {
             VaccineId.of("d6c47c3c-cab9-49d2-aeef-b3a58a85ab8d");
 
     // === Vaccine Names ===
+
     public static final VaccineName VACCINE_NAME_RABIES = new VaccineName("Rabies");
     public static final VaccineName VACCINE_NAME_DISTEMPER = new VaccineName("Distemper");
     public static final VaccineName VACCINE_NAME_FVRCP = new VaccineName("FVRCP");
     public static final VaccineName VACCINE_NAME_DHPP = new VaccineName("DHPP");
 
     // === Next Due Dates ===
+
     public static final LocalDate VACCINE_VACCINATION_DATE =
-            LocalDate.of(2026, 9, 1);
+            TestCommonMother.RECENT_DATE;
     public static final NextDueDate NEXT_DUE_DATE_THREE_MONTHS =
-            new NextDueDate(LocalDate.of(2026, 12, 1));
+            new NextDueDate(VACCINE_VACCINATION_DATE.plusMonths(3));
     public static final NextDueDate NEXT_DUE_DATE_ONE_YEAR =
-            new NextDueDate(LocalDate.of(2027, 9, 1));
+            new NextDueDate(VACCINE_VACCINATION_DATE.plusYears(1));
 
     private TestVaccineMother() {
     }

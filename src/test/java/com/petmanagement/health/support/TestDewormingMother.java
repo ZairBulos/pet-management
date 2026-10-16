@@ -32,12 +32,13 @@ public final class TestDewormingMother {
     public static final DrugDose DRUG_DOSE_SPOT_ON = new DrugDose("1 pipette spot-on");
 
     // === Next Due Dates ===
+
     public static final LocalDate DEWORMING_DATE =
-            LocalDate.of(2026, 3, 15);
+            TestCommonMother.RECENT_DATE;
     public static final NextDueDate NEXT_DUE_DATE_THREE_MONTHS =
-            new NextDueDate(LocalDate.of(2026, 6, 15));
+            new NextDueDate(DEWORMING_DATE.plusMonths(3));
     public static final NextDueDate NEXT_DUE_DATE_SIX_MONTHS =
-            new NextDueDate(LocalDate.of(2026, 9, 15));
+            new NextDueDate(DEWORMING_DATE.plusMonths(6));
 
     private TestDewormingMother() {
     }
