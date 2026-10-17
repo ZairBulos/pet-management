@@ -2,9 +2,14 @@ package com.petmanagement.health.infrastructure.adapter.in.http;
 
 import com.petmanagement.health.application.port.in.CreateDewormingUseCase;
 import com.petmanagement.health.application.port.in.GetDewormingHistoryUseCase;
+import com.petmanagement.health.application.port.in.RescheduleDewormingUseCase;
+import com.petmanagement.health.domain.exception.DewormingNotFoundException;
 import com.petmanagement.health.domain.exception.PetNotFoundException;
+import com.petmanagement.health.domain.model.valueobject.DewormingId;
+import com.petmanagement.health.domain.model.valueobject.NextDueDate;
 import com.petmanagement.health.domain.model.valueobject.PetId;
 import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.CreateDewormingRequest;
+import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.RescheduleDewormingRequest;
 import com.petmanagement.health.infrastructure.adapter.in.http.mapper.DewormingHttpMapper;
 import com.petmanagement.health.support.TestCommonMother;
 import com.petmanagement.health.support.TestDewormingMother;
@@ -23,10 +28,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static com.petmanagement.health.support.DewormingTestBuilder.CreateDewormingCommandBuilder.aCreateDewormingCommand;
+import static com.petmanagement.health.support.DewormingTestBuilder.RescheduleDewormingCommandBuilder.aRescheduleDewormingCommand;
 import static com.petmanagement.health.support.DewormingTestBuilder.aDeworming;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,6 +51,9 @@ class DewormingControllerTest extends ControllerTestSupport {
 
     @MockitoBean
     private GetDewormingHistoryUseCase getDewormingHistoryUseCase;
+
+    @MockitoBean
+    private RescheduleDewormingUseCase rescheduleDewormingUseCase;
 
     private static final String DEWORMINGS = DewormingController.DEWORMINGS;
 
@@ -269,6 +279,112 @@ class DewormingControllerTest extends ControllerTestSupport {
                     .andExpect(status().isUnauthorized());
 
             verifyNoInteractions(getDewormingHistoryUseCase);
+        }
+
+    }
+
+    @Nested
+    class Reschedule {
+
+        private static final LocalDate NEW_DUE_DATE = LocalDate.now().plusMonths(3);
+
+        @Test
+        void shouldReturn200WithRescheduledDeworming() throws Exception {
+            // Given
+            var deworming = aDeworming().build();
+            var command = aRescheduleDewormingCommand()
+                    .withId(deworming.id())
+                    .withNextDueDate(NEW_DUE_DATE)
+                    .build();
+            var rescheduled = aDeworming()
+                    .withNextDueDate(new NextDueDate(NEW_DUE_DATE))
+                    .build();
+
+            given(rescheduleDewormingUseCase.execute(command))
+                    .willReturn(rescheduled);
+
+            // When/Then
+            performAuthenticatedPatch(DEWORMINGS, toRequest(command))
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.id").value(rescheduled.id().value().toString()))
+                    .andExpect(jsonPath("$.drugName").value(rescheduled.drugName().value()))
+                    .andExpect(jsonPath("$.drugDose").value(rescheduled.drugDose().value()))
+                    .andExpect(jsonPath("$.nextDueDate").value(NEW_DUE_DATE.toString()));
+
+            verify(rescheduleDewormingUseCase).execute(command);
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("invalidRequests")
+        void shouldReturn400WhenFieldIsInvalid(
+                String description, RescheduleDewormingRequest request, String field
+        ) throws Exception {
+            // When/Then
+            performAuthenticatedPatch(DEWORMINGS, request)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+
+            verifyNoInteractions(rescheduleDewormingUseCase);
+        }
+
+        @Test
+        void shouldReturn400WhenNextDueDateIsNotAfterDewormingDate() throws Exception {
+            // Given
+            var request = new RescheduleDewormingRequest(DewormingId.generate().value(), NEW_DUE_DATE);
+
+            given(rescheduleDewormingUseCase.execute(any()))
+                    .willThrow(new IllegalArgumentException("Next due date must be after base date"));
+
+            // When/Then
+            performAuthenticatedPatch(DEWORMINGS, request)
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
+        }
+
+        @Test
+        void shouldReturn404WhenDewormingDoesNotExist() throws Exception {
+            // Given
+            var request = new RescheduleDewormingRequest(
+                    TestDewormingMother.NON_EXISTENT_DEWORMING_ID.value(),
+                    NEW_DUE_DATE
+            );
+
+            given(rescheduleDewormingUseCase.execute(any()))
+                    .willThrow(new DewormingNotFoundException());
+
+            // When/Then
+            performAuthenticatedPatch(DEWORMINGS, request)
+                    .andExpect(status().isNotFound())
+                    .andExpect(jsonPath("$.error").value("DEWORMING_NOT_FOUND"));
+        }
+
+        @Test
+        void shouldReturn401WhenNoAuthenticationIsProvided() throws Exception {
+            // Given
+            var request = new RescheduleDewormingRequest(DewormingId.generate().value(), NEW_DUE_DATE);
+
+            // When/Then
+            performPatch(DEWORMINGS, request)
+                    .andExpect(status().isUnauthorized());
+
+            verifyNoInteractions(rescheduleDewormingUseCase);
+        }
+
+        // === Helpers ===
+
+        private RescheduleDewormingRequest toRequest(RescheduleDewormingUseCase.RescheduleDewormingCommand command) {
+            return new RescheduleDewormingRequest(command.dewormingId().value(), command.nextDueDate());
+        }
+
+        static Stream<Arguments> invalidRequests() {
+            var dewormingId = TestDewormingMother.DEFAULT_DEWORMING_ID.value();
+
+            return Stream.of(
+                    arguments("deworming id is null", new RescheduleDewormingRequest(null, NEW_DUE_DATE), "dewormingId"),
+                    arguments("next due date is null", new RescheduleDewormingRequest(dewormingId, null), "nextDueDate"),
+                    arguments("next due date is in the past", new RescheduleDewormingRequest(dewormingId, LocalDate.now().minusDays(1)), "nextDueDate")
+            );
         }
 
     }
