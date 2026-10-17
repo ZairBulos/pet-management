@@ -26,6 +26,10 @@ Content-Type: application/json
   "nextDueDate": ""
 }
 
+### Get vaccine history
+GET {{host}}/api/health/vaccines?petId={{petId}}&page=0&size=10
+Authorization: Bearer {{token}}
+
 ### Reschedule vaccine
 PATCH {{host}}/api/health/vaccines
 Authorization: Bearer {{token}}
@@ -52,3 +56,13 @@ Content-Type: application/json
 ### Get deworming history
 GET {{host}}/api/health/dewormings?petId={{petId}}&page=0&size=10
 Authorization: Bearer {{token}}
+
+### Reschedule deworming
+PATCH {{host}}/api/health/dewormings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "dewormingId": "",
+  "nextDueDate": ""
+}
