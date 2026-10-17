@@ -1,5 +1,6 @@
 package com.petmanagement.health.infrastructure.adapter.in.http;
 
+import com.petmanagement.health.domain.exception.DewormingNotFoundException;
 import com.petmanagement.health.domain.exception.PetNotFoundException;
 import com.petmanagement.shared.domain.model.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +33,19 @@ class DewormingExceptionHandler {
     ) {
         return ErrorResponse.of(
                 "PET_NOT_FOUND",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(DewormingNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ErrorResponse handleDewormingNotFound(
+            DewormingNotFoundException ex,
+            HttpServletRequest request
+    ) {
+        return ErrorResponse.of(
+                "DEWORMING_NOT_FOUND",
                 ex.getMessage(),
                 request.getRequestURI()
         );

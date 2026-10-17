@@ -2,12 +2,11 @@ package com.petmanagement.health.infrastructure.adapter.in.http.mapper;
 
 import com.petmanagement.health.application.port.in.CreateDewormingUseCase;
 import com.petmanagement.health.application.port.in.GetDewormingHistoryUseCase;
+import com.petmanagement.health.application.port.in.RescheduleDewormingUseCase;
 import com.petmanagement.health.domain.model.aggregate.Deworming;
-import com.petmanagement.health.domain.model.valueobject.DrugDose;
-import com.petmanagement.health.domain.model.valueobject.DrugName;
-import com.petmanagement.health.domain.model.valueobject.NextDueDate;
-import com.petmanagement.health.domain.model.valueobject.PetId;
+import com.petmanagement.health.domain.model.valueobject.*;
 import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.CreateDewormingRequest;
+import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.RescheduleDewormingRequest;
 import com.petmanagement.health.infrastructure.adapter.in.http.dto.response.DewormingResponse;
 import com.petmanagement.shared.domain.model.PageRequest;
 import com.petmanagement.shared.domain.model.PageResponse;
@@ -34,6 +33,15 @@ public class DewormingHttpMapper {
         return new GetDewormingHistoryUseCase.GetDewormingHistoryQuery(
                 PetId.of(petId),
                 PageRequest.of(page, size)
+        );
+    }
+
+    public RescheduleDewormingUseCase.RescheduleDewormingCommand toRescheduleDewormingCommand(
+            RescheduleDewormingRequest request
+    ) {
+        return new RescheduleDewormingUseCase.RescheduleDewormingCommand(
+                DewormingId.of(request.dewormingId()),
+                request.nextDueDate()
         );
     }
 

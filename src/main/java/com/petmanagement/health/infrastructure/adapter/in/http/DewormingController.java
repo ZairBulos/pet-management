@@ -2,7 +2,9 @@ package com.petmanagement.health.infrastructure.adapter.in.http;
 
 import com.petmanagement.health.application.port.in.CreateDewormingUseCase;
 import com.petmanagement.health.application.port.in.GetDewormingHistoryUseCase;
+import com.petmanagement.health.application.port.in.RescheduleDewormingUseCase;
 import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.CreateDewormingRequest;
+import com.petmanagement.health.infrastructure.adapter.in.http.dto.request.RescheduleDewormingRequest;
 import com.petmanagement.health.infrastructure.adapter.in.http.dto.response.DewormingResponse;
 import com.petmanagement.health.infrastructure.adapter.in.http.mapper.DewormingHttpMapper;
 import com.petmanagement.shared.domain.model.PageResponse;
@@ -26,15 +28,18 @@ class DewormingController {
     private final DewormingHttpMapper mapper;
     private final CreateDewormingUseCase createDewormingUseCase;
     private final GetDewormingHistoryUseCase getDewormingHistoryUseCase;
+    private final RescheduleDewormingUseCase rescheduleDewormingUseCase;
 
     DewormingController(
             DewormingHttpMapper mapper,
             CreateDewormingUseCase createDewormingUseCase,
-            GetDewormingHistoryUseCase getDewormingHistoryUseCase
+            GetDewormingHistoryUseCase getDewormingHistoryUseCase,
+            RescheduleDewormingUseCase rescheduleDewormingUseCase
     ) {
         this.mapper = mapper;
         this.createDewormingUseCase = createDewormingUseCase;
         this.getDewormingHistoryUseCase = getDewormingHistoryUseCase;
+        this.rescheduleDewormingUseCase = rescheduleDewormingUseCase;
     }
 
     @PostMapping
@@ -63,6 +68,17 @@ class DewormingController {
         log.info("Deworming history petId={} totalElements={}", petId, history.totalElements());
 
         return ResponseEntity.ok().body(mapper.toDewormingHistoryResponse(history));
+    }
+
+    @PatchMapping
+    ResponseEntity<DewormingResponse> reschedule(@Valid @RequestBody RescheduleDewormingRequest request) {
+        log.info("Rescheduling deworming request={}", request);
+
+        var deworming = rescheduleDewormingUseCase.execute(mapper.toRescheduleDewormingCommand(request));
+
+        log.info("Deworming rescheduled id={}", deworming.id().value());
+
+        return ResponseEntity.ok().body(mapper.toDewormingResponse(deworming));
     }
 
 }
