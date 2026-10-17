@@ -1,0 +1,33 @@
+### Request authentication
+POST {{host}}/api/auth/request
+Content-Type: application/json
+
+{
+  "email": "chris.jones@example.com"
+}
+
+### Verify authentication
+POST {{host}}/api/auth/verify
+Content-Type: application/json
+
+{
+  "email": "chris.jones@example.com",
+  "code": ""
+}
+
+### Refresh session
+POST {{host}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": ""
+}
+
+### Revoke session
+POST {{host}}/api/auth/revoke
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "refreshToken": ""
+}

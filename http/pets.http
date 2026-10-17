@@ -1,0 +1,35 @@
+### Create
+POST {{host}}/api/pets
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Bellatrix",
+  "species": "Cat",
+  "breed": "European Shorthair",
+  "coat": "Orange-White",
+  "sex": "FEMALE",
+  "birthDate": "2023-01-01"
+}
+
+### Get by id
+GET {{host}}/api/pets/{{petId}}
+Authorization: Bearer {{token}}
+
+### Get by owner
+GET {{host}}/api/pets
+Authorization: Bearer {{token}}
+
+### Update
+PUT {{host}}/api/pets/{{petId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "",
+  "species": "",
+  "breed": "",
+  "coat": "",
+  "sex": "",
+  "birthDate": ""
+}

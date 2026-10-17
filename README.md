@@ -4,7 +4,8 @@ Aplicación para la gestión integral de la salud y el cuidado de mascotas.
 
 ## Objetivo
 
-Ofrecer una herramienta simple y confiable que reemplace la libreta sanitaria física, facilitando a los propietarios de mascotas:
+Ofrecer una herramienta simple y confiable que reemplace la libreta sanitaria física, facilitando a los propietarios de
+mascotas:
 
 - Mantener un historial clínico digital, ordenado y siempre disponible.
 - Reducir el riesgo de pérdida de información sanitaria relevante.
@@ -14,8 +15,7 @@ Ofrecer una herramienta simple y confiable que reemplace la libreta sanitaria f�
 
 Funcionalidades previstas para futuras versiones:
 
-- [ ] Digitalizar la libreta sanitaria actual.
+- [x] Digitalizar la libreta sanitaria actual.
 - [ ] Configurar recordatorios de próximas visitas.
 - [ ] Registrar urgencias veterinarias asistidas.
 - [ ] Registrar gastos asociados a la mascota.
-- [ ] Visualizar veterinarias cercanas en un mapa.

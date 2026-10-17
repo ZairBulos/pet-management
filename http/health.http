@@ -1,0 +1,68 @@
+### Create weight record
+POST {{host}}/api/health/weight-records
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "petId": "",
+  "weightDate": "",
+  "weight": 4.80
+}
+
+### Get weight history
+GET {{host}}/api/health/weight-records?petId={{petId}}&page=0&size=10
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Create vaccine
+POST {{host}}/api/health/vaccines
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "petId": "",
+  "vaccinationDate": "",
+  "vaccineName": "",
+  "nextDueDate": ""
+}
+
+### Get vaccine history
+GET {{host}}/api/health/vaccines?petId={{petId}}&page=0&size=10
+Authorization: Bearer {{token}}
+
+### Reschedule vaccine
+PATCH {{host}}/api/health/vaccines
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "vaccineId": "",
+  "nextDueDate": ""
+}
+
+### Create deworming
+POST {{host}}/api/health/dewormings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "petId": "",
+  "dewormingDate": "",
+  "drugName": "",
+  "drugDose": "",
+  "nextDueDate": ""
+}
+
+### Get deworming history
+GET {{host}}/api/health/dewormings?petId={{petId}}&page=0&size=10
+Authorization: Bearer {{token}}
+
+### Reschedule deworming
+PATCH {{host}}/api/health/dewormings
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "dewormingId": "",
+  "nextDueDate": ""
+}

@@ -1,0 +1,45 @@
+# Version control
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Build Output
+target/
+out/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Docker
+Dockerfile
+.dockerignore
+compose.yaml
+
+# Logs
+*.log
+logs/
+
+# Docs
+docs/
+*.md
+
+# OS / Temporary Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/pet_management_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+
+  docker:
+    compose:
+      enabled: true
+
+  security:
+    user:
+      name: ${SECURITY_USER_NAME:admin}
+      password: ${SECURITY_USER_PASSWORD:$2a$10$b1GhFVyhTNnuK7uG4bBEZeBRfKZjpOrIwOAOMc5olm92g0yT994GW}
+
+springdotenv:
+  enabled: true
+  filename: .env.dev
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+app:
+  security:
+    jwt:
+      secret: ${JWT_SECRET:wBTyIBPVvS7/VxFKNpy+OhYAIYzmq+GLPHVMEU7gOYQ=}
+      issuer: ${JWT_ISSUER:pet-management-dev}
+      audience: ${JWT_AUDIENCE:pet-management-api}
+      access-token-ttl: ${JWT_ACCESS_TOKEN_TTL:15m}
