@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:17-alpine
+    image: postgres:18.6-alpine
     container_name: pet-management-postgres
     environment:
       POSTGRES_DB: pet_management_db
@@ -9,7 +9,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - pet-management-postgres-data:/var/lib/postgresql/data
+      - pet-management-postgres-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d pet_management_db"]
       interval: 10s
