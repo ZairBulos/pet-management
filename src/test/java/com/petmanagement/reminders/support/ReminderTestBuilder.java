@@ -1,6 +1,7 @@
 package com.petmanagement.reminders.support;
 
 import com.petmanagement.reminders.application.port.in.CreateReminderUseCase;
+import com.petmanagement.reminders.application.port.in.RescheduleReminderUseCase;
 import com.petmanagement.reminders.domain.model.aggregate.Reminder;
 import com.petmanagement.reminders.domain.model.enums.SourceType;
 import com.petmanagement.reminders.domain.model.valueobject.*;
@@ -159,6 +160,69 @@ public final class ReminderTestBuilder {
                     dueDate
             );
         }
+    }
+
+    public static class RescheduleReminderCommandBuilder {
+
+        private UUID sourceId;
+        private SourceType sourceType;
+        private LocalDate dueDate;
+
+        private RescheduleReminderCommandBuilder() {
+            this.sourceId = TestReminderMother.EXISTING_VACCINE_ID.value();
+            this.sourceType = TestReminderMother.VACCINE_SOURCE_TYPE;
+            this.dueDate = TestReminderMother.DUE_DATE_SIX_MONTHS.value();
+        }
+
+        public static RescheduleReminderCommandBuilder aRescheduleReminderCommand() {
+            return new RescheduleReminderCommandBuilder();
+        }
+
+        public RescheduleReminderCommandBuilder vaccine() {
+            this.sourceId = TestReminderMother.EXISTING_VACCINE_ID.value();
+            this.sourceType = SourceType.VACCINE;
+            return this;
+        }
+
+        public RescheduleReminderCommandBuilder deworming() {
+            this.sourceId = TestReminderMother.EXISTING_DEWORMING_ID.value();
+            this.sourceType = SourceType.DEWORMING;
+            return this;
+        }
+
+        public RescheduleReminderCommandBuilder withSourceId(UUID sourceId) {
+            this.sourceId = sourceId;
+            return this;
+        }
+
+        public RescheduleReminderCommandBuilder withSourceId(SourceId sourceId) {
+            this.sourceId = sourceId.value();
+            return this;
+        }
+
+        public RescheduleReminderCommandBuilder withSourceType(SourceType sourceType) {
+            this.sourceType = sourceType;
+            return this;
+        }
+
+        public RescheduleReminderCommandBuilder withDueDate(LocalDate dueDate) {
+            this.dueDate = dueDate;
+            return this;
+        }
+
+        public RescheduleReminderCommandBuilder withDueDate(ReminderDueDate dueDate) {
+            this.dueDate = dueDate.value();
+            return this;
+        }
+
+        public RescheduleReminderUseCase.RescheduleReminderCommand build() {
+            return new RescheduleReminderUseCase.RescheduleReminderCommand(
+                    sourceId,
+                    sourceType,
+                    dueDate
+            );
+        }
+
     }
 
 }
