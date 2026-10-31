@@ -1,6 +1,6 @@
 package com.petmanagement.reminders.support;
 
-import com.petmanagement.reminders.domain.model.aggregate.ReminderNotification;
+import com.petmanagement.reminders.domain.model.entity.ReminderNotification;
 import com.petmanagement.reminders.domain.model.enums.NotificationStatus;
 import com.petmanagement.reminders.domain.model.valueobject.DaysBefore;
 import com.petmanagement.reminders.domain.model.valueobject.NotificationId;

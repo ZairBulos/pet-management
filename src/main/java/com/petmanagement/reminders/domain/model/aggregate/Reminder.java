@@ -1,6 +1,7 @@
 package com.petmanagement.reminders.domain.model.aggregate;
 
 import com.petmanagement.reminders.domain.exception.NotificationNotFoundException;
+import com.petmanagement.reminders.domain.model.entity.ReminderNotification;
 import com.petmanagement.reminders.domain.model.enums.SourceType;
 import com.petmanagement.reminders.domain.model.valueobject.*;
 import org.jmolecules.ddd.annotation.AggregateRoot;

@@ -1,4 +1,4 @@
-package com.petmanagement.reminders.domain.model.aggregate;
+package com.petmanagement.reminders.domain.model.entity;
 
 import com.petmanagement.reminders.domain.exception.InvalidNotificationStateException;
 import com.petmanagement.reminders.domain.model.enums.NotificationStatus;
@@ -45,7 +45,7 @@ public final class ReminderNotification {
 
     // === Factory ===
 
-    static ReminderNotification create(
+    public static ReminderNotification create(
             DaysBefore daysBefore,
             ReminderDueDate dueDate
     ) {
@@ -78,7 +78,7 @@ public final class ReminderNotification {
 
     // === Business Operations ===
 
-    void reschedule(ReminderDueDate newDueDate) {
+    public void reschedule(ReminderDueDate newDueDate) {
         Objects.requireNonNull(newDueDate, "Reminder due date cannot be null");
 
         if (isSent() || isFailed())
@@ -91,7 +91,7 @@ public final class ReminderNotification {
         this.lastError = null;
     }
 
-    void markSent() {
+    public void markSent() {
         requirePending("mark as sent");
 
         var now = Instant.now();
@@ -103,7 +103,7 @@ public final class ReminderNotification {
         this.lastError = null;
     }
 
-    void markFailed(String error, int maxAttempts) {
+    public void markFailed(String error, int maxAttempts) {
         requirePending("mark as failed");
 
         this.attempts++;
@@ -114,29 +114,29 @@ public final class ReminderNotification {
             this.status = NotificationStatus.FAILED;
     }
 
-    void markSkipped() {
+    public void markSkipped() {
         requirePending("skip");
 
         this.status = NotificationStatus.SKIPPED;
     }
 
-    boolean isOverdue(LocalDate today) {
+    public boolean isOverdue(LocalDate today) {
         return scheduledFor.isBefore(today);
     }
 
-    boolean isPending() {
+    public boolean isPending() {
         return status == NotificationStatus.PENDING;
     }
 
-    boolean isSent() {
+    public boolean isSent() {
         return status == NotificationStatus.SENT;
     }
 
-    boolean isFailed() {
+    public boolean isFailed() {
         return status == NotificationStatus.FAILED;
     }
 
-    boolean isSkipped() {
+    public boolean isSkipped() {
         return status == NotificationStatus.SKIPPED;
     }
 

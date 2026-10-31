@@ -2,6 +2,7 @@ package com.petmanagement.reminders.domain.model.aggregate;
 
 import com.petmanagement.reminders.domain.exception.InvalidNotificationStateException;
 import com.petmanagement.reminders.domain.exception.NotificationNotFoundException;
+import com.petmanagement.reminders.domain.model.entity.ReminderNotification;
 import com.petmanagement.reminders.domain.model.enums.NotificationStatus;
 import com.petmanagement.reminders.domain.model.valueobject.DaysBefore;
 import com.petmanagement.reminders.domain.model.valueobject.ReminderId;
