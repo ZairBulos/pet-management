@@ -6,6 +6,7 @@ import com.petmanagement.reminders.domain.exception.ReminderNotFoundException;
 import com.petmanagement.reminders.domain.model.valueobject.ReminderDueDate;
 import com.petmanagement.reminders.domain.model.valueobject.SourceId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 class RescheduleReminderService implements RescheduleReminderUseCase {
@@ -17,6 +18,7 @@ class RescheduleReminderService implements RescheduleReminderUseCase {
     }
 
     @Override
+    @Transactional
     public void execute(RescheduleReminderCommand command) {
         var sourceId = SourceId.of(command.sourceId());
 
