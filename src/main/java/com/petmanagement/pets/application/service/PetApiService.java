@@ -6,6 +6,7 @@ import com.petmanagement.pets.domain.model.valueobject.PetId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,9 +21,15 @@ class PetApiService implements PetApi {
     @Override
     @Transactional(readOnly = true)
     public boolean existsById(UUID petId) {
-        return repository
-                .findById(PetId.of(petId))
+        return repository.findById(PetId.of(petId))
                 .isPresent();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<PetInfo> getInfoById(UUID petId) {
+        return repository.findById(PetId.of(petId))
+                .map(pet -> new PetInfo(pet.getName().value(), pet.getOwnerId().value()));
     }
 
 }
