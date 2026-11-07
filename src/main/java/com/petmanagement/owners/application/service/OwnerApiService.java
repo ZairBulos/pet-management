@@ -3,6 +3,7 @@ package com.petmanagement.owners.application.service;
 import com.petmanagement.owners.api.OwnerApi;
 import com.petmanagement.owners.application.port.out.OwnerRepositoryPort;
 import com.petmanagement.owners.domain.model.valueobject.Email;
+import com.petmanagement.owners.domain.model.valueobject.OwnerId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,17 +22,24 @@ class OwnerApiService implements OwnerApi {
     @Override
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
-        return repository
-                .findByEmail(new Email(email))
+        return repository.findByEmail(new Email(email))
                 .isPresent();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Optional<UUID> getOwnerIdByEmail(String email) {
-        return repository
-                .findByEmail(new Email(email))
+        return repository.findByEmail(new Email(email))
                 .map(owner -> owner.getId().value());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<OwnerContact> getContactById(UUID ownerId) {
+        return repository.findById(OwnerId.of(ownerId))
+                .map(owner ->
+                        new OwnerContact(owner.getName().value(), owner.getEmail().value(), owner.getPhone().value())
+                );
     }
 
 }
