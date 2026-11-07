@@ -6,6 +6,11 @@ spring:
   flyway:
     clean-disabled: true
 
+  security:
+    user:
+      name: test-name
+      password: test-password
+
 app:
   security:
     jwt:
