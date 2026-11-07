@@ -134,6 +134,7 @@ class ArchUnitTest {
     static final ArchRule domain_events_must_be_annotated =
             classes().that().resideInAPackage("..domain.event..")
                     .and().areTopLevelClasses()
+                    .and().doNotHaveSimpleName("package-info")
                     .should().beAnnotatedWith(DomainEvent.class)
                     .allowEmptyShould(true)
                     .because("All domain events must be annotated with @DomainEvent");
@@ -142,6 +143,7 @@ class ArchUnitTest {
     static final ArchRule domain_events_must_implements_domain_event_interface =
             classes().that().resideInAPackage("..domain.event..")
                     .and().areTopLevelClasses()
+                    .and().doNotHaveSimpleName("package-info")
                     .should().implement(org.jmolecules.event.types.DomainEvent.class)
                     .allowEmptyShould(true)
                     .because("All domain events must implement DomainEvent interface");
