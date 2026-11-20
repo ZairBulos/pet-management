@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.2</version>
+        <version>4.2.0</version>
         <relativePath/>
     </parent>
 
@@ -31,13 +31,13 @@
         <java.version>25</java.version>
 
         <!-- Spring modulith -->
-        <spring-modulith.version>2.1.2</spring-modulith.version>
+        <spring-modulith.version>2.2.0</spring-modulith.version>
 
         <!-- Environment configuration -->
         <spring-dotenv.version>5.1.0</spring-dotenv.version>
 
         <!-- Java JWT -->
-        <java-jwt.version>4.6.1</java-jwt.version>
+        <java-jwt.version>4.6.2</java-jwt.version>
 
         <!-- Architecture -->
         <jmolecules.version>2025.0.2</jmolecules.version>
